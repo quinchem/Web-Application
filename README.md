@@ -1,59 +1,38 @@
-<h1 align="center">🌍 Global Economic & Political News Website</h1>
-
-<p align="center">
-  A modern web platform for global economic & political insights
-</p>
-
+<h1 align="center"> PHÁT TRIỂN ỨNG DỤNG WEB - NHÓM 1 </h1>
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Developing-blue">
   <img src="https://img.shields.io/badge/Project-Web%20Application-green">
   <img src="https://img.shields.io/badge/Language-PHP-orange">
 </p>
 
----
 
-<h2 align="center">📌 About The Project</h2>
 
-<p align="center">
-Website này được xây dựng nhằm cung cấp <b>tin tức kinh tế và chính trị trên toàn thế giới</b>,  
-giúp người dùng dễ dàng cập nhật thông tin mới nhất một cách nhanh chóng và trực quan.
-</p>
+<h2> About The Project</h2>
 
-<p align="center">
+Website này được xây dựng nhằm cung cấp **tin tức kinh tế và chính trị trên toàn thế giới**, giúp người dùng dễ dàng cập nhật thông tin mới nhất một cách nhanh chóng và trực quan.
+
 Hệ thống hướng đến:
-</p>
+- Trải nghiệm đọc tin mượt mà  
+- Nội dung được phân loại rõ ràng  
+- Khả năng tương tác thông qua bình luận  
 
-<p align="center">
-- Trải nghiệm đọc tin mượt mà <br>
-- Nội dung được phân loại rõ ràng <br>
-- Khả năng tương tác thông qua bình luận
-</p>
 
----
 
-<h2 align="center">👥 Team Members</h2>
-
-<p align="center">
+<h2> Team Members</h2>
 
 | Name | GitHub |
 |------|--------|
-| Lâm Quỳnh Giang | (update later) |
-| Lê Đoan Thy | (update later) |
-| Nguyễn Quỳnh Trâm | (update later) |
+| Lâm Quỳnh Giang | [lamzangzzzzz@gmail.com](https://github.com/lamzangzzzzz) |
+| Lê Đoan Thy | [ledoanthy-love](https://github.com/ledoanthy-love) |
+| Nguyễn Quỳnh Trâm | [quinchem](https://github.com/quinchem) |
 | Hướng Ngọc Trâm | [huongngoctram](https://github.com/huongngoctram) |
 
-</p>
 
----
 
-<h2 align="center">🛠️ Tech Stack</h2>
-
-<p align="center">
+<h2> Tech Stacks </h2>
 
 | Layer | Technology |
 |------|-----------|
 | Frontend | HTML, CSS, Bootstrap, JavaScript |
 | Backend | PHP |
 | Database | MySQL |
-
-</p>
