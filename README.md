@@ -1,7 +1,7 @@
-# Global Economic & Political News Website  
+<h1 align="center">🌍 Global Economic & Political News Website</h1>
 
 <p align="center">
-  A modern web platform for global economic & political insights  
+  A modern web platform for global economic & political insights
 </p>
 
 <p align="center">
@@ -12,18 +12,28 @@
 
 ---
 
-## About The Project  
+<h2 align="center">📌 About The Project</h2>
 
-Website này được xây dựng nhằm cung cấp **tin tức kinh tế và chính trị trên toàn thế giới**, giúp người dùng dễ dàng cập nhật thông tin mới nhất một cách nhanh chóng và trực quan.
+<p align="center">
+Website này được xây dựng nhằm cung cấp <b>tin tức kinh tế và chính trị trên toàn thế giới</b>,  
+giúp người dùng dễ dàng cập nhật thông tin mới nhất một cách nhanh chóng và trực quan.
+</p>
 
+<p align="center">
 Hệ thống hướng đến:
-- Trải nghiệm đọc tin mượt mà  
-- Nội dung được phân loại rõ ràng  
-- Khả năng tương tác thông qua bình luận  
+</p>
+
+<p align="center">
+- Trải nghiệm đọc tin mượt mà <br>
+- Nội dung được phân loại rõ ràng <br>
+- Khả năng tương tác thông qua bình luận
+</p>
 
 ---
 
-## Team Members  
+<h2 align="center">👥 Team Members</h2>
+
+<p align="center">
 
 | Name | GitHub |
 |------|--------|
@@ -32,4 +42,18 @@ Hệ thống hướng đến:
 | Nguyễn Quỳnh Trâm | (update later) |
 | Hướng Ngọc Trâm | [huongngoctram](https://github.com/huongngoctram) |
 
+</p>
 
+---
+
+<h2 align="center">🛠️ Tech Stack</h2>
+
+<p align="center">
+
+| Layer | Technology |
+|------|-----------|
+| Frontend | HTML, CSS, Bootstrap, JavaScript |
+| Backend | PHP |
+| Database | MySQL |
+
+</p>
