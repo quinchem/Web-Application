@@ -8,7 +8,7 @@
 
 
 <h2> About The Project</h2>
-
+Website Tin tức Kinh tế & Chính trị Toàn cầu
 Website này được xây dựng nhằm cung cấp **tin tức kinh tế và chính trị trên toàn thế giới**, giúp người dùng dễ dàng cập nhật thông tin mới nhất một cách nhanh chóng và trực quan.
 
 Hệ thống hướng đến:
