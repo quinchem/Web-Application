@@ -9,7 +9,7 @@
 </p>
 
 <h2> About The Project</h2>
-Website này được xây dựng nhằm cung cấp **tin tức kinh tế và chính trị trên toàn thế giới**, giúp người dùng dễ dàng cập nhật thông tin mới nhất một cách nhanh chóng và trực quan.
+Website này được xây dựng nhằm cung cấp tin tức kinh tế và chính trị trên toàn thế giới, giúp người dùng dễ dàng cập nhật thông tin mới nhất một cách nhanh chóng và trực quan.
 
 Hệ thống hướng đến:
 - Trải nghiệm đọc tin mượt mà  
