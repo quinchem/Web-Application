@@ -22,9 +22,9 @@ Hệ thống hướng đến:
 
 | Name | GitHub |
 |------|--------|
+| Nguyễn Quỳnh Trâm (Nhóm trưởng) | [quinchem](https://github.com/quinchem) |
 | Lâm Quỳnh Giang | [lamzangzzzzz@gmail.com](https://github.com/lamzangzzzzz) |
 | Lê Đoan Thy | [ledoanthy-love](https://github.com/ledoanthy-love) |
-| Nguyễn Quỳnh Trâm | [quinchem](https://github.com/quinchem) |
 | Hướng Ngọc Trâm | [huongngoctram](https://github.com/huongngoctram) |
 
 
