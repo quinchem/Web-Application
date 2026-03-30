@@ -2,11 +2,6 @@
   <div> PHÁT TRIỂN ỨNG DỤNG WEB - NHÓM 1 </div>
   <div> WEBSITE TIN TỨC KINH TẾ & CHÍNH TRỊ TOÀN CẦU </div>
 </h1>
-<p align="center">
-  <img src="https://img.shields.io/badge/Status-Developing-blue">
-  <img src="https://img.shields.io/badge/Project-Web%20Application-green">
-  <img src="https://img.shields.io/badge/Language-PHP-orange">
-</p>
 
 <h2> About The Project</h2>
 Website này được xây dựng nhằm cung cấp tin tức kinh tế và chính trị trên toàn thế giới, giúp người dùng dễ dàng cập nhật thông tin mới nhất một cách nhanh chóng và trực quan.
