@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trạm Tin Việt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&family=Barlow:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Briem+Hand:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../../css/User/shared.css">
+  <link rel="stylesheet" href="../../css/User/Homepage.css">
+</head>
+<body>
+
+<header class="header-container">
+  <div class="container">
+    <div class="header-top">
+      <div class="header-meta">
+        <span><i class="fas fa-calendar-alt"></i> Thứ Hai, 20/05/2024</span>
+        <span><i class="fas fa-cloud-sun"></i> 30°C</span>
+      </div>
+      <a class="logo-text" href="Homepage.html">Trạm Tin Việt</a>
+      <div class="auth-links">
+        <a href="#">Đăng Ký</a>
+        <span class="auth-sep">|</span>
+        <a href="#">Đăng Nhập</a>
+      </div>
+    </div>
+    <nav class="nav-bar">
+      <ul class="menu-items">
+        <li><a href="#" class="active" href="Homepage.html">Trang Chủ</a></li>
+        <li><a href="#">Thời Sự</a></li>
+        <li><a href="#">Kinh Tế</a></li>
+        <li><a href="#">Tiện Ích</a></li>
+      </ul>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input class="search-input" type="text" placeholder="Tìm kiếm tin tức...">
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div id="page-home" class="page-view active">
+
+  <!-- Hero Banner Slider -->
+  <div class="container" style="padding-top:28px;">
+    <div class="hero-section" id="heroSlider">
+
+      <!-- Slide 1 -->
+      <div class="hero-slide active" data-index="0">
+        <div class="hero-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070');"></div>
+        <div class="hero-content">
+          <span class="badge-red">Tiêu Điểm Tuần Qua</span>
+          <h2 class="hero-title">Chiến lược kinh tế mới: Việt Nam hướng tới trung tâm công nghệ bán dẫn khu vực</h2>
+          <p class="hero-sapo">Các chuyên gia dự báo dòng vốn FDI sẽ tiếp tục đổ mạnh vào lĩnh vực công nghệ cao, mở ra chương mới cho tăng trưởng GDP bền vững trong thập kỷ tới.</p>
+          <a class="read-more" onclick="showArticle(0);return false;" href="#">Đọc toàn bộ bài viết &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="hero-slide" data-index="1">
+        <div class="hero-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=2070');"></div>
+        <div class="hero-content">
+          <span class="badge-red">Chính Trị</span>
+          <h2 class="hero-title">Đẩy mạnh cải cách hành chính hướng tới chính phủ số toàn diện</h2>
+          <p class="hero-sapo">Nghị quyết mới tập trung vào việc số hóa hoàn toàn các thủ tục hành chính cấp tỉnh và thành phố, giảm thiểu phiền hà cho người dân trong giai đoạn 2024–2030.</p>
+          <a class="read-more" onclick="showArticle(1);return false;" href="#">Đọc toàn bộ bài viết &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="hero-slide" data-index="2">
+        <div class="hero-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=2070');"></div>
+        <div class="hero-content">
+          <span class="badge-red">Kinh Tế</span>
+          <h2 class="hero-title">Dòng tiền thông minh đang chảy vào nhóm cổ phiếu ngân hàng</h2>
+          <p class="hero-sapo">Khối lượng giao dịch tăng đột biến tại các mã vốn hóa lớn giúp chỉ số ổn định và tạo đà bứt phá cho thị trường trong ngắn hạn.</p>
+          <a class="read-more" onclick="showArticle(2);return false;" href="#">Đọc toàn bộ bài viết &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Slide 4 -->
+      <div class="hero-slide" data-index="3">
+        <div class="hero-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?q=80&w=2070');"></div>
+        <div class="hero-content">
+          <span class="badge-red">Quân Sự</span>
+          <h2 class="hero-title">Tăng cường hợp tác quốc phòng đa phương bảo vệ chủ quyền</h2>
+          <p class="hero-sapo">Việt Nam cử đoàn đại biểu cấp cao tham gia diễn tập an ninh biển quốc tế, khẳng định cam kết bảo vệ chủ quyền biển đảo.</p>
+          <a class="read-more" onclick="showArticle(3);return false;" href="#">Đọc toàn bộ bài viết &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Slide 5 -->
+      <div class="hero-slide" data-index="4">
+        <div class="hero-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2070');"></div>
+        <div class="hero-content">
+          <span class="badge-red">Xã Hội</span>
+          <h2 class="hero-title">Chính sách an sinh xã hội mới cho công nhân khu công nghiệp</h2>
+          <p class="hero-sapo">Đảm bảo chỗ ở và dịch vụ y tế cho hàng nghìn lao động tại các vùng kinh tế trọng điểm, góp phần ổn định xã hội và tăng năng suất lao động.</p>
+          <a class="read-more" onclick="showArticle(4);return false;" href="#">Đọc toàn bộ bài viết &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Arrows -->
+      <button class="hero-arrow prev" onclick="slideHero(-1)"><i class="fas fa-chevron-left"></i></button>
+      <button class="hero-arrow next" onclick="slideHero(1)"><i class="fas fa-chevron-right"></i></button>
+
+      <!-- Dots -->
+      <div class="hero-dots">
+        <div class="dot active" onclick="goToSlide(0)"></div>
+        <div class="dot" onclick="goToSlide(1)"></div>
+        <div class="dot" onclick="goToSlide(2)"></div>
+        <div class="dot" onclick="goToSlide(3)"></div>
+        <div class="dot" onclick="goToSlide(4)"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Main News Content -->
+  <div class="container main-content">
+
+    <!-- THỜI SỰ Section -->
+    <div class="section-header">
+      <h2 class="section-title">Thời sự</h2>
+      <a href="#" class="view-more">XEM THÊM</a>
+    </div>
+
+    <div class="news-grid">
+      <!-- Featured left -->
+      <div class="featured-card" onclick="showArticle(1)">
+        <img src="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=800" alt="Họp quốc hội" loading="lazy" width="800" height="380">
+        <div class="cat-label">Chính Trị</div>
+        <h3 class="news-title">Đẩy mạnh cải cách hành chính hướng tới chính phủ số toàn diện</h3>
+        <p class="news-body">Nghị quyết mới tập trung vào việc số hóa hoàn toàn các thủ tục hành chính cấp tỉnh và thành phố, giảm thiểu phiền hà cho người dân trong giai đoạn 2024-2030.</p>
+        <p class="news-meta">1 giờ trước · Nguyễn Văn Nam</p>
+      </div>
+
+      <!-- Right stacked items -->
+      <div class="news-list">
+        <div class="news-item" onclick="showArticle(4)">
+          <div class="item-cat">Xã Hội</div>
+          <div class="item-title">Chính sách an sinh xã hội mới cho công nhân khu công nghiệp</div>
+          <div class="item-desc">Đảm bảo chỗ ở và dịch vụ y tế cho hàng nghìn lao động tại các vùng kinh tế trọng điểm.</div>
+          <div class="item-meta">4 giờ trước</div>
+        </div>
+        <div class="news-item" onclick="showArticle(3)">
+          <div class="item-cat">Quân Sự</div>
+          <div class="item-title">Tăng cường hợp tác quốc phòng đa phương bảo vệ chủ quyền</div>
+          <div class="item-desc">Việt Nam cử đoàn đại biểu cấp cao tham gia diễn tập an ninh biển quốc tế.</div>
+          <div class="item-meta">5 giờ trước</div>
+        </div>
+        <div class="news-item" onclick="showArticle(0)">
+          <div class="item-cat">Chính Trị</div>
+          <div class="item-title">Hội nghị ASEAN: Việt Nam khẳng định vai trò trung tâm điều phối</div>
+          <div class="item-desc">Đề xuất nhiều sáng kiến thúc đẩy kinh tế số và an ninh lương thực khu vực.</div>
+          <div class="item-meta">2 giờ trước</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KINH TẾ Section -->
+    <div class="section-header">
+      <h2 class="section-title">Kinh tế</h2>
+      <a href="#" class="view-more">XEM THÊM</a>
+    </div>
+
+    <div class="news-grid">
+      <!-- Featured left -->
+      <div class="featured-card" onclick="showArticle(2)">
+        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=800" alt="Thị trường chứng khoán" loading="lazy" width="800" height="380">
+        <div class="cat-label">Chứng Khoán</div>
+        <h3 class="news-title">Dòng tiền thông minh đang chảy vào nhóm cổ phiếu ngân hàng</h3>
+        <p class="news-body">Khối lượng giao dịch tăng đột biến tại các mã vốn hóa lớn giúp chỉ số ổn định và tạo đà bứt phá cho thị trường trong ngắn hạn.</p>
+        <p class="news-meta">2 giờ trước · Trần Thu Hằng</p>
+      </div>
+
+      <!-- Right stacked items -->
+      <div class="news-list">
+        <div class="news-item" onclick="showArticle(0)">
+          <div class="item-cat">Ngân Hàng</div>
+          <div class="item-title">Lãi suất huy động tiếp tục giảm: Cơ hội cho sản xuất</div>
+          <div class="item-desc">Nhiều ngân hàng thương mại điều chỉnh biểu lãi suất về mức thấp kỷ lục nhằm hỗ trợ doanh nghiệp.</div>
+          <div class="item-meta">4 giờ trước</div>
+        </div>
+        <div class="news-item" onclick="showArticle(0)">
+          <div class="item-cat">Doanh Nghiệp</div>
+          <div class="item-title">Các tập đoàn lớn công bố kế hoạch kinh doanh 2024</div>
+          <div class="item-desc">Ưu tiên chuyển đổi xanh và số hóa quy trình vận hành chuỗi cung ứng toàn cầu.</div>
+          <div class="item-meta">5 giờ trước</div>
+        </div>
+        <div class="news-item" onclick="showArticle(0)">
+          <div class="item-cat">Thị Trường</div>
+          <div class="item-title">Sức mua nội địa hồi phục mạnh mẽ cuối quý I</div>
+          <div class="item-desc">Ngành bán lẻ ghi nhận mức tăng trưởng hai con số so với cùng kỳ năm ngoái.</div>
+          <div class="item-meta">6 giờ trước</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end .main-content -->
+</div><!-- end #page-home -->
+
+<footer class="custom-footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4 mb-md-0">
+          <a class="footer-logo" href="Homepage.html" href="#">Trạm Tin Việt</a>
+          <p class="footer-desc">Kênh thông tin uy tín, chuyên sâu về Kinh tế, Chính trị và Xã hội. Cập nhật dòng chảy thông tin 24/7 với góc nhìn đa chiều và khách quan.</p>
+          <div class="footer-social">
+            <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4 mb-md-0">
+          <div class="footer-title">Liên Hệ</div>
+          <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>Địa chỉ: 123 Phố Huế, Hai Bà Trưng, Hà Nội</span></div>
+          <div class="footer-contact-item"><i class="fas fa-phone"></i><span>Điện thoại: 1900 1234</span></div>
+          <div class="footer-contact-item"><i class="fas fa-envelope"></i><span>Email: toa-soan@tramtinviet.vn</span></div>
+        </div>
+        <div class="col-md-4">
+          <div class="footer-title">Chính Sách</div>
+          <ul class="footer-links">
+            <li><a href="#">Điều khoản sử dụng</a></li>
+            <li><a href="#">Bảo mật dữ liệu</a></li>
+            <li><a href="#">Liên hệ quảng cáo</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom text-center">
+        © 2024 Trạm Tin Việt.
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../js/User/ArticleDetail.js"></script>
+  <script src="../../js/User/Homepage.js"></script>
+</body>
+</html>
