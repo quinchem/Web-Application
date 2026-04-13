@@ -63,13 +63,13 @@ select {
 }
 
 .logo {
-  font-family: "Briem Hand", cursive;
-  font-size: 27px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  margin-bottom: 42px;
-  white-space: nowrap;
-  line-height: 1;
+  font-family: 'Great Vibes', serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2rem;
+  color: var(--navy);
+  cursor: pointer;
+  text-decoration: none;
 }
 
 .sidebar-menu {
