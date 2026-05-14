@@ -1,0 +1,42 @@
+
+:root {
+  --navy: #003049;
+  --red: #B90C17;
+  --gray-bg: #f0f4f8;
+  --light-blue: #D8E6F0;
+  --text-main: #1a1c1e;
+  --text-muted: #5a7d9a;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #fff;
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* BỐ CỤC 2/3 NẰM GIỮA */
+.container {
+  max-width: 1140px; /* Độ rộng chuẩn để tạo cảm giác 2/3 màn hình desktop */
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* HEADER - Bố cục từ file header.html */
+.header-container { background-color: var(--navy); color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+.header-top { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.logo-text { font-family: 'Newsreader', serif; font-size: 2.2rem; font-weight: 800; color: white; text-decoration: none; font-style: italic; }
+.nav-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
+.menu-items { list-style: none; display: flex; gap: 35px; }
+.menu-items a { color: var(--light-blue); text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; transition: var(--transition); }
+.menu-items a:hover, .menu-items a.active { color: white;border-bottom: 2px solid white; }
+
+/* FOOTER - Bố cục từ file footer.html */
+.custom-footer { background-color: var(--light-blue); padding: 60px 0 30px; margin-top: 50px; border-top: 1px solid #c5d7e5; }
+.footer-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 50px; }
+.footer-title { font-weight: 700; color: var(--navy); text-transform: uppercase; margin-bottom: 20px; font-size: 1rem; border-bottom: 2px solid var(--navy); display: inline-block; padding-bottom: 5px; }
+.footer-contact-item { margin-bottom: 15px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+.footer-contact-item i { color: var(--red); width: 20px; }

@@ -92,4 +92,31 @@ class PostRepository
 
         return $this->conn->query($sql)->fetch()['total'];
     }
+
+    // Lấy bài viết tiêu điểm 
+    public function getHeroPost() {
+        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name 
+                FROM Post p 
+                JOIN Category c ON p.category_id = c.category_id 
+                JOIN User u ON p.user_id = u.user_id 
+                WHERE p.status = 'approved' AND p.is_trending = 1 
+                ORDER BY p.published_at DESC LIMIT 1";
+        return $this->conn->query($sql)->fetch();
+    }
+
+    // Lấy danh sách bài viết theo tên danh mục
+    public function getPostsByCategory($categoryName, $limit = 4) {
+        $sql = "SELECT p.*, u.full_name as author_name 
+                FROM Post p 
+                JOIN Category c ON p.category_id = c.category_id 
+                JOIN User u ON p.user_id = u.user_id 
+                WHERE c.name = :catName AND p.status = 'approved' 
+                ORDER BY p.published_at DESC LIMIT :limit";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':catName', $categoryName);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
 }

@@ -22,4 +22,15 @@ class PostController
 
         require_once __DIR__ . '/../Views/Admin/Post/Index.php';
     }
+
+    public function homepage() {
+        $repo = new PostRepository();
+        
+        // Lấy dữ liệu từ TiDB
+        $heroPost = $repo->getHeroPost();
+        $thoiSu = $repo->getPostsByCategory('Thời sự', 4);
+
+        // Gọi View trang chủ
+        require_once __DIR__ . '/../Views/Client/Home.php';
+    }
 }
