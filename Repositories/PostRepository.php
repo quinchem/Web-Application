@@ -113,7 +113,7 @@ class PostRepository
     /**
      * Lấy danh sách bài viết theo tên danh mục
      * 
-     * @param string $categoryName Tên danh mục
+     * @param string $parentCategoryName Tên danh mục cha (ví dụ: "Thời sự", "Kinh tế")
      * @param int $limit Số lượng bài viết cần lấy (mặc định: 4)
      * @return array Mảng bài viết đã được phê duyệt
      */
@@ -141,13 +141,6 @@ class PostRepository
     $stmt->execute();
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
-      // THÊM DÒNG NÀY ĐỂ KIỂM TRA
-    echo "Đang tìm danh mục: " . $categoryName . "<br>";
-    echo "Số lượng bài tìm thấy: " . count($result) . "<br>";
-    echo "<pre>"; print_r($result); echo "</pre>"; 
-    die("Dừng tại Repository để kiểm tra"); 
-
-    return $result;
 }
   
 
