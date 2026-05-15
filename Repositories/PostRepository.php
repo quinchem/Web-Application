@@ -93,7 +93,13 @@ class PostRepository
         return $this->conn->query($sql)->fetch()['total'];
     }
 
-    // Lấy bài viết tiêu điểm 
+    /**
+     * Lấy bài viết tiêu điểm/nổi bật (hero post)
+     * 
+     * Lấy bài viết trending (xu hướng) mới nhất để hiển thị ở hero banner
+     * 
+     * @return array Mảng dữ liệu bài viết hoặc false nếu không có
+     */
     public function getHeroPost() {
         $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name 
                 FROM Post p 
@@ -104,19 +110,93 @@ class PostRepository
         return $this->conn->query($sql)->fetch();
     }
 
-    // Lấy danh sách bài viết theo tên danh mục
-    public function getPostsByCategory($categoryName, $limit = 4) {
-        $sql = "SELECT p.*, u.full_name as author_name 
+    /**
+     * Lấy danh sách bài viết theo tên danh mục
+     * 
+     * @param string $categoryName Tên danh mục
+     * @param int $limit Số lượng bài viết cần lấy (mặc định: 4)
+     * @return array Mảng bài viết đã được phê duyệt
+     */
+    public function getPostsByParentCategory($parentCategoryName, $limit = 10)
+{
+    // Logic: 
+    // 1. Tìm ID của danh mục cha dựa trên tên (Thời sự/Kinh tế).
+    // 2. Tìm tất cả ID của danh mục con có parent_id bằng ID cha đó.
+    // 3. Lấy bài viết thuộc danh mục cha HOẶC nằm trong danh sách ID con.
+
+    $sql = "SELECT p.*, c.name as category_name 
+            FROM Post p 
+            JOIN Category c ON p.category_id = c.category_id 
+            WHERE p.status = 'approved' 
+            AND (
+                c.name = :parentName 
+                OR c.parent_id = (SELECT category_id FROM Category WHERE name = :parentName LIMIT 1)
+            )
+            ORDER BY p.published_at DESC 
+            LIMIT :limit";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':parentName', $parentCategoryName);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+      // THÊM DÒNG NÀY ĐỂ KIỂM TRA
+    echo "Đang tìm danh mục: " . $categoryName . "<br>";
+    echo "Số lượng bài tìm thấy: " . count($result) . "<br>";
+    echo "<pre>"; print_r($result); echo "</pre>"; 
+    die("Dừng tại Repository để kiểm tra"); 
+
+    return $result;
+}
+  
+
+
+
+    /**
+     * Lấy danh sách bài viết trending (xu hướng)
+     * 
+     * @param int $limit Số lượng bài viết cần lấy (mặc định: 6)
+     * @return array Mảng bài viết trending
+     */
+    public function getTrendingPosts($limit = 6) {
+        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name 
                 FROM Post p 
                 JOIN Category c ON p.category_id = c.category_id 
                 JOIN User u ON p.user_id = u.user_id 
-                WHERE c.name = :catName AND p.status = 'approved' 
+                WHERE p.status = 'approved' AND p.is_trending = 1 
                 ORDER BY p.published_at DESC LIMIT :limit";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(':catName', $categoryName);
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Lấy tất cả danh mục chính (không có danh mục cha)
+     * 
+     * @return array Mảng danh mục
+     */
+    public function getAllCategories() {
+        $sql = "SELECT * FROM Category WHERE parent_id IS NULL ORDER BY name";
+        return $this->conn->query($sql)->fetchAll();
+    }
+
+    /**
+     * Lấy chi tiết bài viết theo ID
+     * 
+     * @param int $postId ID của bài viết
+     * @return array Mảng dữ liệu bài viết hoặc false nếu không tìm thấy
+     */
+    public function getPostById($postId) {
+        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name 
+                FROM Post p 
+                JOIN Category c ON p.category_id = c.category_id 
+                JOIN User u ON p.user_id = u.user_id 
+                WHERE p.post_id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['id' => $postId]);
+        return $stmt->fetch();
     }
 
 }
