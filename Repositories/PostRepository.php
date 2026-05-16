@@ -101,13 +101,13 @@ class PostRepository
      * @return array Mảng dữ liệu bài viết hoặc false nếu không có
      */
     public function getHeroPost() {
-        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name 
+        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, c.name as category_name, u.full_name as author_name 
                 FROM Post p 
                 JOIN Category c ON p.category_id = c.category_id 
                 JOIN User u ON p.user_id = u.user_id 
                 WHERE p.status = 'approved' AND p.is_trending = 1 
-                ORDER BY p.published_at DESC LIMIT 1";
-        return $this->conn->query($sql)->fetch();
+                ORDER BY p.view_count DESC LIMIT 1";
+        return $this->conn->query($sql)->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -124,15 +124,16 @@ class PostRepository
     // 2. Tìm tất cả ID của danh mục con có parent_id bằng ID cha đó.
     // 3. Lấy bài viết thuộc danh mục cha HOẶC nằm trong danh sách ID con.
 
-    $sql = "SELECT p.*, c.name as category_name 
+    $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, p.summary, c.name as category_name, u.full_name as author_name
             FROM Post p 
             JOIN Category c ON p.category_id = c.category_id 
+            JOIN User u ON p.user_id = u.user_id
             WHERE p.status = 'approved' 
             AND (
                 c.name = :parentName 
                 OR c.parent_id = (SELECT category_id FROM Category WHERE name = :parentName LIMIT 1)
             )
-            ORDER BY p.published_at DESC 
+            ORDER BY p.view_count DESC 
             LIMIT :limit";
 
     $stmt = $this->conn->prepare($sql);
@@ -158,11 +159,11 @@ class PostRepository
                 JOIN Category c ON p.category_id = c.category_id 
                 JOIN User u ON p.user_id = u.user_id 
                 WHERE p.status = 'approved' AND p.is_trending = 1 
-                ORDER BY p.published_at DESC LIMIT :limit";
+                ORDER BY p.view_count DESC LIMIT :limit";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**

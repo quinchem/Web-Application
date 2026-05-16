@@ -38,8 +38,8 @@ class PostController
     public function homepage()
 {
     // Lấy bài viết bao gồm cả các danh mục con
-    $thoiSu = $this->postRepository->getPostsByParentCategory('Thời sự', 5);
-    $kinhTe = $this->postRepository->getPostsByParentCategory('Kinh tế', 5);
+    $thoiSu = $this->postRepository->getPostsByParentCategory('Thời sự', 4);
+    $kinhTe = $this->postRepository->getPostsByParentCategory('Kinh tế', 4);
     $heroPost = $this->postRepository->getHeroPost();
 
     require __DIR__ . '/../Views/Client/Home.php';
