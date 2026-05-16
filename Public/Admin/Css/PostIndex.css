@@ -393,6 +393,21 @@ th{
     text-align:center;
 }
 
+th{
+    padding:26px 16px;
+    font-size:13px;
+    font-weight:900;
+    color:#07344a;
+    letter-spacing:0.8px;
+    text-align:center;
+    vertical-align:middle;
+}
+
+th:last-child{
+    width:140px;
+    min-width:140px;
+}
+
 td{
     padding:34px 18px;
     border-bottom:1px solid #eef1f3;
@@ -401,6 +416,11 @@ td{
     font-size:14px;
 }
 
+td:last-child{
+    width:140px;
+    min-width:140px;
+    vertical-align:middle;
+}
 .post-title{
     width:260px;
     text-align:left;
@@ -500,18 +520,22 @@ td small{
 }
 
 /* ACTIONS */
-.actions{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;   /* ← đảm bảo căn giữa */
+    gap: 12px;
+    width: 100%;
+    min-height: 145px;
+    padding: 0;                /* ← bỏ padding lệch */
 }
-
-.actions button{
+.actions button,
+.actions a{
     border:none;
     background:none;
     cursor:pointer;
     font-size:17px;
+    text-decoration:none;
 }
 
 .view-btn{
@@ -601,4 +625,17 @@ td small{
     .filter-box{
         flex-wrap:wrap;
     }
+}
+.filter-select,
+.filter-date{
+    height:42px;
+    border:none;
+    background:#fff;
+    border-radius:9px;
+    padding:0 20px;
+    font-size:13px;
+    font-weight:800;
+    color:#07344a;
+    outline:none;
+    font-family:'Barlow', sans-serif;
 }

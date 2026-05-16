@@ -79,14 +79,39 @@ class PostController
      * Lấy số liệu thống kê: tổng, pending, hidden, trending
      */
     public function adminUserPosts()
-    {
-        $posts = $this->postRepository->getUserPostsForAdmin();
+{
+    $filters = [
+        'keyword' => $_GET['keyword'] ?? '',
+        'category_id' => $_GET['category_id'] ?? '',
+        'author_id' => $_GET['author_id'] ?? '',
+        'status' => $_GET['status'] ?? '',
+        'date' => $_GET['date'] ?? ''
+    ];
 
-        $totalPosts = $this->postRepository->countUserPosts();
-        $pendingPosts = $this->postRepository->countUserPostsByStatus('pending');
-        $hiddenPosts = $this->postRepository->countUserPostsByStatus('hidden');
-        $trendingPosts = $this->postRepository->countTrendingUserPosts();
+    $posts = $this->postRepository->getUserPostsForAdmin($filters);
 
-        require_once __DIR__ . '/../Views/Admin/Post/Index.php';
+    $categories = $this->postRepository->getCategoriesForFilter();
+    $authors = $this->postRepository->getAuthorsForFilter();
+
+    $totalPosts = $this->postRepository->countUserPosts();
+    $pendingPosts = $this->postRepository->countUserPostsByStatus('pending');
+    $hiddenPosts = $this->postRepository->countUserPostsByStatus('hidden');
+    $trendingPosts = $this->postRepository->countTrendingUserPosts();
+
+    require_once __DIR__ . '/../Views/Admin/Post/Index.php';
+}
+public function hidePost()
+{
+    if (!isset($_GET['id'])) {
+        header('Location: Index.php?page=admin_user_posts');
+        exit;
     }
+
+    $postId = $_GET['id'];
+
+    $this->postRepository->hidePost($postId);
+
+    header('Location: Index.php?page=admin_user_posts');
+    exit;
+}
 }
