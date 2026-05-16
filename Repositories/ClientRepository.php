@@ -1,8 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../configs/Database.php';
-require_once __DIR__ . '/../App/Models/Client.php';
+// ✅ ĐÚNG — lên 1 cấp là tới Web-Application/, có Configs/ ở đó
+require_once __DIR__ . '/../Configs/Database.php';
 
+// ✅ ĐÚNG — lên 1 cấp rồi vào App/Models/
+require_once __DIR__ . '/../App/Models/Client.php';
 class ClientRepository
 {
     private $conn;

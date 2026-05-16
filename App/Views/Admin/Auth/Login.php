@@ -42,8 +42,7 @@
 
         <!-- FORM -->
 
-        <form action="../../../Controllers/AdminController.php"
-      method="POST">
+<form action="/Web-Application/App/Controllers/AdminController.php" method="POST">
 
             <!-- EMAIL -->
 
@@ -95,7 +94,8 @@
 
                 <label class="remember-box">
 
-                    <input type="checkbox">
+                    <input type="checkbox"
+                           name="remember"> 
 
                     <span>
                         Ghi nhớ đăng nhập
