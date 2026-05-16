@@ -60,4 +60,8 @@ switch ($page) {
         // Nếu không tìm thấy, về trang chủ
         $postController->homepage();
         break;
+        
+    case 'hide_post':
+    $postController->hidePost();
+    break;
 }

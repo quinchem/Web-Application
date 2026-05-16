@@ -6,13 +6,10 @@
 
     <title>Quản lý bài viết người đọc</title>
 
-    <!-- FONT -->
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap" rel="stylesheet">
 
-    <!-- ICON -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- CSS -->
     <link rel="stylesheet" href="/Web-Application/Public/Admin/Css/PostIndex.css">
 </head>
 
@@ -20,112 +17,117 @@
 
 <div class="admin-layout">
 
-    <!-- SIDEBAR -->
     <?php require_once __DIR__ . '/../../Partials/Admin/Sidebar.php'; ?>
 
-    <!-- MAIN -->
     <main class="main-content">
 
-        <!-- BREADCRUMB -->
         <div class="topbar">
-    <div class="breadcrumb">
-        <a href="#">QUẢN LÝ BÀI VIẾT</a>
-        <span>></span>
-        <span class="active">BÀI VIẾT NGƯỜI ĐỌC</span>
-    </div>
-</div>
+            <div class="breadcrumb">
+                <a href="#">QUẢN LÝ BÀI VIẾT</a>
+                <span>></span>
+                <span class="active">BÀI VIẾT NGƯỜI ĐỌC</span>
+            </div>
+        </div>
 
         <section class="content-inner">
 
-            <!-- TITLE -->
             <h1>QUẢN LÝ BÀI VIẾT</h1>
 
-            <!-- STATISTIC -->
             <div class="stat-grid">
 
                 <div class="stat-card red">
-                    <span>
-                        <i class="fa-regular fa-newspaper"></i>
-                    </span>
-
+                    <span><i class="fa-regular fa-newspaper"></i></span>
                     <h2><?= $totalPosts ?? 0 ?></h2>
-
                     <p>TỔNG SỐ BÀI VIẾT</p>
                 </div>
 
                 <div class="stat-card orange">
-                    <span>
-                        <i class="fa-regular fa-clock"></i>
-                    </span>
-
+                    <span><i class="fa-regular fa-clock"></i></span>
                     <h2><?= $pendingPosts ?? 0 ?></h2>
-
                     <p>BÀI CHỜ DUYỆT</p>
                 </div>
 
                 <div class="stat-card darkred">
-                    <span>
-                        <i class="fa-regular fa-eye-slash"></i>
-                    </span>
-
+                    <span><i class="fa-regular fa-eye-slash"></i></span>
                     <h2><?= $hiddenPosts ?? 0 ?></h2>
-
                     <p>BÀI ĐANG ẨN</p>
                 </div>
 
                 <div class="stat-card yellow">
-                    <span>
-                        <i class="fa-solid fa-bolt"></i>
-                    </span>
-
+                    <span><i class="fa-solid fa-bolt"></i></span>
                     <h2><?= $trendingPosts ?? 0 ?></h2>
-
                     <p>BÀI TRENDING</p>
                 </div>
 
             </div>
 
-            <!-- FILTER -->
-       <div class="filter-box">
+            <form class="filter-box" method="GET" action="Index.php">
 
-    <div class="search-input">
-        <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="hidden" name="page" value="admin_user_posts">
 
-        <input
-            type="text"
-            placeholder="Tìm kiếm tiêu đề, tác giả..."
-        >
-    </div>
+                <div class="search-input">
+                    <i class="fa-solid fa-magnifying-glass"></i>
 
-    <button>
-        Danh mục
-        <i class="fa-solid fa-chevron-down"></i>
-    </button>
+                    <input
+                        type="text"
+                        name="keyword"
+                        placeholder="Tìm kiếm tiêu đề, tác giả..."
+                        value="<?= htmlspecialchars($filters['keyword'] ?? '') ?>"
+                    >
+                </div>
 
-    <button>
-        Tác giả
-        <i class="fa-solid fa-chevron-down"></i>
-    </button>
+                <select name="category_id" class="filter-select">
+                    <option value="">Danh mục</option>
 
-    <button>
-        Trạng thái
-        <i class="fa-solid fa-chevron-down"></i>
-    </button>
+                    <?php if (!empty($categories)): ?>
+                        <?php foreach ($categories as $category): ?>
+                            <option
+                                value="<?= htmlspecialchars($category['category_id']) ?>"
+                                <?= ($filters['category_id'] ?? '') == $category['category_id'] ? 'selected' : '' ?>
+                            >
+                                <?= htmlspecialchars($category['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
 
-    <button>
-        <i class="fa-regular fa-calendar"></i>
-        Thời gian
-    </button>
+                <select name="author_id" class="filter-select">
+                    <option value="">Tác giả</option>
 
-    <button class="filter-btn">
-        <i class="fa-solid fa-filter"></i>
-    </button>
+                    <?php if (!empty($authors)): ?>
+                        <?php foreach ($authors as $author): ?>
+                            <option
+                                value="<?= htmlspecialchars($author['user_id']) ?>"
+                                <?= ($filters['author_id'] ?? '') == $author['user_id'] ? 'selected' : '' ?>
+                            >
+                                <?= htmlspecialchars($author['full_name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
 
-</div>
+                <select name="status" class="filter-select">
+                    <option value="">Trạng thái</option>
+                    <option value="approved" <?= ($filters['status'] ?? '') === 'approved' ? 'selected' : '' ?>>Đã xuất bản</option>
+                    <option value="pending" <?= ($filters['status'] ?? '') === 'pending' ? 'selected' : '' ?>>Chờ duyệt</option>
+                    <option value="hidden" <?= ($filters['status'] ?? '') === 'hidden' ? 'selected' : '' ?>>Đã ẩn</option>
+                    <option value="draft" <?= ($filters['status'] ?? '') === 'draft' ? 'selected' : '' ?>>Bản nháp</option>
+                    <option value="rejected" <?= ($filters['status'] ?? '') === 'rejected' ? 'selected' : '' ?>>Từ chối</option>
+                </select>
 
-               
+                <input
+                    type="date"
+                    name="date"
+                    class="filter-date"
+                    value="<?= htmlspecialchars($filters['date'] ?? '') ?>"
+                >
 
-            <!-- TABLE -->
+                <button type="submit" class="filter-btn">
+                    <i class="fa-solid fa-filter"></i>
+                </button>
+
+            </form>
+
             <div class="table-card">
 
                 <table>
@@ -149,27 +151,21 @@
 
                             <tr>
 
-                                <!-- TITLE -->
                                 <td class="post-title">
                                     <?= htmlspecialchars($post->title) ?>
                                 </td>
 
-                                <!-- CATEGORY -->
                                 <td>
                                     <div class="category-pill">
-
                                         <?= htmlspecialchars($post->parent_category_name ?: $post->category_name) ?>
 
                                         <small>
                                             <?= htmlspecialchars($post->category_name) ?>
                                         </small>
-
                                     </div>
                                 </td>
 
-                                <!-- AUTHOR -->
                                 <td>
-
                                     <strong>
                                         <?= htmlspecialchars($post->author_name) ?>
                                     </strong>
@@ -179,12 +175,9 @@
                                         <br>
                                         09:00
                                     </small>
-
                                 </td>
 
-                                <!-- STATUS -->
                                 <td>
-
                                     <?php
                                     $statusText = [
                                         'approved' => 'ĐÃ XUẤT BẢN',
@@ -196,56 +189,46 @@
                                     ?>
 
                                     <span class="status <?= htmlspecialchars($post->status) ?>">
-
                                         <?= $statusText[$post->status] ?? 'KHÔNG RÕ' ?>
-
                                     </span>
-
                                 </td>
 
-                                <!-- INTERACTION -->
                                 <td>
-
                                     <?php if ($post->status === 'approved'): ?>
-
-                                        <strong>
-                                            <?= $post->view_count ?? 0 ?>
-                                        </strong>
-
+                                        <strong><?= $post->view_count ?? 0 ?></strong>
                                         <small>Lượt xem</small>
-
                                     <?php else: ?>
-
                                         <span>Chưa công bố</span>
-
                                     <?php endif; ?>
-
                                 </td>
 
-                                <!-- ACTION -->
                                 <td class="actions">
 
-                                    <?php if ($post->status === 'pending'): ?>
+    <?php if (trim($post->status) === 'pending'): ?>
 
-                                        <a href="#" class="approve-btn">
-                                            DUYỆT
-                                            <br>
-                                            BÀI
-                                        </a>
+        <a href="#" class="approve-btn">
+            DUYỆT
+            <br>
+            BÀI
+        </a>
 
-                                    <?php else: ?>
+    <?php elseif ($post->status !== 'hidden'): ?>
 
-                                        <button class="view-btn">
-                                            <i class="fa-regular fa-eye"></i>
-                                        </button>
+        <a 
+            href="Index.php?page=hide_post&id=<?= htmlspecialchars($post->post_id) ?>"
+            class="view-btn"
+            onclick="return confirm('Bạn muốn ẩn bài viết này?')"
+        >
+            <i class="fa-regular fa-eye"></i>
+        </a>
 
-                                        <button class="delete-btn">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
+        <button class="delete-btn" type="button">
+            <i class="fa-regular fa-trash-can"></i>
+        </button>
 
-                                    <?php endif; ?>
+    <?php endif; ?>
 
-                                </td>
+</td>
 
                             </tr>
 
@@ -265,7 +248,6 @@
 
                 </table>
 
-                <!-- PAGINATION -->
                 <div class="pagination">
 
                     <span>
@@ -273,28 +255,19 @@
                     </span>
 
                     <div>
-
-                        <button>‹</button>
-
-                        <button class="current">1</button>
-
-                        <button>2</button>
-
-                        <button>3</button>
-
-                        <button>...</button>
-
-                        <button>129</button>
-
-                        <button>›</button>
-
+                        <button type="button">‹</button>
+                        <button type="button" class="current">1</button>
+                        <button type="button">2</button>
+                        <button type="button">3</button>
+                        <button type="button">...</button>
+                        <button type="button">129</button>
+                        <button type="button">›</button>
                     </div>
 
                 </div>
 
             </div>
 
-            <!-- FOOTER -->
             <?php require_once __DIR__ . '/../../Partials/Admin/Footer.php'; ?>
 
         </section>
