@@ -1,8 +1,7 @@
 <?php
 /**
  * Routes/Post.php
- * 
- * Xử lý định tuyến (routing) cho các trang liên quan đến bài viết
+ * * Xử lý định tuyến (routing) cho các trang liên quan đến bài viết
  * Kế từ Index.php: lấy biến $page và xử lý logic định tuyến
  */
 
@@ -44,6 +43,25 @@ switch ($page) {
             $postController->homepage();
         }
         break;
+        
+    case 'hide_post':
+        $postController->hidePost();
+        break;
+
+    // ==========================================
+    // CÁC ROUTE API (XỬ LÝ AJAX)
+    // ==========================================
+    case 'api_like':
+        $postController->apiToggleLike();
+        break;
+
+    case 'api_save':
+        $postController->apiToggleSave();
+        break;
+
+    case 'api_comment':
+        $postController->apiAddComment();
+        break;
 
     // ==========================================
     // TRANG CHO QUẢN TRỊ VIÊN (ADMIN)
@@ -60,8 +78,4 @@ switch ($page) {
         // Nếu không tìm thấy, về trang chủ
         $postController->homepage();
         break;
-        
-    case 'hide_post':
-    $postController->hidePost();
-    break;
 }

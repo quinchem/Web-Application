@@ -14,161 +14,126 @@ class PostRepository
     }
 
     public function getUserPostsForAdmin($filters = []) 
-{
-    $sql = "
-        SELECT 
-            p.post_id,
-            p.title,
-            p.status,
-            p.view_count,
-            p.created_at,
-            p.is_trending,
-            u.user_id,
-            u.full_name AS author_name,
-            c.name AS category_name,
-            parent.name AS parent_category_name
-        FROM Post p
-        JOIN `User` u ON p.user_id = u.user_id
-        JOIN Role r ON u.role_id = r.role_id
-        JOIN Category c ON p.category_id = c.category_id
-        LEFT JOIN Category parent ON c.parent_id = parent.category_id
-        WHERE r.role_name = 'client'
-    ";
+    {
+        $sql = "
+            SELECT 
+                p.post_id, p.title, p.status, p.view_count, p.created_at, p.is_trending,
+                u.user_id, u.full_name AS author_name,
+                c.name AS category_name, parent.name AS parent_category_name
+            FROM Post p
+            JOIN `User` u ON p.user_id = u.user_id
+            JOIN Role r ON u.role_id = r.role_id
+            JOIN Category c ON p.category_id = c.category_id
+            LEFT JOIN Category parent ON c.parent_id = parent.category_id
+            WHERE r.role_name = 'client'
+        ";
 
-    $params = [];
+        $params = [];
 
-    if (!empty($filters['status'])) {
-        $sql .= " AND p.status = :status";
-        $params['status'] = $filters['status'];
-    } else {
-        $sql .= " AND p.status != 'hidden'";
+        if (!empty($filters['status'])) {
+            $sql .= " AND p.status = :status";
+            $params['status'] = $filters['status'];
+        } else {
+            $sql .= " AND p.status != 'hidden'";
+        }
+
+        if (!empty($filters['keyword'])) {
+            $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
+            $params['keyword'] = '%' . $filters['keyword'] . '%';
+        }
+
+        if (!empty($filters['category_id'])) {
+            $sql .= " AND (c.category_id = :category_id OR c.parent_id = :category_id)";
+            $params['category_id'] = $filters['category_id'];
+        }
+
+        if (!empty($filters['author_id'])) {
+            $sql .= " AND u.user_id = :author_id";
+            $params['author_id'] = $filters['author_id'];
+        }
+
+        if (!empty($filters['date'])) {
+            $sql .= " AND DATE(p.created_at) = :date";
+            $params['date'] = $filters['date'];
+        }
+
+        $sql .= " ORDER BY p.created_at DESC LIMIT 10";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+
+        $posts = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $posts[] = new Post($row);
+        }
+        return $posts;
     }
 
-    if (!empty($filters['keyword'])) {
-        $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
-        $params['keyword'] = '%' . $filters['keyword'] . '%';
+    public function getCategoriesForFilter()
+    {
+        $sql = "SELECT category_id, name FROM Category ORDER BY name ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    if (!empty($filters['category_id'])) {
-        $sql .= " AND (c.category_id = :category_id OR c.parent_id = :category_id)";
-        $params['category_id'] = $filters['category_id'];
+    public function getAuthorsForFilter()
+    {
+        $sql = "
+            SELECT DISTINCT u.user_id, u.full_name
+            FROM `User` u
+            JOIN Role r ON u.role_id = r.role_id
+            JOIN Post p ON p.user_id = u.user_id
+            WHERE r.role_name = 'client'
+            ORDER BY u.full_name ASC
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    if (!empty($filters['author_id'])) {
-        $sql .= " AND u.user_id = :author_id";
-        $params['author_id'] = $filters['author_id'];
+    public function hidePost($postId)
+    {
+        $sql = "UPDATE Post SET status = 'hidden' WHERE post_id = :post_id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute(['post_id' => $postId]);
     }
 
-    if (!empty($filters['date'])) {
-        $sql .= " AND DATE(p.created_at) = :date";
-        $params['date'] = $filters['date'];
-    }
-
-    $sql .= " ORDER BY p.created_at DESC LIMIT 10";
-
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute($params);
-
-    $posts = [];
-
-    foreach ($stmt->fetchAll() as $row) {
-        $posts[] = new Post($row);
-    }
-
-    return $posts;
-}
-
-public function getCategoriesForFilter()
-{
-    $sql = "SELECT category_id, name FROM Category ORDER BY name ASC";
-
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute();
-
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-public function getAuthorsForFilter()
-{
-    $sql = "
-        SELECT DISTINCT u.user_id, u.full_name
-        FROM `User` u
-        JOIN Role r ON u.role_id = r.role_id
-        JOIN Post p ON p.user_id = u.user_id
-        WHERE r.role_name = 'client'
-        ORDER BY u.full_name ASC
-    ";
-
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute();
-
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-public function hidePost($postId)
-{
-    $sql = "
-        UPDATE Post
-        SET status = 'hidden'
-        WHERE post_id = :post_id
-    ";
-
-    $stmt = $this->conn->prepare($sql);
-
-    return $stmt->execute([
-        'post_id' => $postId
-    ]);
-}
     public function countUserPosts()
     {
         $sql = "
-            SELECT COUNT(*) AS total
-            FROM Post p
+            SELECT COUNT(*) AS total FROM Post p
             JOIN `User` u ON p.user_id = u.user_id
             JOIN Role r ON u.role_id = r.role_id
             WHERE r.role_name = 'client'
         ";
-
         return $this->conn->query($sql)->fetch()['total'];
     }
 
     public function countUserPostsByStatus($status)
     {
         $sql = "
-            SELECT COUNT(*) AS total
-            FROM Post p
+            SELECT COUNT(*) AS total FROM Post p
             JOIN `User` u ON p.user_id = u.user_id
             JOIN Role r ON u.role_id = r.role_id
-            WHERE r.role_name = 'client'
-            AND p.status = :status
+            WHERE r.role_name = 'client' AND p.status = :status
         ";
-
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(['status' => $status]);
-
         return $stmt->fetch()['total'];
     }
 
     public function countTrendingUserPosts()
     {
         $sql = "
-            SELECT COUNT(*) AS total
-            FROM Post p
+            SELECT COUNT(*) AS total FROM Post p
             JOIN `User` u ON p.user_id = u.user_id
             JOIN Role r ON u.role_id = r.role_id
-            WHERE r.role_name = 'client'
-            AND p.is_trending = TRUE
+            WHERE r.role_name = 'client' AND p.is_trending = TRUE
         ";
-
         return $this->conn->query($sql)->fetch()['total'];
     }
 
-    /**
-     * Lấy bài viết tiêu điểm/nổi bật (hero post)
-     * 
-     * Lấy bài viết trending (xu hướng) mới nhất để hiển thị ở hero banner
-     * 
-     * @return array Mảng dữ liệu bài viết hoặc false nếu không có
-     */
     public function getHeroPost() {
         $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, c.name as category_name, u.full_name as author_name 
                 FROM Post p 
@@ -179,49 +144,22 @@ public function hidePost($postId)
         return $this->conn->query($sql)->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Lấy danh sách bài viết theo tên danh mục
-     * 
-     * @param string $parentCategoryName Tên danh mục cha (ví dụ: "Thời sự", "Kinh tế")
-     * @param int $limit Số lượng bài viết cần lấy (mặc định: 4)
-     * @return array Mảng bài viết đã được phê duyệt
-     */
     public function getPostsByParentCategory($parentCategoryName, $limit = 10)
-{
-    // Logic: 
-    // 1. Tìm ID của danh mục cha dựa trên tên (Thời sự/Kinh tế).
-    // 2. Tìm tất cả ID của danh mục con có parent_id bằng ID cha đó.
-    // 3. Lấy bài viết thuộc danh mục cha HOẶC nằm trong danh sách ID con.
+    {
+        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, p.summary, c.name as category_name, u.full_name as author_name
+                FROM Post p 
+                JOIN Category c ON p.category_id = c.category_id 
+                JOIN User u ON p.user_id = u.user_id
+                WHERE p.status = 'approved' 
+                AND (c.name = :parentName OR c.parent_id = (SELECT category_id FROM Category WHERE name = :parentName LIMIT 1))
+                ORDER BY p.view_count DESC LIMIT :limit";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':parentName', $parentCategoryName);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-    $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, p.summary, c.name as category_name, u.full_name as author_name
-            FROM Post p 
-            JOIN Category c ON p.category_id = c.category_id 
-            JOIN User u ON p.user_id = u.user_id
-            WHERE p.status = 'approved' 
-            AND (
-                c.name = :parentName 
-                OR c.parent_id = (SELECT category_id FROM Category WHERE name = :parentName LIMIT 1)
-            )
-            ORDER BY p.view_count DESC 
-            LIMIT :limit";
-
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bindValue(':parentName', $parentCategoryName);
-    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
-    $stmt->execute();
-    
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-  
-
-
-
-    /**
-     * Lấy danh sách bài viết trending (xu hướng)
-     * 
-     * @param int $limit Số lượng bài viết cần lấy (mặc định: 6)
-     * @return array Mảng bài viết trending
-     */
     public function getTrendingPosts($limit = 6) {
         $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name 
                 FROM Post p 
@@ -235,31 +173,106 @@ public function hidePost($postId)
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Lấy tất cả danh mục chính (không có danh mục cha)
-     * 
-     * @return array Mảng danh mục
-     */
     public function getAllCategories() {
         $sql = "SELECT * FROM Category WHERE parent_id IS NULL ORDER BY name";
         return $this->conn->query($sql)->fetchAll();
     }
 
-    /**
-     * Lấy chi tiết bài viết theo ID
-     * 
-     * @param int $postId ID của bài viết
-     * @return array Mảng dữ liệu bài viết hoặc false nếu không tìm thấy
-     */
-    public function getPostById($postId) {
-        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name 
+public function getPostById($postId) {
+        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name, u.avatar 
                 FROM Post p 
                 JOIN Category c ON p.category_id = c.category_id 
-                JOIN User u ON p.user_id = u.user_id 
+                JOIN `User` u ON p.user_id = u.user_id 
                 WHERE p.post_id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(['id' => $postId]);
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getPostTags($postId) {
+        $sql = "SELECT t.slug FROM Tag t
+                JOIN Post_tag pt ON t.tag_id = pt.tag_id
+                WHERE pt.post_id = :post_id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['post_id' => $postId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+public function getRecommendedPosts($currentPostId) {
+        $sql = "SELECT p.post_id, p.title, p.thumbnail_URL, p.summary, p.published_at, c.name AS category_name,
+                (COALESCE((SELECT COUNT(*) FROM `Like` WHERE post_id = p.post_id), 0) + 
+                 COALESCE((SELECT COUNT(*) FROM Comment WHERE post_id = p.post_id), 0) +
+                 COALESCE((SELECT COUNT(*) FROM Bookmark WHERE post_id = p.post_id), 0)) as total_interactions
+                FROM Post p
+                JOIN Category c ON p.category_id = c.category_id
+                WHERE p.status = 'approved' AND p.post_id != :current_post_id
+                ORDER BY total_interactions DESC LIMIT 10"; 
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['current_post_id' => $currentPostId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+public function getCommentsByPostId($postId, $limit = 5, $offset = 0) {
+        // Gán cứng tên người dùng bình luận là 'client16'
+        $sql = "SELECT c.*, COALESCE(u.full_name, 'client16') AS full_name, u.avatar 
+                FROM Comment c
+                JOIN `User` u ON c.user_id = u.user_id
+                WHERE c.post_id = :post_id AND c.parent_id IS NULL AND c.deleted_at IS NULL
+                ORDER BY c.created_at DESC LIMIT :limit OFFSET :offset";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':post_id', $postId, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function countTotalCommentsByPostId($postId) {
+        $sql = "SELECT COUNT(*) FROM Comment WHERE post_id = :post_id AND parent_id IS NULL AND deleted_at IS NULL";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute(['post_id' => $postId]);
+        return $stmt->fetchColumn();
+    }
+
+    public function toggleLike($postId, $userId) {
+        $checkSql = "SELECT * FROM `Like` WHERE post_id = :post_id AND user_id = :user_id";
+        $stmt = $this->conn->prepare($checkSql);
+        $stmt->execute(['post_id' => $postId, 'user_id' => $userId]);
+        
+        if ($stmt->rowCount() > 0) {
+            $sql = "DELETE FROM `Like` WHERE post_id = :post_id AND user_id = :user_id";
+            $this->conn->prepare($sql)->execute(['post_id' => $postId, 'user_id' => $userId]);
+            return ['status' => 'unliked', 'message' => 'Đã bỏ thích bài viết'];
+        } else {
+            $sql = "INSERT INTO `Like` (post_id, user_id, created_at) VALUES (:post_id, :user_id, NOW())";
+            $this->conn->prepare($sql)->execute(['post_id' => $postId, 'user_id' => $userId]);
+            return ['status' => 'liked', 'message' => 'Đã thích bài viết'];
+        }
+    }
+
+    public function toggleBookmark($postId, $userId) {
+        $checkSql = "SELECT * FROM Bookmark WHERE post_id = :post_id AND user_id = :user_id";
+        $stmt = $this->conn->prepare($checkSql);
+        $stmt->execute(['post_id' => $postId, 'user_id' => $userId]);
+        
+        if ($stmt->rowCount() > 0) {
+            $sql = "DELETE FROM Bookmark WHERE post_id = :post_id AND user_id = :user_id";
+            $this->conn->prepare($sql)->execute(['post_id' => $postId, 'user_id' => $userId]);
+            return ['status' => 'unsaved', 'message' => 'Đã bỏ lưu bài viết'];
+        } else {
+            $sql = "INSERT INTO Bookmark (post_id, user_id, created_at) VALUES (:post_id, :user_id, NOW())";
+            $this->conn->prepare($sql)->execute(['post_id' => $postId, 'user_id' => $userId]);
+            return ['status' => 'saved', 'message' => 'Đã lưu bài viết'];
+        }
+    }
+
+    public function addComment($postId, $userId, $content) {
+        $sql = "INSERT INTO Comment (post_id, user_id, content, created_at) VALUES (:post_id, :user_id, :content, NOW())";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            'post_id' => $postId,
+            'user_id' => $userId,
+            'content' => $content
+        ]);
+    }
 }
