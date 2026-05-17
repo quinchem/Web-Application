@@ -130,8 +130,7 @@ class PostController
     // CÁC HÀM XỬ LÝ AJAX (THÍCH, LƯU, BÌNH LUẬN)
     // ==========================================
 
-    // ID người dùng giả lập. BẠN HÃY SỬA SỐ '1' THÀNH ID CÓ THẬT TRONG BẢNG User CỦA BẠN.
-    private $fakeUserId = '1'; 
+    private $fakeUserId = 'US0001'; // ID người dùng giả định cho mục đích demo
 
     public function apiToggleLike() {
         $postId = $_POST['post_id'] ?? null;
