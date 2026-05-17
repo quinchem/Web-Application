@@ -202,32 +202,34 @@
                                     <?php endif; ?>
                                 </td>
 
-                                <td class="actions">
+                                <td>
+    <div class="actions">
 
-    <?php if (trim($post->status) === 'pending'): ?>
+        <?php $status = strtolower(preg_replace('/\s+/', '', $post->status)); ?>
 
-        <a href="#" class="approve-btn">
-            DUYỆT
-            <br>
-            BÀI
-        </a>
+        <?php if ($status === 'pending'): ?>
 
-    <?php elseif ($post->status !== 'hidden'): ?>
+            <a href="Index.php?page=review_post&id=<?= htmlspecialchars($post->post_id) ?>" class="approve-btn">
+                DUYỆT<br>BÀI
+            </a>
 
-        <a 
-            href="Index.php?page=hide_post&id=<?= htmlspecialchars($post->post_id) ?>"
-            class="view-btn"
-            onclick="return confirm('Bạn muốn ẩn bài viết này?')"
-        >
-            <i class="fa-regular fa-eye"></i>
-        </a>
+        <?php elseif ($status !== 'hidden'): ?>
 
-        <button class="delete-btn" type="button">
-            <i class="fa-regular fa-trash-can"></i>
-        </button>
+            <a 
+                href="Index.php?page=hide_post&id=<?= htmlspecialchars($post->post_id) ?>"
+                class="view-btn"
+                onclick="return confirm('Bạn muốn ẩn bài viết này?')"
+            >
+                <i class="fa-regular fa-eye"></i>
+            </a>
 
-    <?php endif; ?>
+            <button class="delete-btn" type="button">
+                <i class="fa-regular fa-trash-can"></i>
+            </button>
 
+        <?php endif; ?>
+
+    </div>
 </td>
 
                             </tr>
@@ -250,19 +252,66 @@
 
                 <div class="pagination">
 
-                    <span>
-                        HIỂN THỊ 1 - 10 TRONG SỐ <?= $totalPosts ?? 0 ?> BÀI VIẾT
-                    </span>
+                   <span>
+    HIỂN THỊ <?= min(($currentPage - 1) * $perPage + 1, $totalForPages) ?> - <?= min($currentPage * $perPage, $totalForPages) ?> TRONG SỐ <?= $totalPosts ?? 0 ?> BÀI VIẾT
+</span>
 
                     <div>
-                        <button type="button">‹</button>
-                        <button type="button" class="current">1</button>
-                        <button type="button">2</button>
-                        <button type="button">3</button>
-                        <button type="button">...</button>
-                        <button type="button">129</button>
-                        <button type="button">›</button>
+                        <button type="button" onclick="goToPage(<?= $currentPage - 1 ?>)" <?= $currentPage <= 1 ? 'disabled' : '' ?>>‹</button>
+
+                        <button type="button" class="<?= $currentPage == 1 ? 'current' : '' ?>" onclick="goToPage(1)">1</button>
+
+                        <?php if ($totalPages > 1): ?>
+
+                            <?php if ($currentPage > 3): ?>
+                                <button type="button" disabled>...</button>
+                            <?php endif; ?>
+
+                            <?php for ($i = max(2, $currentPage - 1); $i <= min($totalPages - 1, $currentPage + 1); $i++): ?>
+                                <button type="button" class="<?= $currentPage == $i ? 'current' : '' ?>" onclick="goToPage(<?= $i ?>)"><?= $i ?></button>
+                            <?php endfor; ?>
+
+                            <?php if ($currentPage < $totalPages - 2): ?>
+                                <button type="button" disabled>...</button>
+                            <?php endif; ?>
+
+                            <button type="button" class="<?= $currentPage == $totalPages ? 'current' : '' ?>" onclick="goToPage(<?= $totalPages ?>)"><?= $totalPages ?></button>
+
+                        <?php endif; ?>
+
+                        <button type="button" onclick="goToPage(<?= $currentPage + 1 ?>)" <?= $currentPage >= $totalPages ? 'disabled' : '' ?>>›</button>
                     </div>
+
+                </div>
+
+            </div><!-- đóng table-card -->
+
+            <?php require_once __DIR__ . '/../../Partials/Admin/Footer.php'; ?>
+
+        </section>
+
+    </main>
+
+</div><!-- đóng admin-layout -->
+
+<script>
+function goToPage(page) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('p', page);
+    window.location.href = url.toString();
+}
+</script>
+
+</body>
+</html>
+
+<script>
+function goToPage(page) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('p', page);
+    window.location.href = url.toString();
+}
+</script>
 
                 </div>
 

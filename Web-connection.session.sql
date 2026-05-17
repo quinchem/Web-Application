@@ -1,1 +1,1 @@
-SELECT * FROM Like;
+SELECT * FROM post;

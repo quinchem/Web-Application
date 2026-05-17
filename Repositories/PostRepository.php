@@ -13,62 +13,69 @@ class PostRepository
         $this->conn = $database->connect();
     }
 
-    public function getUserPostsForAdmin($filters = []) 
-    {
-        $sql = "
-            SELECT 
-                p.post_id, p.title, p.status, p.view_count, p.created_at, p.is_trending,
-                u.user_id, u.full_name AS author_name,
-                c.name AS category_name, parent.name AS parent_category_name
-            FROM Post p
-            JOIN `User` u ON p.user_id = u.user_id
-            JOIN Role r ON u.role_id = r.role_id
-            JOIN Category c ON p.category_id = c.category_id
-            LEFT JOIN Category parent ON c.parent_id = parent.category_id
-            WHERE r.role_name = 'client'
-        ";
+    public function getUserPostsForAdmin($filters = [], $limit = 10, $offset = 0) 
+{
+    $sql = "
+        SELECT 
+            p.post_id, p.title, p.status, p.view_count, p.created_at, p.is_trending,
+            u.user_id, u.full_name AS author_name,
+            c.name AS category_name, parent.name AS parent_category_name
+        FROM Post p
+        JOIN `User` u ON p.user_id = u.user_id
+        JOIN Role r ON u.role_id = r.role_id
+        JOIN Category c ON p.category_id = c.category_id
+        LEFT JOIN Category parent ON c.parent_id = parent.category_id
+        WHERE r.role_name = 'client'
+    ";
 
-        $params = [];
+    $params = [];
 
-        if (!empty($filters['status'])) {
-            $sql .= " AND p.status = :status";
-            $params['status'] = $filters['status'];
-        } else {
-            $sql .= " AND p.status != 'hidden'";
-        }
-
-        if (!empty($filters['keyword'])) {
-            $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
-            $params['keyword'] = '%' . $filters['keyword'] . '%';
-        }
-
-        if (!empty($filters['category_id'])) {
-            $sql .= " AND (c.category_id = :category_id OR c.parent_id = :category_id)";
-            $params['category_id'] = $filters['category_id'];
-        }
-
-        if (!empty($filters['author_id'])) {
-            $sql .= " AND u.user_id = :author_id";
-            $params['author_id'] = $filters['author_id'];
-        }
-
-        if (!empty($filters['date'])) {
-            $sql .= " AND DATE(p.created_at) = :date";
-            $params['date'] = $filters['date'];
-        }
-
-        $sql .= " ORDER BY p.created_at DESC LIMIT 10";
-
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($params);
-
-        $posts = [];
-        foreach ($stmt->fetchAll() as $row) {
-            $posts[] = new Post($row);
-        }
-        return $posts;
+    if (!empty($filters['status'])) {
+        $sql .= " AND p.status = :status";
+        $params['status'] = $filters['status'];
+    } else {
+        $sql .= " AND p.status != 'hidden'";
     }
 
+    if (!empty($filters['keyword'])) {
+        $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
+        $params['keyword'] = '%' . $filters['keyword'] . '%';
+    }
+
+    if (!empty($filters['category_id'])) {
+        $sql .= " AND (c.category_id = :category_id OR c.parent_id = :category_id)";
+        $params['category_id'] = $filters['category_id'];
+    }
+
+    if (!empty($filters['author_id'])) {
+        $sql .= " AND u.user_id = :author_id";
+        $params['author_id'] = $filters['author_id'];
+    }
+
+    if (!empty($filters['date'])) {
+        $sql .= " AND DATE(p.created_at) = :date";
+        $params['date'] = $filters['date'];
+    }
+
+    $sql .= " ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset";
+
+    $stmt = $this->conn->prepare($sql);
+
+    foreach ($params as $key => $value) {
+        $stmt->bindValue(':' . $key, $value);
+    }
+
+    $stmt->bindValue(':limit',  (int)$limit,  PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    $posts = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $posts[] = new Post($row);
+    }
+    return $posts;
+}
     public function getCategoriesForFilter()
     {
         $sql = "SELECT category_id, name FROM Category ORDER BY name ASC";
@@ -99,17 +106,63 @@ class PostRepository
         return $stmt->execute(['post_id' => $postId]);
     }
 
-    public function countUserPosts()
-    {
-        $sql = "
-            SELECT COUNT(*) AS total FROM Post p
-            JOIN `User` u ON p.user_id = u.user_id
-            JOIN Role r ON u.role_id = r.role_id
-            WHERE r.role_name = 'client'
-        ";
-        return $this->conn->query($sql)->fetch()['total'];
+    // Dùng cho stat card - đếm TẤT CẢ không lọc hidden
+public function countUserPosts()
+{
+    $sql = "
+        SELECT COUNT(*) AS total FROM Post p
+        JOIN `User` u ON p.user_id = u.user_id
+        JOIN Role r ON u.role_id = r.role_id
+        WHERE r.role_name = 'client'
+    ";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetch()['total'];
+}
+
+// Dùng cho pagination - đếm theo filter
+public function countUserPostsFiltered($filters = [])
+{
+    $sql = "
+        SELECT COUNT(*) AS total FROM Post p
+        JOIN `User` u ON p.user_id = u.user_id
+        JOIN Role r ON u.role_id = r.role_id
+        WHERE r.role_name = 'client'
+    ";
+
+    $params = [];
+
+    if (!empty($filters['status'])) {
+        $sql .= " AND p.status = :status";
+        $params['status'] = $filters['status'];
+    } else {
+        $sql .= " AND p.status != 'hidden'";
     }
 
+    if (!empty($filters['keyword'])) {
+        $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
+        $params['keyword'] = '%' . $filters['keyword'] . '%';
+    }
+
+    if (!empty($filters['category_id'])) {
+        $sql .= " AND (p.category_id = :category_id)";
+        $params['category_id'] = $filters['category_id'];
+    }
+
+    if (!empty($filters['author_id'])) {
+        $sql .= " AND u.user_id = :author_id";
+        $params['author_id'] = $filters['author_id'];
+    }
+
+    if (!empty($filters['date'])) {
+        $sql .= " AND DATE(p.created_at) = :date";
+        $params['date'] = $filters['date'];
+    }
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetch()['total'];
+}
     public function countUserPostsByStatus($status)
     {
         $sql = "
