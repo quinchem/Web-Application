@@ -523,11 +523,9 @@ td small{
 .actions {
     display: flex;
     align-items: center;
-    justify-content: center;   /* ← đảm bảo căn giữa */
+    justify-content: center;
     gap: 12px;
     width: 100%;
-    min-height: 145px;
-    padding: 0;                /* ← bỏ padding lệch */
 }
 .actions button,
 .actions a{
@@ -547,17 +545,22 @@ td small{
     color:#df2529;
 }
 
-.approve-btn{
-    display:inline-block;
-    background:#00384f;
-    color:#fff;
-    padding:12px 20px;
-    border-radius:7px;
-    text-decoration:none;
-    text-align:center;
-    font-size:10px;
-    font-weight:900;
-    line-height:1.1;
+.actions a.approve-btn{
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: #00384f !important;
+    color: #fff !important;
+    padding: 12px 20px;
+    border-radius: 7px;
+    text-decoration: none !important;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 1.1;
+    min-width: 60px;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* PAGINATION */

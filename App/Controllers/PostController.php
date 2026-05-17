@@ -90,28 +90,34 @@ class PostController
     /**
      * Hiển thị danh sách bài viết cho admin
      */
-    public function adminUserPosts()
-    {
-        $filters = [
-            'keyword' => $_GET['keyword'] ?? '',
-            'category_id' => $_GET['category_id'] ?? '',
-            'author_id' => $_GET['author_id'] ?? '',
-            'status' => $_GET['status'] ?? '',
-            'date' => $_GET['date'] ?? ''
-        ];
+  public function adminUserPosts()
+{
+    $filters = [
+        'keyword'     => $_GET['keyword'] ?? '',
+        'category_id' => $_GET['category_id'] ?? '',
+        'author_id'   => $_GET['author_id'] ?? '',
+        'status'      => $_GET['status'] ?? '',
+        'date'        => $_GET['date'] ?? ''
+    ];
 
-        $posts = $this->postRepository->getUserPostsForAdmin($filters);
-        $categories = $this->postRepository->getCategoriesForFilter();
-        $authors = $this->postRepository->getAuthorsForFilter();
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['p'] ?? 1));
+    $offset      = ($currentPage - 1) * $perPage;
 
-        $totalPosts = $this->postRepository->countUserPosts();
-        $pendingPosts = $this->postRepository->countUserPostsByStatus('pending');
-        $hiddenPosts = $this->postRepository->countUserPostsByStatus('hidden');
-        $trendingPosts = $this->postRepository->countTrendingUserPosts();
+    $posts      = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
+    $categories = $this->postRepository->getCategoriesForFilter();
+    $authors    = $this->postRepository->getAuthorsForFilter();
 
-        require_once __DIR__ . '/../Views/Admin/Post/Index.php';
-    }
+    $totalPosts = $this->postRepository->countUserPosts();              // stat card: tất cả
+    $totalForPages = $this->postRepository->countUserPostsFiltered($filters); // pagination: theo filter
+    $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
+    $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
+    $trendingPosts = $this->postRepository->countTrendingUserPosts();
 
+    $totalPages = (int)ceil($totalForPages / $perPage);
+
+    require_once __DIR__ . '/../Views/Admin/Post/Index.php';
+}
     public function hidePost()
     {
         if (!isset($_GET['id'])) {
