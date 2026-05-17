@@ -24,7 +24,6 @@ class PostController
     public function __construct()
     {
         $this->postRepository = new PostRepository();
-        $this->categoryRepository = new CategoryRepository();
     }
 
     /**
