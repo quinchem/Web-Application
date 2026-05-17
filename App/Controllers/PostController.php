@@ -16,7 +16,6 @@ require_once __DIR__ . '/../../Repositories/CategoryRepository.php';
 class PostController
 {
     private $postRepository;        // Repository để lấy dữ liệu bài viết
-    private $categoryRepository;    // Repository để lấy dữ liệu danh mục
 
     /**
      * Constructor - Khởi tạo các repository
