@@ -178,10 +178,15 @@ class PostRepository
         return $this->conn->query($sql)->fetchAll();
     }
 
-public function getPostById($postId) {
-        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name, u.avatar 
+    public function getPostById($postId) {
+        // Lấy danh mục 2 cấp
+        $sql = "SELECT p.*, 
+                       c.name as category_name, 
+                       parent.name as parent_category_name,
+                       u.full_name as author_name, u.avatar 
                 FROM Post p 
                 JOIN Category c ON p.category_id = c.category_id 
+                LEFT JOIN Category parent ON c.parent_id = parent.category_id
                 JOIN `User` u ON p.user_id = u.user_id 
                 WHERE p.post_id = :id";
         $stmt = $this->conn->prepare($sql);
@@ -198,7 +203,7 @@ public function getPostById($postId) {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-public function getRecommendedPosts($currentPostId) {
+    public function getRecommendedPosts($currentPostId) {
         $sql = "SELECT p.post_id, p.title, p.thumbnail_URL, p.summary, p.published_at, c.name AS category_name,
                 (COALESCE((SELECT COUNT(*) FROM `Like` WHERE post_id = p.post_id), 0) + 
                  COALESCE((SELECT COUNT(*) FROM Comment WHERE post_id = p.post_id), 0) +
@@ -212,8 +217,7 @@ public function getRecommendedPosts($currentPostId) {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-public function getCommentsByPostId($postId, $limit = 5, $offset = 0) {
-        // Gán cứng tên người dùng bình luận là 'client16'
+    public function getCommentsByPostId($postId, $limit = 5, $offset = 0) {
         $sql = "SELECT c.*, COALESCE(u.full_name, 'client16') AS full_name, u.avatar 
                 FROM Comment c
                 JOIN `User` u ON c.user_id = u.user_id
@@ -234,6 +238,25 @@ public function getCommentsByPostId($postId, $limit = 5, $offset = 0) {
         return $stmt->fetchColumn();
     }
 
+    /**
+     * Hàm hỗ trợ tự động sinh mã ID (LK0001, BM0001, CM0001)
+     */
+    private function generateNewId($tableName, $idColumn, $prefix) {
+        $sql = "SELECT $idColumn FROM `$tableName` ORDER BY $idColumn DESC LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $lastRecord = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($lastRecord && !empty($lastRecord[$idColumn])) {
+            $lastId = $lastRecord[$idColumn];
+            $number = (int)substr($lastId, 2);
+            $newNumber = $number + 1;
+            return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        } else {
+            return $prefix . '0001';
+        }
+    }
+
     public function toggleLike($postId, $userId) {
         $checkSql = "SELECT * FROM `Like` WHERE post_id = :post_id AND user_id = :user_id";
         $stmt = $this->conn->prepare($checkSql);
@@ -244,8 +267,15 @@ public function getCommentsByPostId($postId, $limit = 5, $offset = 0) {
             $this->conn->prepare($sql)->execute(['post_id' => $postId, 'user_id' => $userId]);
             return ['status' => 'unliked', 'message' => 'Đã bỏ thích bài viết'];
         } else {
-            $sql = "INSERT INTO `Like` (post_id, user_id, created_at) VALUES (:post_id, :user_id, NOW())";
-            $this->conn->prepare($sql)->execute(['post_id' => $postId, 'user_id' => $userId]);
+            // Tự động sinh mã
+            $newLikeId = $this->generateNewId('Like', 'like_id', 'LK');
+            
+            $sql = "INSERT INTO `Like` (like_id, post_id, user_id, created_at) VALUES (:like_id, :post_id, :user_id, NOW())";
+            $this->conn->prepare($sql)->execute([
+                'like_id' => $newLikeId,
+                'post_id' => $postId, 
+                'user_id' => $userId
+            ]);
             return ['status' => 'liked', 'message' => 'Đã thích bài viết'];
         }
     }
@@ -260,16 +290,27 @@ public function getCommentsByPostId($postId, $limit = 5, $offset = 0) {
             $this->conn->prepare($sql)->execute(['post_id' => $postId, 'user_id' => $userId]);
             return ['status' => 'unsaved', 'message' => 'Đã bỏ lưu bài viết'];
         } else {
-            $sql = "INSERT INTO Bookmark (post_id, user_id, created_at) VALUES (:post_id, :user_id, NOW())";
-            $this->conn->prepare($sql)->execute(['post_id' => $postId, 'user_id' => $userId]);
+            // Tự động sinh mã
+            $newBookmarkId = $this->generateNewId('Bookmark', 'bookmark_id', 'BM');
+
+$sql = "INSERT INTO Bookmark (bookmark_id, post_id, user_id) VALUES (:bookmark_id, :post_id, :user_id)";
+            $this->conn->prepare($sql)->execute([
+                'bookmark_id' => $newBookmarkId,
+                'post_id' => $postId, 
+                'user_id' => $userId
+            ]);
             return ['status' => 'saved', 'message' => 'Đã lưu bài viết'];
         }
     }
 
     public function addComment($postId, $userId, $content) {
-        $sql = "INSERT INTO Comment (post_id, user_id, content, created_at) VALUES (:post_id, :user_id, :content, NOW())";
+        // Tự động sinh mã
+        $newCommentId = $this->generateNewId('Comment', 'comment_id', 'CM');
+
+        $sql = "INSERT INTO Comment (comment_id, post_id, user_id, content, created_at) VALUES (:comment_id, :post_id, :user_id, :content, NOW())";
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
+            'comment_id' => $newCommentId,
             'post_id' => $postId,
             'user_id' => $userId,
             'content' => $content
