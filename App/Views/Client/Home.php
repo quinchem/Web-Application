@@ -90,14 +90,14 @@ include __DIR__ . '/../Partials/Client/Header.php';
                 </div>
                 <div class="col-span-5 space-y-8">
                     <?php foreach ($thoiSu as $p): ?>
-                        <div class="border-b border-gray-100 pb-6 last:border-b-0">
+                        <div class="border-b-2 border-navy-100 pb-6 last:border-b-0">
                             <span
                                 class="text-[12px] font-barlow font-bold uppercase text-[#b90c17] block mb-2"><?= htmlspecialchars($p['category_name'] ?? '') ?></span>
                             <h4
                                 class="font-serif font-bold text-xl hover:text-[#b90c17] cursor-pointer transition line-clamp-2">
                                 <?= htmlspecialchars($p['title'] ?? '') ?>
                             </h4>
-                            <p class="text-gray-500 mt-4 font-light line-clamp-3"><?= htmlspecialchars($p['summary'] ?? '') ?>
+                            <p class="text-gray-500 mt-3 font-light line-clamp-3"><?= htmlspecialchars($p['summary'] ?? '') ?>
                             </p>
                             <div class="flex items-center gap-2 mt-3 text-[11px] font-bold uppercase text-gray-400">
                                 <span><?= isset($p['published_at']) ? date('d/m/Y', strtotime($p['published_at'])) : '' ?></span>
@@ -144,14 +144,14 @@ include __DIR__ . '/../Partials/Client/Header.php';
                 </div>
                 <div class="col-span-5 space-y-8">
                     <?php foreach ($kinhTe as $p): ?>
-                        <div class="border-b border-gray-100 pb-6 last:border-b-0">
+                        <div class="border-b-2 border-navy-100 pb-6 last:border-b-0">
                             <span
                                 class="text-[12px] font-barlow font-bold uppercase text-[#b90c17] block mb-2"><?= htmlspecialchars($p['category_name'] ?? '') ?></span>
                             <h4
                                 class="font-serif font-bold text-xl hover:text-[#b90c17] cursor-pointer transition line-clamp-2">
                                 <?= htmlspecialchars($p['title'] ?? '') ?>
                             </h4>
-                            <p class="text-gray-500 mt-4 font-light line-clamp-3"><?= htmlspecialchars($p['summary'] ?? '') ?>
+                            <p class="text-gray-500 mt-3 font-light line-clamp-3"><?= htmlspecialchars($p['summary'] ?? '') ?>
                             </p>
                             <div class="flex items-center gap-2 mt-3 text-[11px] font-bold uppercase text-gray-400">
                                 <span><?= isset($p['published_at']) ? date('d/m/Y', strtotime($p['published_at'])) : '' ?></span>
