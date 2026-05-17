@@ -90,7 +90,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
                 </div>
                 <div class="col-span-5 space-y-8">
                     <?php foreach ($thoiSu as $p): ?>
-                        <div class="border-b border-navy-100 pb-6 last:border-b-0">
+                        <div class="border-b-2 border-navy-100 pb-6 last:border-b-0">
                             <span
                                 class="text-[12px] font-barlow font-bold uppercase text-[#b90c17] block mb-2"><?= htmlspecialchars($p['category_name'] ?? '') ?></span>
                             <h4
@@ -144,7 +144,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
                 </div>
                 <div class="col-span-5 space-y-8">
                     <?php foreach ($kinhTe as $p): ?>
-                        <div class="border-b border-navy-100 pb-6 last:border-b-0">
+                        <div class="border-b-2 border-navy-100 pb-6 last:border-b-0">
                             <span
                                 class="text-[12px] font-barlow font-bold uppercase text-[#b90c17] block mb-2"><?= htmlspecialchars($p['category_name'] ?? '') ?></span>
                             <h4
