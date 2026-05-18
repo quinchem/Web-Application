@@ -15,15 +15,16 @@
 </head>
 <body>
 <header class="header-container">
-    <div class="container">
+    <div class="container" style="width: 1140px;">
         <div class="header-top">
             <div class="header-meta" style="font-size: 0.8rem; font-weight: 600; display: flex; gap: 20px;">
+                <span><i class="fas fa-calendar-alt" style = "margin-right: 8px;" ></i> <?= date('l, d/m/Y') ?></span>
                
             </div>
             <a class="logo-text" href="index.php?page=homepage">Trạm Tin Việt</a>
             <div class="auth-links" style="font-size: 0.8rem; font-weight: 700; display: flex; gap: 15px;">
                 <a href="index.php?page=register" style="color: white; text-decoration: none;">Đăng Ký</a>
-                <span style="opacity: 0.3;">|</span>
+                <span style="opacity: 0.5;">|</span>
                 <a href="index.php?page=login" style="color: white; text-decoration: none;">Đăng Nhập</a>
             </div>
         </div>
@@ -36,7 +37,7 @@
             </ul>
             <div class="search-box" style="position: relative;">
                 <input type="text" placeholder="Tìm kiếm..." style="padding: 8px 15px 8px 35px; border-radius: 10px; border: none; outline: none; width: 220px;">
-                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #ccc;"></i>
+                <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #bababa;"></i>
             </div>
         </nav>
     </div>

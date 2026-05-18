@@ -6,7 +6,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* Thêm một số CSS bổ sung để giữ nguyên các hiệu ứng mượt mà của Tailwind cũ */
         .hero-section {
             height: 500px;
             position: relative;
@@ -29,7 +28,7 @@
         }
         .hero-content {
             position: absolute;
-            inset: 0;
+            inset: 0 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -56,6 +55,9 @@
         .post-main-img:hover {
             opacity: 0.9;
         }
+        .border-bottom:last-child {
+    border-bottom: 0 !important;
+}
         /* Custom Line Clamp cho Bootstrap để giới hạn số dòng chữ hiển thị */
         .clamp-2 {
             display: -webkit-box;
@@ -75,6 +77,8 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        body { font-family: 'Montserrat', sans-serif; }
+        .font-serif { font-family: 'Newsreader', serif; }
     </style>
 </head>
 
@@ -85,14 +89,14 @@
 include __DIR__ . '/../Partials/Client/Header.php';
 ?>
 
-<main class="container bg-white p-4 p-md-5 my-5 rounded-5 shadow-sm" style="max-width: 1140px; min-height: 100vh;">
+<main class="container bg-white my-5 " style="width: 1140px; min-height: 100vh;">
 
     <?php if (isset($heroPost) && $heroPost): ?>
         <section class="hero-section mb-5 shadow">
             <a href="index.php?page=post&id=<?= $heroPost['post_id'] ?>" class="text-decoration-none">
                 <img src="<?= $heroPost['thumbnail_url'] ?? '' ?>" class="hero-img" alt="Hero Thumbnail">
                 <div class="hero-gradient"></div>
-                <div class="hero-content px-4 px-md-5 text-white">
+                <div class="hero-content text-white">
                     <div>
                         <span class="bg-danger text-white px-3 py-2 mb-4 d-inline-block fw-bold text-uppercase tracking-wider" style="font-size: 11px; font-family: sans-serif; background-color: #b90c17 !important;">
                             Tiêu điểm tuần qua
@@ -118,6 +122,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
         </section>
     <?php endif; ?>
 
+
     <section class="mb-5 pb-4">
         <div class="d-flex justify-content-between align-items-end section-title-border mb-4 pb-2">
             <h2 class="h3 fw-bold m-0" style="color: #003049; font-family: 'Barlow', sans-serif;">Thời sự</h2>
@@ -131,13 +136,13 @@ include __DIR__ . '/../Partials/Client/Header.php';
                 $first = array_shift($thoiSu); ?>
                 <div class="col-12 col-lg-7">
                     <a href="index.php?page=post&id=<?= $first['post_id'] ?>" class="text-decoration-none text-dark d-block">
-                        <img src="<?= ($first['thumbnail_url'] ?? '') ?>" class="w-full w-100 post-main-img mb-3 shadow-sm img-fluid">
+                        <img src="<?= ($first['thumbnail_url'] ?? '') ?>" class="w-100 post-main-img mb-3 shadow-sm" alt="Thumbnail">
                         <div class="d-flex align-items-center gap-3 my-2 text-muted small">
                             <span class="fw-bold text-uppercase" style="font-size: 14px; color: #b90c17; font-family: 'Barlow', sans-serif;">
                                 <?= htmlspecialchars($first['category_name'] ?? '') ?>
                             </span>
                         </div>
-                        <h3 class="h3 fw-bold mb-3" style="font-family: serif; transition: color 0.2s;" onmouseover="this.style.color='#b90c17'" onmouseout sabotage this.style.color=''">
+                <h3 class="h3 fw-bold mb-3" style="font-family: serif; transition: color 0.2s;" onmouseover="this.style.color='#b90c17'" onmouseout="this.style.color=''">
                             <?= htmlspecialchars($first['title'] ?? '') ?>
                         </h3>
                         <p class="text-secondary fw-light" style="text-align: justify;"><?= htmlspecialchars($first['summary'] ?? '') ?></p>
@@ -152,7 +157,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
                 <div class="col-12 col-lg-5">
                     <div class="d-flex flex-column gap-4">
                         <?php foreach ($thoiSu as $p): ?>
-                            <div class="border-bottom pb-4" style="border-color: #e5e7eb !important;">
+                            <div class="border-bottom pb-4" style="border-color: #e5e7eb !important; last-child:border-0;">
                                 <span class="fw-bold text-uppercase d-block mb-2" style="font-size: 12px; color: #b90c17; font-family: 'Barlow', sans-serif;">
                                     <?= htmlspecialchars($p['category_name'] ?? '') ?>
                                 </span>
@@ -175,6 +180,8 @@ include __DIR__ . '/../Partials/Client/Header.php';
         </div>
     </section>
 
+
+
     <section class="mb-5 pb-4">
         <div class="d-flex justify-content-between align-items-end section-title-border mb-4 pb-2">
             <h2 class="h3 fw-bold m-0" style="color: #003049; font-family: 'Barlow', sans-serif;">Kinh tế</h2>
@@ -188,7 +195,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
                 $first = array_shift($kinhTe); ?>
                 <div class="col-12 col-lg-7">
                     <a href="index.php?page=post&id=<?= $first['post_id'] ?>" class="text-decoration-none text-dark d-block">
-                        <img src="<?= ($first['thumbnail_url'] ?? '') ?>" class="w-full w-100 post-main-img mb-3 shadow-sm img-fluid">
+                        <img src="<?= ($first['thumbnail_url'] ?? '') ?>" class="w-100 post-main-img mb-3 shadow-sm" alt="Thumbnail">
                         <div class="d-flex align-items-center gap-3 my-2 text-muted small">
                             <span class="fw-bold text-uppercase" style="font-size: 14px; color: #b90c17; font-family: 'Barlow', sans-serif;">
                                 <?= htmlspecialchars($first['category_name'] ?? '') ?>
@@ -209,7 +216,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
                 <div class="col-12 col-lg-5">
                     <div class="d-flex flex-column gap-4">
                         <?php foreach ($kinhTe as $p): ?>
-                            <div class="border-bottom pb-4" style="border-color: #e5e7eb !important;">
+                            <div class="border-bottom pb-4" style="border-color: #e5e7eb !important; last-child:border-0;">
                                 <span class="fw-bold text-uppercase d-block mb-2" style="font-size: 12px; color: #b90c17; font-family: 'Barlow', sans-serif;">
                                     <?= htmlspecialchars($p['category_name'] ?? '') ?>
                                 </span>
