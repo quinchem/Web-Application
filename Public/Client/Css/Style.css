@@ -23,13 +23,11 @@ body {
 
 /* BỐ CỤC 2/3 NẰM GIỮA */
 .container {
-  max-width: 1140px;
-  /* Độ rộng chuẩn để tạo cảm giác 2/3 màn hình desktop */
+  width: 1140px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-/* HEADER - Bố cục từ file header.html */
 .header-container {
   background-color: var(--navy);
   color: white;
@@ -45,6 +43,7 @@ body {
   align-items: center;
   padding: 15px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
 }
 
 .logo-text {
@@ -63,6 +62,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
+  width: 100%;
 }
 
 .menu-items {
