@@ -11,8 +11,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link rel="stylesheet" href="/Web-Application/Public/Admin/Css/PostIndex.css">
-</head>
+     <link rel="stylesheet" href="/Web-Application/Public/Admin/Css/ReviewPost.css">
+     <script src="/Web-Application/Public/Admin/Js/ReviewPost.js" defer></script>
+    <script src="/Web-Application/Public/Admin/Js/PostIndex.js" defer></script> 
+     <link rel="stylesheet" href="/Web-Application/Public/Admin/Css/ProfileMenu.css">
+<script src="/Web-Application/Public/Admin/Js/ProfileMenu.js" defer></script>
 
+</head>
 <body>
 
 <div class="admin-layout">
@@ -209,9 +214,16 @@
 
         <?php if ($status === 'pending'): ?>
 
-            <a href="Index.php?page=review_post&id=<?= htmlspecialchars($post->post_id) ?>" class="approve-btn">
-                DUYỆT<br>BÀI
-            </a>
+    <button
+        class="approve-btn"
+        type="button"
+        onclick="openReviewModal(
+            '<?= htmlspecialchars($post->post_id) ?>',
+            '<?= htmlspecialchars(addslashes($post->title)) ?>'
+        )"
+    >
+        DUYỆT<br>BÀI
+    </button>
 
         <?php elseif ($status !== 'hidden'): ?>
 
@@ -250,70 +262,53 @@
 
                 </table>
 
-                <div class="pagination">
+                <?php
+$currentPage   = max(1, (int)$currentPage);
+$perPage       = max(1, (int)$perPage);
+$totalPages    = max(1, (int)$totalPages);
+$totalForPages = (int)$totalForPages;
+?>
 
-                   <span>
-    HIỂN THỊ <?= min(($currentPage - 1) * $perPage + 1, $totalForPages) ?> - <?= min($currentPage * $perPage, $totalForPages) ?> TRONG SỐ <?= $totalPosts ?? 0 ?> BÀI VIẾT
-</span>
+<div class="pagination">
+    <span>
+        HIỂN THỊ <?= min(($currentPage - 1) * $perPage + 1, $totalForPages) ?> 
+        - 
+        <?= min($currentPage * $perPage, $totalForPages) ?> 
+        TRONG SỐ <?= (int)($totalPosts ?? 0) ?> BÀI VIẾT
+    </span>
 
-                    <div>
-                        <button type="button" onclick="goToPage(<?= $currentPage - 1 ?>)" <?= $currentPage <= 1 ? 'disabled' : '' ?>>‹</button>
+    <div>
+        <button type="button" onclick="goToPage(<?= $currentPage - 1 ?>)" 
+            <?= $currentPage <= 1 ? 'disabled' : '' ?>>‹</button>
 
-                        <button type="button" class="<?= $currentPage == 1 ? 'current' : '' ?>" onclick="goToPage(1)">1</button>
+        <button type="button" class="<?= $currentPage == 1 ? 'current' : '' ?>" 
+            onclick="goToPage(1)">1</button>
 
-                        <?php if ($totalPages > 1): ?>
+        <?php if ($totalPages > 1): ?>
 
-                            <?php if ($currentPage > 3): ?>
-                                <button type="button" disabled>...</button>
-                            <?php endif; ?>
+            <?php if ($currentPage > 3): ?>
+                <button type="button" disabled>...</button>
+            <?php endif; ?>
 
-                            <?php for ($i = max(2, $currentPage - 1); $i <= min($totalPages - 1, $currentPage + 1); $i++): ?>
-                                <button type="button" class="<?= $currentPage == $i ? 'current' : '' ?>" onclick="goToPage(<?= $i ?>)"><?= $i ?></button>
-                            <?php endfor; ?>
+            <?php for ($i = max(2, $currentPage - 1); $i <= min($totalPages - 1, $currentPage + 1); $i++): ?>
+                <button type="button" class="<?= $currentPage == $i ? 'current' : '' ?>" 
+                    onclick="goToPage(<?= $i ?>)"><?= $i ?></button>
+            <?php endfor; ?>
 
-                            <?php if ($currentPage < $totalPages - 2): ?>
-                                <button type="button" disabled>...</button>
-                            <?php endif; ?>
+            <?php if ($currentPage < $totalPages - 2): ?>
+                <button type="button" disabled>...</button>
+            <?php endif; ?>
 
-                            <button type="button" class="<?= $currentPage == $totalPages ? 'current' : '' ?>" onclick="goToPage(<?= $totalPages ?>)"><?= $totalPages ?></button>
+            <button type="button" class="<?= $currentPage == $totalPages ? 'current' : '' ?>" 
+                onclick="goToPage(<?= $totalPages ?>)"><?= $totalPages ?></button>
 
-                        <?php endif; ?>
+        <?php endif; ?>
 
-                        <button type="button" onclick="goToPage(<?= $currentPage + 1 ?>)" <?= $currentPage >= $totalPages ? 'disabled' : '' ?>>›</button>
-                    </div>
+        <button type="button" onclick="goToPage(<?= $currentPage + 1 ?>)" 
+            <?= $currentPage >= $totalPages ? 'disabled' : '' ?>>›</button>
+    </div>
 
-                </div>
-
-            </div><!-- đóng table-card -->
-
-            <?php require_once __DIR__ . '/../../Partials/Admin/Footer.php'; ?>
-
-        </section>
-
-    </main>
-
-</div><!-- đóng admin-layout -->
-
-<script>
-function goToPage(page) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('p', page);
-    window.location.href = url.toString();
-}
-</script>
-
-</body>
-</html>
-
-<script>
-function goToPage(page) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('p', page);
-    window.location.href = url.toString();
-}
-</script>
-
-                </div>
+</div>
 
             </div>
 
@@ -324,6 +319,8 @@ function goToPage(page) {
     </main>
 
 </div>
+
+<?php require_once __DIR__ . '/Review.php'; ?>
 
 </body>
 </html>

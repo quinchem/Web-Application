@@ -62,18 +62,15 @@ switch ($page) {
     case 'api_comment':
         $postController->apiAddComment();
         break;
-
-    // ==========================================
-    // TRANG CHO QUẢN TRỊ VIÊN (ADMIN)
-    // ==========================================
+    
     case 'admin_user_posts':
-        // Danh sách bài viết của người dùng trong giao diện Admin
         $postController->adminUserPosts();
         break;
 
-    // ==========================================
-    // MẶC ĐỊNH
-    // ==========================================
+    case 'review_post':
+    $postController->reviewPost();
+    break;
+    
     default:
         // Nếu không tìm thấy, về trang chủ
         $postController->homepage();
