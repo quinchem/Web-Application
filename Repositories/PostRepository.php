@@ -106,7 +106,6 @@ class PostRepository
         return $stmt->execute(['post_id' => $postId]);
     }
 
-    // Dùng cho stat card - đếm TẤT CẢ không lọc hidden
 public function countUserPosts()
 {
     $sql = "
@@ -120,7 +119,6 @@ public function countUserPosts()
     return $stmt->fetch()['total'];
 }
 
-// Dùng cho pagination - đếm theo filter
 public function countUserPostsFiltered($filters = [])
 {
     $sql = "
@@ -186,6 +184,22 @@ public function countUserPostsFiltered($filters = [])
         ";
         return $this->conn->query($sql)->fetch()['total'];
     }
+
+    public function reviewPost(string $postId, string $decision, string $reason = ''): bool
+{
+    $sql = "UPDATE Post          
+            SET status      = :status,
+                review_note = :reason,
+                reviewed_at = NOW()
+            WHERE post_id   = :post_id";
+
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute([
+        ':status'  => $decision,
+        ':reason'  => $reason,
+        ':post_id' => $postId
+    ]);
+}
 
     public function getHeroPost() {
         $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, c.name as category_name, u.full_name as author_name 

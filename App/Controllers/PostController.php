@@ -88,7 +88,7 @@ class PostController
     }
 
     /**
-     * Hiển thị danh sách bài viết cho admin
+     * Admin quản lý bài viết người đọc
      */
   public function adminUserPosts()
 {
@@ -131,6 +131,28 @@ class PostController
         header('Location: Index.php?page=admin_user_posts');
         exit;
     }
+    public function reviewPost()
+{
+    if (!isset($_GET['id'])) {
+        header('Location: Index.php?page=admin_user_posts');
+        exit;
+    }
+
+    $postId   = $_GET['id'];
+    $decision = $_GET['decision'] ?? 'approved';
+    $reason   = urldecode($_GET['reason'] ?? '');
+
+    // Chỉ cho phép 2 giá trị hợp lệ
+    if (!in_array($decision, ['approved', 'rejected'])) {
+        header('Location: Index.php?page=admin_user_posts');
+        exit;
+    }
+
+    $this->postRepository->reviewPost($postId, $decision, $reason);
+
+    header('Location: Index.php?page=admin_user_posts');
+    exit;
+}
 
     // ==========================================
     // CÁC HÀM XỬ LÝ AJAX (THÍCH, LƯU, BÌNH LUẬN)

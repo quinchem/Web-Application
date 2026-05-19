@@ -1,0 +1,211 @@
+/* ================================
+   REVIEW MODAL - Duyệt bài viết
+================================ */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 56, 79, 0.45);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 16px;
+    width: 560px;
+    max-width: 95vw;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    padding: 0;  /* ← bỏ hết padding */
+    overflow: hidden; /* ← giữ border-radius */
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #aabcc6;
+    cursor: pointer;
+    /* xóa position: absolute, top, right đi */
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-label {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #e52328;
+    margin-bottom: 14px;
+}
+
+.modal-title {
+    font-family: 'Newsreader', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #07344a;
+    margin-bottom: 24px;
+    line-height: 1.35;
+}
+
+.modal-section-label {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    color: #07344a;
+    margin-bottom: 12px;
+    margin-top: 0;
+}
+
+.modal-decision {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.decision-btn {
+    height: 56px;
+    border-radius: 14px;
+    border: 2px solid transparent;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Barlow', sans-serif;
+    transition: all 0.15s;
+}
+
+.decision-btn.approve {
+    background: #e8f4fb;
+    border-color: #5ab4d6;
+    color: #07344a;
+}
+
+.decision-btn.approve.selected,
+.decision-btn.approve:hover {
+    background: #cce9f5;
+    border-color: #1a8ab5;
+}
+
+.decision-btn.reject {
+    background: #f0f0f0;
+    border-color: #d0d0d0;
+    color: #07344a;
+}
+
+.decision-btn.reject.selected,
+.decision-btn.reject:hover {
+    background: #fde8e8;
+    border-color: #e52328;
+    color: #e52328;
+}
+
+.modal-textarea {
+    width: 100%;
+    height: 120px;
+    background: #e8f4fb;
+    border: none;
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #07344a;
+    font-family: 'Barlow', sans-serif;
+    resize: none;
+    outline: none;
+    margin-bottom: 28px;
+}
+
+.modal-textarea::placeholder {
+    color: #9fb0bc;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 24px;
+    background: #f0f5f8;
+    padding: 20px 36px;
+    border-top: 1px solid #e8eff3;
+    /* bỏ hết margin */
+}
+
+.modal-cancel {
+    background: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 800;
+    color: #07344a;
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+}
+
+.modal-confirm {
+    background: #e52328;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 36px;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    box-shadow: 0 8px 20px rgba(229, 35, 40, 0.25);
+}
+
+.modal-confirm:hover {
+    background: #c81d22;
+}
+/* Label header - căn giữa theo chiều dọc */
+.modal-header {
+    background: #f0f5f8;
+    padding: 20px 36px;
+    border-bottom: 0.75px solid #e8eff3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 60px;
+}
+
+.modal-body {
+    padding: 24px 36px;
+}
+
+.modal-label {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #07344a;
+}
+
+/* Section label màu xám */
+.modal-section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #8fa8b5;  /* ← đổi sang xám */
+    margin-bottom: 12px;
+    margin-top: 0;
+}
+
+/* Tên bài viết đậm hơn */
+.modal-title {
+    font-family: 'Newsreader', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #07344a;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
