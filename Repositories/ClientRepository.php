@@ -21,40 +21,23 @@ class ClientRepository
     // LOGIN
     // =========================
 
-    public function checkLogin($email, $password)
-{
-    $sql = "
-        SELECT *
-        FROM `User`
-        WHERE email = :email
-        AND account_status = 'active'
-        LIMIT 1
-    ";
+   public function getUserByUsername($username) {
+        try {
+            // Chú ý: Thay 'users' bằng tên bảng thực tế của bạn trong CSDL nếu khác
+            $sql = "SELECT * FROM user WHERE user_name = :username LIMIT 1";
+            
+            // Nếu bạn dùng PDO:
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':username', $username, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            // Trả về một mảng chứa thông tin user, hoặc false nếu không tìm thấy
+            return $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $stmt = $this->conn->prepare($sql);
-
-    $stmt->execute([
-        'email' => $email
-    ]);
-
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-
-    // CHECK HASH PASSWORD
-
-    if ($user) {
-
-        if (
-            password_verify(
-                $password,
-                $user['password']
-            )
-        ) {
-
-            return new User($user);
+        } catch (PDOException $e) {
+            // Xử lý lỗi nếu có
+            echo "Lỗi truy vấn: " . $e->getMessage();
+            return false;
         }
     }
-
-    return null;
 }   
-}

@@ -168,8 +168,7 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
             </div>
 
             <div class="comments-section mt-5" id="comment-section">
-                <h3 class="fw-bold mb-4" style="color: var(--navy); font-family: 'Newsreader', serif;">Bình luận (<?= $totalComments ?>)</h3>
-                
+  <h3 id="comment-count-title" class="fw-bold mb-4" style="color: var(--navy); font-family: 'Newsreader', serif;" data-count="<?= $totalComments ?>">Bình luận (<?= $totalComments ?>)</h3>              
                 <div class="comment-input-box p-4 mb-5">
                     <textarea id="comment-content" class="form-control border-0 bg-white" rows="3" placeholder="Chia sẻ ý kiến của bạn..." style="resize: none;"></textarea>
                     <div class="text-end mt-3">
@@ -233,13 +232,33 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
 <script>
     const currentPostId = '<?= $post['post_id'] ?>';
+    
+    // Kiểm tra xem session có tồn tại user_id không để JS biết trạng thái
+    const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
+
+    /**
+     * Hàm gọi Modal đăng nhập (Dùng chung)
+     */
+    function requireLogin() {
+        if (typeof bootstrap !== 'undefined') {
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        } else {
+            // Đề phòng bootstrap chưa load kịp hoặc đang dùng giao diện Login riêng
+            window.location.href = 'index.php?page=login';
+        }
+    }
 
     function handleLike() {
+        if (!isLoggedIn) { requireLogin(); return; }
+
         let formData = new FormData();
         formData.append('post_id', currentPostId);
         fetch('index.php?page=api_like', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
+            if (data.status === 'unauthorized') { requireLogin(); return; }
+
             const btn = document.getElementById('btn-like');
             if(data.status === 'liked') {
                 btn.style.background = '#003049'; btn.style.color = '#fff';
@@ -256,11 +275,15 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     }
 
     function handleSave() {
+        if (!isLoggedIn) { requireLogin(); return; }
+
         let formData = new FormData();
         formData.append('post_id', currentPostId);
         fetch('index.php?page=api_save', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
+            if (data.status === 'unauthorized') { requireLogin(); return; }
+
             const btn = document.getElementById('btn-save');
             if(data.status === 'saved') {
                 btn.style.background = '#B90C17'; btn.style.color = '#fff';
@@ -277,23 +300,70 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     }
 
     function submitComment() {
-        const content = document.getElementById('comment-content').value.trim();
+        if (!isLoggedIn) { requireLogin(); return; }
+
+        const contentInput = document.getElementById('comment-content');
+        const content = contentInput.value.trim();
+        
         if(!content) {
             Swal.fire('Cảnh báo', 'Vui lòng nhập nội dung bình luận trước khi bấm gửi!', 'warning');
             return;
         }
+
         let formData = new FormData();
         formData.append('post_id', currentPostId);
         formData.append('content', content);
+        
         fetch('index.php?page=api_comment', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
+            if (data.status === 'unauthorized') { requireLogin(); return; }
+
             if(data.status === 'success') {
-                Swal.fire({ icon: 'success', title: 'Thành công', text: 'Bình luận của bạn đã được đăng tải thành công!', timer: 1500, showConfirmButton: false })
-                .then(() => { location.reload(); });
+                Swal.fire({ icon: 'success', title: 'Thành công', text: 'Bình luận của bạn đã được đăng tải!', timer: 1500, showConfirmButton: false });
+                
+                // 1. Dọn dẹp ô nhập liệu
+                contentInput.value = '';
+
+                // 2. Chèn bình luận mới vào đầu danh sách (AJAX thuần không reload)
+                const commentArea = document.querySelector('.comment-area');
+                
+                // Xóa dòng chữ "Chưa có bình luận nào" nếu có
+                const noCommentMsg = commentArea.querySelector('p.text-muted');
+                if (noCommentMsg) noCommentMsg.remove();
+
+                // Tạo cấu trúc HTML cho bình luận mới
+                const newCommentHtml = `
+                    <div class="d-flex mb-4 pb-4 border-bottom" style="animation: fadeIn 0.5s;">
+                        <img src="${data.comment.avatar}" class="comment-avatar me-3" alt="Avatar">
+                        <div class="w-100">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="fw-bold" style="color: var(--navy);">${data.comment.full_name}</div>
+                                <div class="small text-muted">${data.comment.created_at}</div>
+                            </div>
+                            <div class="text-dark" style="font-size: 0.95rem; line-height: 1.6;">${data.comment.content}</div>
+                            <a href="#" class="text-danger fw-bold text-decoration-none mt-2 d-inline-block" style="font-size: 0.8rem; color: var(--red) !important;">TRẢ LỜI</a>
+                        </div>
+                    </div>
+                `;
+                
+                // Chèn vào vị trí trên cùng
+                commentArea.insertAdjacentHTML('afterbegin', newCommentHtml);
+
+                // 3. Tăng bộ đếm bình luận lên 1
+                const titleEl = document.getElementById('comment-count-title');
+                let currentCount = parseInt(titleEl.getAttribute('data-count'));
+                currentCount++;
+                titleEl.setAttribute('data-count', currentCount);
+                titleEl.innerText = `Bình luận (${currentCount})`;
+                
             } else {
                 Swal.fire('Lỗi', data.message, 'error');
             }
+        })
+        .catch(error => {
+            console.error('Lỗi AJAX:', error);
+            Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
         });
     }
 </script>
