@@ -158,29 +158,60 @@ class PostController
     // CÁC HÀM XỬ LÝ AJAX (THÍCH, LƯU, BÌNH LUẬN)
     // ==========================================
 
-    private $fakeUserId = 'US0001'; // ID người dùng giả định cho mục đích demo
+private function getCurrentUserId() {
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        return $_SESSION['user_id'] ?? null;
+    }
 
     public function apiToggleLike() {
+        $userId = $this->getCurrentUserId();
+        if (!$userId) { 
+            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
+            return; 
+        }
+
         $postId = $_POST['post_id'] ?? null;
         if($postId) {
-            echo json_encode($this->postRepository->toggleLike($postId, $this->fakeUserId));
+            echo json_encode($this->postRepository->toggleLike($postId, $userId));
         }
     }
 
     public function apiToggleSave() {
+        $userId = $this->getCurrentUserId();
+        if (!$userId) { 
+            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
+            return; 
+        }
+
         $postId = $_POST['post_id'] ?? null;
         if($postId) {
-            echo json_encode($this->postRepository->toggleBookmark($postId, $this->fakeUserId));
+            echo json_encode($this->postRepository->toggleBookmark($postId, $userId));
         }
     }
 
     public function apiAddComment() {
+        $userId = $this->getCurrentUserId();
+        if (!$userId) { 
+            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
+            return; 
+        }
+
         $postId = $_POST['post_id'] ?? null;
         $content = $_POST['content'] ?? null;
         
         if($postId && $content) {
-            if($this->postRepository->addComment($postId, $this->fakeUserId, $content)) {
-                echo json_encode(['status' => 'success', 'message' => 'Đã gửi bình luận']);
+            if($this->postRepository->addComment($postId, $userId, $content)) {
+                // Trả về dữ liệu để AJAX tự động vẽ lên màn hình mà không cần reload
+                echo json_encode([
+                    'status' => 'success', 
+                    'message' => 'Đã gửi bình luận',
+                    'comment' => [
+                        'full_name' => $_SESSION['full_name'] ?? $_SESSION['user_name'],
+                        'avatar' => $_SESSION['avatar'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+                        'content' => nl2br(htmlspecialchars($content)),
+                        'created_at' => date('d/m/Y H:i') // Lấy giờ hiện tại
+                    ]
+                ]);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Lỗi khi gửi bình luận']);
             }
