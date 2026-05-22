@@ -65,12 +65,11 @@
                             </a>
                         </div>
 
-                    <?php else: ?>
+<?php else: ?>
 
                         <a href="index.php?page=register" style="color: white; text-decoration: none;">Đăng Ký</a>
                         <span style="opacity: 0.5; color: white;">|</span>
-                        <a href="#" style="color: white; text-decoration: none;" data-bs-toggle="modal"
-                            data-bs-target="#loginModal">Đăng Nhập</a>
+                        <a href="index.php?page=login" style="color: white; text-decoration: none;">Đăng Nhập</a>
 
                     <?php endif; ?>
                 </div>

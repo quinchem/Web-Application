@@ -34,15 +34,12 @@ class ClientController {
                 $_SESSION['avatar'] = $user['avatar'];
                 
                 $_SESSION['success_msg'] = "Đăng nhập thành công!";
+                
+                // Lưu tạm đường link cần chuyển tới vào session
+                $_SESSION['redirect_url'] = (strpos($referer, 'page=login') !== false) ? 'index.php?page=homepage' : $referer;
 
-                // KIỂM TRA ĐIỀU HƯỚNG KHI THÀNH CÔNG:
-                // Nếu họ đăng nhập từ trang Login riêng -> Đẩy về trang chủ
-                // Nếu họ đăng nhập từ Modal (ở bài viết, danh mục...) -> Ở lại trang hiện tại
-                if (strpos($referer, 'page=login') !== false) {
-                    header('Location: index.php?page=homepage');
-                } else {
-                    header('Location: ' . $referer); 
-                }
+                // BẮT BUỘC CHUYỂN VỀ TRANG LOGIN ĐỂ HIỆN THÔNG BÁO TRƯỚC
+                header('Location: index.php?page=login');
                 exit(); 
                 
             } else {
