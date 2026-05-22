@@ -1,29 +1,109 @@
 <?php
-require_once __DIR__ . '/../App/Controllers/ClientController.php';
 
-$clientController = new ClientController();
+
+require_once __DIR__ .
+'/../App/Controllers/AdminController.php';
+
+
+$adminController = new AdminController();
+
+
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Gọi biến $page từ file index.php
+
 global $page;
 
-// Kiểm tra nếu người dùng đang ở trang đăng nhập
-if ($page === 'login') {
+
+
+
+
+
+// ========================================
+// ADMIN LOGIN
+// URL:
+// Index.php?page=admin_login
+// ========================================
+
+
+if ($page === 'admin_login') {
+
+
     if ($method === 'POST') {
-        // Xử lý gửi form đăng nhập
-        $clientController->loginProcess(); 
+
+
+        $adminController->handleLogin();
+
+
     } else {
-        // Hiển thị trang đăng nhập độc lập
-        require_once __DIR__ . '/../App/Views/Client/Auth/Login.php';
-        
-        // BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ CHẶN KHÔNG CHO LOAD TIẾP TRANG CHỦ
-        exit(); 
+
+
+        require_once __DIR__ .
+        '/../App/Views/Admin/Auth/Login.php';
     }
+
+
+    exit();
 }
 
-// Xử lý đăng xuất
-if ($page === 'logout') {
-    $clientController->logout();
-    exit(); // Thêm vào đây luôn cho an toàn tuyệt đối
+
+
+
+
+
+// ========================================
+// FORGOT PASSWORD
+// URL:
+// Index.php?page=forgot_password
+// ========================================
+
+
+if ($page === 'forgot_password') {
+
+
+    require_once __DIR__ .
+    '/../App/Views/Admin/Auth/Forgot_password.php';
+
+
+    exit();
 }
+
+
+// ========================================
+// ADMIN DASHBOARD
+// URL:
+// Index.php?page=admin_dashboard
+// ========================================
+
+
+if ($page === 'admin_dashboard') {
+
+
+    $adminController->dashboard();
+
+
+    exit();
+}
+
+
+
+
+
+
+// ========================================
+// LOGOUT
+// URL:
+// Index.php?page=logout
+// ========================================
+
+
+if ($page === 'logout') {
+
+
+    $adminController->logout();
+
+
+    exit();
+}
+
+
 ?>

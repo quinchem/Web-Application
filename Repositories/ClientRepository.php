@@ -81,4 +81,55 @@ class ClientRepository
             return "Lỗi CSDL: " . $e->getMessage();
         }
     }
+
+    public function checkLogin($email, $password)
+{
+    try {
+
+        $sql = "
+
+            SELECT *
+
+            FROM User
+
+            WHERE email = :email
+
+            LIMIT 1
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->execute([
+
+            'email' => $email
+        ]);
+
+        $user = $stmt->fetch(PDO::FETCH_OBJ);
+
+
+        // KHÔNG TÌM THẤY EMAIL
+
+        if (!$user) {
+
+            return false;
+        }
+
+
+        // KIỂM TRA PASSWORD HASH
+
+        if (password_verify($password, $user->password)) {
+
+            return $user;
+        }
+
+        return false;
+
+    } catch (PDOException $e) {
+
+        echo "Lỗi đăng nhập: " .
+        $e->getMessage();
+
+        return false;
+    }
 }   
+}
