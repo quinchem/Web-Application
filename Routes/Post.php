@@ -1,78 +1,22 @@
 <?php
-/**
- * Routes/Post.php
- * * Xử lý định tuyến (routing) cho các trang liên quan đến bài viết
- * Kế từ Index.php: lấy biến $page và xử lý logic định tuyến
- */
+// Routes/Post.php
 
-require_once __DIR__ . '/../App/Controllers/PostController.php';
+use App\Controllers\PostController;
 
-$postController = new PostController();
+// 1. Tuyến đường nạp Trang chủ hệ thống bài viết mặc định
+$router->get('homepage', [PostController::class, 'homepage']);
 
-switch ($page) {
-    // ==========================================
-    // TRANG CHỦ (HOMEPAGE)
-    // ==========================================
-    case 'homepage':
-        // Trang chủ - Hiển thị bài viết nổi bật và các danh mục
-        $postController->homepage();
-        break;
 
-    // ==========================================
-    // DANH MỤC BÀI VIẾT
-    // ==========================================
-    case 'category':
-        // Hiển thị danh sách bài viết theo danh mục
-        $categoryId = $_GET['id'] ?? null;
-        if ($categoryId) {
-            $postController->category($categoryId);
-        } else {
-            $postController->homepage();
-        }
-        break;
 
-    // ==========================================
-    // CHI TIẾT BÀI VIẾT
-    // ==========================================
-    case 'post':
-        // Hiển thị chi tiết một bài viết
-        $postId = $_GET['id'] ?? null;
-        if ($postId) {
-            $postController->post($postId);
-        } else {
-            $postController->homepage();
-        }
-        break;
-        
-    case 'hide_post':
-        $postController->hidePost();
-        break;
+// 3. Các tuyến API tiếp nhận Ajax phản hồi tương tác (Cấu hình hỗ trợ cả GET/POST cho an toàn)
+$router->get('api_like', [PostController::class, 'apiToggleLike']);
+$router->post('api_like', [PostController::class, 'apiToggleLike']);
 
-    // ==========================================
-    // CÁC ROUTE API (XỬ LÝ AJAX)
-    // ==========================================
-    case 'api_like':
-        $postController->apiToggleLike();
-        break;
+$router->get('api_save', [PostController::class, 'apiToggleSave']);
+$router->post('api_save', [PostController::class, 'apiToggleSave']);
 
-    case 'api_save':
-        $postController->apiToggleSave();
-        break;
+$router->get('api_comment', [PostController::class, 'apiAddComment']);
+$router->post('api_comment', [PostController::class, 'apiAddComment']);
 
-    case 'api_comment':
-        $postController->apiAddComment();
-        break;
-    
-    case 'admin_user_posts':
-        $postController->adminUserPosts();
-        break;
+$router->get('post', [PostController::class, 'post']);
 
-    case 'review_post':
-    $postController->reviewPost();
-    break;
-    
-    default:
-        // Nếu không tìm thấy, về trang chủ
-        $postController->homepage();
-        break;
-}

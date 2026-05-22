@@ -1,4 +1,5 @@
 <?php
+namespace App\Controllers;
 /**
  * PostController.php
  * Controller xử lý các yêu cầu liên quan đến bài viết (post)
@@ -22,7 +23,7 @@ class PostController
      */
     public function __construct()
     {
-        $this->postRepository = new PostRepository();
+        $this->postRepository = new \PostRepository();
     }
 
     /**
@@ -136,21 +137,21 @@ class PostController
     public function hidePost()
     {
         if (!isset($_GET['id'])) {
-            header('Location: Index.php?page=admin_user_posts');
+            header('Location: Admin_index.php?page=admin_user_posts');
             exit;
         }
 
         $postId = $_GET['id'];
         $this->postRepository->hidePost($postId);
 
-        header('Location: Index.php?page=admin_user_posts');
+        header('Location: Admin_index.php?page=admin_user_posts');
         exit;
     }
 
     public function reviewPost()
     {
         if (!isset($_GET['id'])) {
-            header('Location: Index.php?page=admin_user_posts');
+            header('Location: Admin_index.php?page=admin_user_posts');
             exit;
         }
 
@@ -160,13 +161,13 @@ class PostController
 
         // Chỉ cho phép 2 giá trị hợp lệ
         if (!in_array($decision, ['approved', 'rejected'])) {
-            header('Location: Index.php?page=admin_user_posts');
+            header('Location: Admin_index.php?page=admin_user_posts');
             exit;
         }
 
         $this->postRepository->reviewPost($postId, $decision, $reason);
 
-        header('Location: Index.php?page=admin_user_posts');
+        header('Location: Admin_index.php?page=admin_user_posts');
         exit;
     }
 

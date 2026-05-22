@@ -2,9 +2,11 @@
 /**
  * ProfileController.php
  */
+namespace App\Controllers;
 
 // Sửa đường dẫn trỏ tới ClientRepository
 require_once __DIR__ . '/../../Repositories/ClientRepository.php';
+
 
 class ProfileController
 {
@@ -13,7 +15,7 @@ class ProfileController
     public function __construct()
     {
         // Khởi tạo ClientRepository
-        $this->clientRepository = new ClientRepository();
+        $this->clientRepository = new \ClientRepository();
     }
 
     public function changePassword()
@@ -26,7 +28,7 @@ class ProfileController
         $userId = $_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? null;
         
         if (!$userId) {
-            header('Location: Index.php?page=login');
+            header('Location: Admin_index.php?page=login');
             exit;
         }
 
@@ -36,7 +38,7 @@ class ProfileController
 
         if ($newPassword !== $confirmPassword) {
             $_SESSION['error_message'] = "Mật khẩu xác nhận không khớp!";
-            header('Location: Index.php?page=change_password');
+            header('Location: Admin_index.php?page=change_password');
             exit;
         }
 
@@ -49,7 +51,7 @@ class ProfileController
             $_SESSION['error_message'] = $result;
         }
 
-        header('Location: Index.php?page=change_password');
+        header('Location: Admin_index.php?page=change_password');
         exit;
     }
 }

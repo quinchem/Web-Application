@@ -1,8 +1,11 @@
 <?php
+// Routes/Auth.php
 
+use App\Controllers\ClientController;
 
-require_once __DIR__ .
-'/../App/Controllers/AdminController.php';
+// Đăng ký luồng hiển thị trang đăng nhập độc lập (GET) và xử lý gửi form dữ liệu (POST)
+$router->get('login', [ClientController::class, 'loginForm']); 
+$router->post('login', [ClientController::class, 'loginProcess']); 
 
 
 $adminController = new AdminController();
@@ -129,3 +132,5 @@ if ($page === 'logout') {
 
 
 ?>
+// Luồng xử lý Đăng xuất tài khoản công khai
+$router->get('logout', [ClientController::class, 'logout']);
