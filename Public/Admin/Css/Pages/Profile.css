@@ -106,20 +106,20 @@
 }
 
 /* =========================================================================
-   PART 2: MODAL OVERLAY CHANGE PASSWORD (Hiệu ứng hộp thoại Đổi mật khẩu)
+   PART 2: MODAL OVERLAY CHANGE PASSWORD (Chuẩn 100% theo bản Design mới)
    ========================================================================= */
 
-/* Lớp phủ mờ toàn màn hình */
+/* Lớp phủ mờ nền */
 .custom-modal-backdrop {
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(15, 34, 58, 0.4); /* Màu nền tối nhẹ */
-    backdrop-filter: blur(5px); /* Làm mờ trang quản lý bài viết phía sau */
-    z-index: 9999; /* Đảm bảo luôn nổi lên trên cùng */
-    display: flex;
+    background-color: rgba(15, 34, 58, 0.35);
+    backdrop-filter: blur(4px);
+    z-index: 99999;
     align-items: center;
     justify-content: center;
     font-family: 'Barlow', sans-serif;
@@ -128,17 +128,21 @@
 /* Khung hộp thoại chính */
 .custom-modal-dialog {
     width: 100%;
-    max-width: 540px;
-    padding: 15px;
+    max-width: 520px;
+    padding: 16px;
     box-sizing: border-box;
+    animation: zoomInModal 0.2s ease-out;
 }
 
 .custom-modal-content {
-    background-color: #ffffff;
-    border-radius: 16px; /* Bo góc tròn mịn như ảnh */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
+    background-color: #ffffff; 
+    border-radius: 24px;       
+    box-shadow: 0 16px 48px rgba(7, 52, 74, 0.12);
+    overflow: hidden !important; /* 🌟 BẮT BUỘC: Cắt các góc nhọn của footer theo bo tròn 24px */
     border: none;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;       /* 🌟 KHẮC PHỤC: Xóa bỏ hoàn toàn padding của khối cha để footer tràn sát biên */
 }
 
 /* Header */
@@ -146,166 +150,374 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 24px 24px 15px 24px;
+    padding: 32px 32px 16px 32px;
+    background-color: #ffffff;
 }
 
 .modal-icon-title {
-    width: 42px;
-    height: 42px;
-    background-color: #e6f0f5;
+    width: 46px;
+    height: 46px;
+    background-color: #D0E8F2;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #003049;
+    color: #07344a;
     font-size: 18px;
 }
 
 .modal-title-text {
-    font-size: 20px;
-    font-weight: 700;
-    color: #003049;
-    margin: 0 0 4px 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: #07344a;
+    margin: 0 0 6px 0;
 }
 
+/* Màu chữ phụ đề #003049 nguyên bản */
 .modal-subtitle-text {
-    font-size: 13px;
-    color: #6c757d;
+    font-size: 13.5px;
+    color: #003049;
     margin: 0;
+    font-weight: 500;
 }
 
 .btn-close-modal {
     background: none;
     border: none;
-    font-size: 26px;
-    color: #888;
+    font-size: 24px;
+    color: #7e919e;
     cursor: pointer;
-    line-height: 20px;
-    transition: 0.2s;
+    transition: color 0.2s;
+    padding: 4px;
 }
 .btn-close-modal:hover {
-    color: #333;
+    color: #07344a;
 }
 
-/* Form body & Group */
+/* Form body */
 .custom-modal-body {
-    padding: 0 24px 24px 24px;
+    padding: 0 32px 24px 32px !important; /* Đệm dưới vừa phải trước khi đến footer */
+    background-color: #ffffff; 
+    margin-bottom: 0 !important;         /* Xóa margin thừa tránh đẩy footer */
 }
 
 .custom-form-group {
-    margin-bottom: 18px;
+    margin-bottom: 24px;
 }
 
 .form-label-custom {
     display: block;
     font-size: 14px;
-    font-weight: 600;
-    color: #003049;
-    margin-bottom: 8px;
+    font-weight: 700;
+    color: #07344a;
+    margin-bottom: 10px;
 }
 
-/* Ô Input bọc icon */
+/* Ô Input bọc dữ liệu */
 .custom-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
+/* Nền input mặc định thành màu #D0E8F2 với độ trong suốt 70% */
 .custom-input-wrapper input {
     width: 100%;
-    background-color: #eef2f6; /* Nền xanh xám nhạt như thiết kế */
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 12px 40px 12px 42px; /* Chừa khoảng trống 2 đầu cho icon */
-    font-size: 14px;
-    color: #333;
+    background-color: rgba(208, 232, 242, 0.7); 
+    border: 1px solid rgba(208, 232, 242, 0.9);
+    border-radius: 12px;
+    padding: 14px 44px 14px 46px;
+    font-size: 14.5px;
+    color: #07344a;
+    font-weight: 500;
     outline: none;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-in-out;
 }
 
 .custom-input-wrapper input:focus {
-    background-color: #fff;
-    border-color: #003049;
-    box-shadow: 0 0 0 3px rgba(0, 48, 73, 0.1);
+    background-color: rgba(208, 232, 242, 0.7);
+    border-color: #07344a;
+    box-shadow: 0 0 0 4px rgba(7, 52, 74, 0.08);
 }
 
-/* Icon định vị tuyệt đối trong input */
+.custom-input-wrapper input::placeholder {
+    color: #9cb1bf;
+    font-weight: 500;
+}
+
 .custom-input-wrapper .left-icon {
     position: absolute;
-    left: 15px;
-    color: #7a8b99;
+    left: 18px;
+    color: #07344a;
     font-size: 15px;
 }
 
 .custom-input-wrapper .right-icon {
     position: absolute;
-    right: 15px;
-    color: #7a8b99;
+    right: 18px;
+    color: #07344a;
     cursor: pointer;
-    font-size: 15px;
-    transition: 0.2s;
+    font-size: 16px;
+    transition: color 0.2s;
 }
 .custom-input-wrapper .right-icon:hover {
-    color: #333;
+    color: #cc2429;
 }
 
-/* Khung chú ý an toàn */
+/* Khung lưu ý bảo mật */
 .security-notice-box {
-    background-color: #d1d5db; /* Màu xám đặc trưng như ảnh mẫu */
-    border-radius: 10px;
-    padding: 12px 16px;
+    background-color: #cccccc;
+    border-radius: 14px;
+    padding: 16px 20px;
     display: flex;
     gap: 12px;
-    margin-top: 20px;
-    margin-bottom: 24px;
+    margin-top: 10px;
+    margin-bottom: 8px;
 }
 
 .notice-icon {
-    color: #4b5563;
+    color: #333d47;
     font-size: 16px;
-    margin-top: 2px;
+    margin-top: 3px;
 }
 
 .notice-text {
-    font-size: 12.5px;
-    color: #374151;
+    font-size: 13px;
+    color: #333d47;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.6;
+    font-weight: 500;
 }
 
-/* Footer Nút bấm */
+.notice-text strong {
+    color: #07344a;
+    font-weight: 700;
+}
+
+/* 🌟 FOOTER - SỬA ĐỂ TRÀN KÍN 100% KHÔNG CÒN VỆT TRẮNG */
+.custom-modal-content {
+    background-color: #ffffff; 
+    border-radius: 24px;       
+    box-shadow: 0 16px 48px rgba(7, 52, 74, 0.12);
+    border: none;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
+    /* XÓA overflow: hidden, isolation, transform hoàn toàn */
+}
+
 .custom-modal-footer {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 20px;
-}
+    gap: 28px;
+    padding: 24px 32px;
+    background-color: #D0E8F2 !important;
+    border-top: 1px solid rgba(7, 52, 74, 0.05);
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
 
+    /* ✅ Bo góc dưới khớp modal */
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+}
 .btn-custom-cancel {
     background: none;
     border: none;
-    font-size: 15px;
-    font-weight: 600;
-    color: #003049;
+    font-size: 16px;
+    font-weight: 700;
+    color: #07344a;
     cursor: pointer;
-    padding: 10px;
+    padding: 10px 14px;
+    transition: opacity 0.2s;
 }
 .btn-custom-cancel:hover {
-    text-decoration: underline;
+    opacity: 0.7;
 }
 
 .btn-custom-submit {
-    background-color: #D62828; /* Màu đỏ thương hiệu */
+    background-color: #cc2429;
     color: #ffffff;
     border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
+    border-radius: 12px;
+    padding: 14px 32px;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s;
+    box-shadow: 0 4px 12px rgba(204, 36, 41, 0.15);
+    transition: all 0.2s ease;
 }
 
 .btn-custom-submit:hover {
-    background-color: #b81d1d;
+    background-color: #b21f23;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(204, 36, 41, 0.25);
 }
+
+/* Alert hệ thống */
+.alert {
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin: 12px 32px 0 32px;
+    font-size: 13.5px;
+    font-weight: 500;
+}
+.alert-danger {
+    color: #cc2429;
+    background: #fdf2f2;
+    border: 1px solid #f9d5d6;
+}
+.alert-success {
+    color: #208b3a;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+}
+
+/* Animation */
+@keyframes zoomInModal {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* =========================================================================
+   PART 3: MODAL OVERLAY EDIT PROFILE (Layout Chỉnh Sửa Thông Tin 2 Cột)
+   ========================================================================= */
+
+/* Container chính chia khung */
+.profile-layout-container {
+    display: flex;
+    gap: 36px;
+    align-items: flex-start;
+    padding-top: 12px;
+}
+
+/* Khối Avatar bên trái */
+.profile-avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 160px;
+    flex-shrink: 0;
+}
+
+.avatar-upload-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 16px;
+}
+
+.avatar-upload-wrapper img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #ffffff;
+    box-shadow: 0 4px 14px rgba(7, 52, 74, 0.15);
+}
+
+/* Nút icon Camera màu đỏ cam nằm đè góc ảnh */
+.avatar-edit-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 32px;
+    height: 32px;
+    background-color: #cc2429;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(204, 36, 41, 0.3);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.avatar-edit-badge:hover {
+    background-color: #b21f23;
+    transform: scale(1.08);
+}
+
+.profile-display-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #07344a;
+    margin: 0 0 4px 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.profile-display-role {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #7e919e;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+/* Khối Form nhập liệu bên phải */
+.profile-fields-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Dòng đôi chứa Họ Tên và Username */
+.profile-form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.profile-form-row .custom-form-group {
+    flex: 1;
+}
+
+/* Định dạng riêng cho ô Textarea phần giới thiệu */
+.custom-textarea-profile {
+    width: 100%;
+    background-color: rgba(208, 232, 242, 0.7);
+    border: 1px solid rgba(208, 232, 242, 0.9);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14.5px;
+    color: #07344a;
+    font-weight: 500;
+    outline: none;
+    resize: none;
+    font-family: 'Barlow', sans-serif;
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-textarea-profile:focus {
+    background-color: rgba(208, 232, 242, 0.7);
+    border-color: #07344a;
+    box-shadow: 0 0 0 4px rgba(7, 52, 74, 0.08);
+}
+
+/* Responsive khi thu màn hình nhỏ */
+@media (max-width: 620px) {
+    .profile-layout-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+    .profile-form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    .profile-fields-section {
+        width: 100%;
+    }
+}
+/* Thêm vào cuối file profile.css để tối ưu lại khoảng cách header sau khi bỏ icon */
+#editProfileModal .custom-modal-header {
+    padding: 32px 32px 20px 32px; /* Giữ khoảng cách thoáng đãng, sang trọng cho tiêu đề */
+}
+
