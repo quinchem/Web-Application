@@ -21,16 +21,17 @@ class ClientRepository
     // LOGIN
     // =========================
 
-   public function getUserByUsername($username) {
+    public function getUserByUsername($username)
+    {
         try {
             // Chú ý: Thay 'users' bằng tên bảng thực tế của bạn trong CSDL nếu khác
             $sql = "SELECT * FROM user WHERE user_name = :username LIMIT 1";
-            
+
             // Nếu bạn dùng PDO:
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':username', $username, PDO::PARAM_STR);
             $stmt->execute();
-            
+
             // Trả về một mảng chứa thông tin user, hoặc false nếu không tìm thấy
             return $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -72,21 +73,21 @@ class ClientRepository
             $updateStmt = $this->conn->prepare($updateSql);
             $updateStmt->bindParam(':new_password', $hashedNewPassword, PDO::PARAM_STR);
             $updateStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
-            
+
             $success = $updateStmt->execute();
 
             return $success ? true : "Đã xảy ra lỗi khi cập nhật mật khẩu!";
-            
+
         } catch (PDOException $e) {
             return "Lỗi CSDL: " . $e->getMessage();
         }
     }
 
     public function checkLogin($email, $password)
-{
-    try {
+    {
+        try {
 
-        $sql = "
+            $sql = "
 
             SELECT *
 
@@ -97,39 +98,61 @@ class ClientRepository
             LIMIT 1
         ";
 
-        $stmt = $this->conn->prepare($sql);
+            $stmt = $this->conn->prepare($sql);
 
-        $stmt->execute([
+            $stmt->execute([
 
-            'email' => $email
-        ]);
+                'email' => $email
+            ]);
 
-        $user = $stmt->fetch(PDO::FETCH_OBJ);
+            $user = $stmt->fetch(PDO::FETCH_OBJ);
 
 
-        // KHÔNG TÌM THẤY EMAIL
+            // KHÔNG TÌM THẤY EMAIL
 
-        if (!$user) {
+            if (!$user) {
+
+                return false;
+            }
+
+
+            // KIỂM TRA PASSWORD HASH
+
+            if (password_verify($password, $user->password)) {
+
+                return $user;
+            }
+
+            return false;
+
+        } catch (PDOException $e) {
+
+            echo "Lỗi đăng nhập: " .
+                $e->getMessage();
 
             return false;
         }
 
+        // Bổ sung vào bên trong Class ClientRepository (file Repositories/ClientRepository.php)
 
-        // KIỂM TRA PASSWORD HASH
 
-        if (password_verify($password, $user->password)) {
-
-            return $user;
-        }
-
-        return false;
-
-    } catch (PDOException $e) {
-
-        echo "Lỗi đăng nhập: " .
-        $e->getMessage();
-
-        return false;
     }
-}   
+    public function updateProfile($userId, $username, $fullName, $gender) 
+    {
+        try {
+            // Đã sửa đổi tên bảng từ 'users' thành 'user' cho khớp với các hàm trên
+            $sql = "UPDATE user SET user_name = ?, full_name = ?, gender = ? WHERE user_id = ?";
+            
+            // ĐÃ SỬA LỖI: Sử dụng $this->conn thay vì $this->db bị trống (null)
+            $stmt = $this->conn->prepare($sql);
+            
+            // Thực thi mảng tham số truyền theo đúng thứ tự các dấu hỏi chấm (?)
+            return $stmt->execute([$username, $fullName, $gender, $userId]);
+            
+        } catch (PDOException $e) {
+            error_log("Lỗi Update Profile: " . $e->getMessage());
+            return false;
+        }
+    }
 }
+
