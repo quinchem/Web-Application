@@ -1,0 +1,311 @@
+/* =========================================================================
+   PART 1: PROFILE MENU (Giao diện bảng menu nhỏ góc dưới Sidebar)
+   ========================================================================= */
+.profile-menu {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 16px;
+    right: 16px;
+    margin-bottom: 12px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    z-index: 100;
+}
+
+.profile-menu.active {
+    display: block;
+}
+
+.profile-menu-header {
+    padding: 16px 18px;
+    border-bottom: 1px solid #eef1f3;
+}
+
+.profile-menu-header strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    color: #07344a;
+    margin-bottom: 4px;
+}
+
+.profile-menu-header span {
+    font-size: 12px;
+    color: #9fb0bc;
+    font-weight: 500;
+}
+
+.profile-menu-user {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.profile-menu-user img {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-menu-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-menu-info strong {
+    font-size: 15px;
+    font-weight: 800;
+    color: #07344a;
+    margin-bottom: 4px;
+}
+
+.profile-menu-info span {
+    font-size: 13px;
+    color: #8ea2b2;
+    font-weight: 500;
+}
+
+.profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #07344a;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    font-family: 'Barlow', sans-serif;
+    transition: background 0.15s;
+}
+
+.profile-menu-item:hover {
+    background: #f0f5f8;
+}
+
+.profile-menu-item i {
+    font-size: 15px;
+    color: #7e97a7;
+    width: 18px;
+}
+
+.profile-menu-item.logout {
+    color: #e52328;
+    border-top: 1px solid #eef1f3;
+}
+
+.profile-menu-item.logout i {
+    color: #e52328;
+}
+
+/* =========================================================================
+   PART 2: MODAL OVERLAY CHANGE PASSWORD (Hiệu ứng hộp thoại Đổi mật khẩu)
+   ========================================================================= */
+
+/* Lớp phủ mờ toàn màn hình */
+.custom-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 34, 58, 0.4); /* Màu nền tối nhẹ */
+    backdrop-filter: blur(5px); /* Làm mờ trang quản lý bài viết phía sau */
+    z-index: 9999; /* Đảm bảo luôn nổi lên trên cùng */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow', sans-serif;
+}
+
+/* Khung hộp thoại chính */
+.custom-modal-dialog {
+    width: 100%;
+    max-width: 540px;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.custom-modal-content {
+    background-color: #ffffff;
+    border-radius: 16px; /* Bo góc tròn mịn như ảnh */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    border: none;
+}
+
+/* Header */
+.custom-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 24px 24px 15px 24px;
+}
+
+.modal-icon-title {
+    width: 42px;
+    height: 42px;
+    background-color: #e6f0f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #003049;
+    font-size: 18px;
+}
+
+.modal-title-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #003049;
+    margin: 0 0 4px 0;
+}
+
+.modal-subtitle-text {
+    font-size: 13px;
+    color: #6c757d;
+    margin: 0;
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #888;
+    cursor: pointer;
+    line-height: 20px;
+    transition: 0.2s;
+}
+.btn-close-modal:hover {
+    color: #333;
+}
+
+/* Form body & Group */
+.custom-modal-body {
+    padding: 0 24px 24px 24px;
+}
+
+.custom-form-group {
+    margin-bottom: 18px;
+}
+
+.form-label-custom {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #003049;
+    margin-bottom: 8px;
+}
+
+/* Ô Input bọc icon */
+.custom-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.custom-input-wrapper input {
+    width: 100%;
+    background-color: #eef2f6; /* Nền xanh xám nhạt như thiết kế */
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 40px 12px 42px; /* Chừa khoảng trống 2 đầu cho icon */
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.custom-input-wrapper input:focus {
+    background-color: #fff;
+    border-color: #003049;
+    box-shadow: 0 0 0 3px rgba(0, 48, 73, 0.1);
+}
+
+/* Icon định vị tuyệt đối trong input */
+.custom-input-wrapper .left-icon {
+    position: absolute;
+    left: 15px;
+    color: #7a8b99;
+    font-size: 15px;
+}
+
+.custom-input-wrapper .right-icon {
+    position: absolute;
+    right: 15px;
+    color: #7a8b99;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.2s;
+}
+.custom-input-wrapper .right-icon:hover {
+    color: #333;
+}
+
+/* Khung chú ý an toàn */
+.security-notice-box {
+    background-color: #d1d5db; /* Màu xám đặc trưng như ảnh mẫu */
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    margin-bottom: 24px;
+}
+
+.notice-icon {
+    color: #4b5563;
+    font-size: 16px;
+    margin-top: 2px;
+}
+
+.notice-text {
+    font-size: 12.5px;
+    color: #374151;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Footer Nút bấm */
+.custom-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-custom-cancel {
+    background: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: #003049;
+    cursor: pointer;
+    padding: 10px;
+}
+.btn-custom-cancel:hover {
+    text-decoration: underline;
+}
+
+.btn-custom-submit {
+    background-color: #D62828; /* Màu đỏ thương hiệu */
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-custom-submit:hover {
+    background-color: #b81d1d;
+}

@@ -1,7 +1,7 @@
 <?php
 /**
  * PostController.php
- * * Controller xử lý các yêu cầu liên quan đến bài viết (post)
+ * Controller xử lý các yêu cầu liên quan đến bài viết (post)
  * Quản lý việc lấy dữ liệu từ database và truyền đến view
  */
 
@@ -40,9 +40,16 @@ class PostController
 
     /**
      * Hiển thị danh sách bài viết của một danh mục cụ thể
+     * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
      */
-    public function category($categoryId)
+    public function category()
     {
+        $categoryId = $_GET['id'] ?? null;
+        if (!$categoryId) {
+            $this->homepage();
+            return;
+        }
+
         // Lấy danh sách bài viết theo ID danh mục
         $posts = $this->postRepository->getPostsByParentCategory($categoryId);
         require __DIR__ . '/../Views/Client/Category/Detail.php';
@@ -50,9 +57,16 @@ class PostController
 
     /**
      * Hiển thị chi tiết một bài viết cụ thể
+     * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
      */
-    public function post($postId)
+    public function post()
     {
+        $postId = $_GET['id'] ?? null;
+        if (!$postId) {
+            $this->homepage();
+            return;
+        }
+
         // 1. Khởi tạo biến mặc định để View không bị lỗi
         $post = null; 
         $tags = []; 
@@ -90,34 +104,35 @@ class PostController
     /**
      * Admin quản lý bài viết người đọc
      */
-  public function adminUserPosts()
-{
-    $filters = [
-        'keyword'     => $_GET['keyword'] ?? '',
-        'category_id' => $_GET['category_id'] ?? '',
-        'author_id'   => $_GET['author_id'] ?? '',
-        'status'      => $_GET['status'] ?? '',
-        'date'        => $_GET['date'] ?? ''
-    ];
+    public function adminUserPosts()
+    {
+        $filters = [
+            'keyword'     => $_GET['keyword'] ?? '',
+            'category_id' => $_GET['category_id'] ?? '',
+            'author_id'   => $_GET['author_id'] ?? '',
+            'status'      => $_GET['status'] ?? '',
+            'date'        => $_GET['date'] ?? ''
+        ];
 
-    $perPage     = 10;
-    $currentPage = max(1, (int)($_GET['p'] ?? 1));
-    $offset      = ($currentPage - 1) * $perPage;
+        $perPage     = 10;
+        $currentPage = max(1, (int)($_GET['p'] ?? 1));
+        $offset      = ($currentPage - 1) * $perPage;
 
-    $posts      = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
-    $categories = $this->postRepository->getCategoriesForFilter();
-    $authors    = $this->postRepository->getAuthorsForFilter();
+        $posts      = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
+        $categories = $this->postRepository->getCategoriesForFilter();
+        $authors    = $this->postRepository->getAuthorsForFilter();
 
-    $totalPosts = $this->postRepository->countUserPosts();              // stat card: tất cả
-    $totalForPages = $this->postRepository->countUserPostsFiltered($filters); // pagination: theo filter
-    $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
-    $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
-    $trendingPosts = $this->postRepository->countTrendingUserPosts();
+        $totalPosts = $this->postRepository->countUserPosts();              // stat card: tất cả
+        $totalForPages = $this->postRepository->countUserPostsFiltered($filters); // pagination: theo filter
+        $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
+        $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
+        $trendingPosts = $this->postRepository->countTrendingUserPosts();
 
-    $totalPages = (int)ceil($totalForPages / $perPage);
+        $totalPages = (int)ceil($totalForPages / $perPage);
 
-    require_once __DIR__ . '/../Views/Admin/Post/Index.php';
-}
+        require_once __DIR__ . '/../Views/Admin/Post/Index.php';
+    }
+
     public function hidePost()
     {
         if (!isset($_GET['id'])) {
@@ -131,34 +146,35 @@ class PostController
         header('Location: Index.php?page=admin_user_posts');
         exit;
     }
+
     public function reviewPost()
-{
-    if (!isset($_GET['id'])) {
+    {
+        if (!isset($_GET['id'])) {
+            header('Location: Index.php?page=admin_user_posts');
+            exit;
+        }
+
+        $postId   = $_GET['id'];
+        $decision = $_GET['decision'] ?? 'approved';
+        $reason   = urldecode($_GET['reason'] ?? '');
+
+        // Chỉ cho phép 2 giá trị hợp lệ
+        if (!in_array($decision, ['approved', 'rejected'])) {
+            header('Location: Index.php?page=admin_user_posts');
+            exit;
+        }
+
+        $this->postRepository->reviewPost($postId, $decision, $reason);
+
         header('Location: Index.php?page=admin_user_posts');
         exit;
     }
-
-    $postId   = $_GET['id'];
-    $decision = $_GET['decision'] ?? 'approved';
-    $reason   = urldecode($_GET['reason'] ?? '');
-
-    // Chỉ cho phép 2 giá trị hợp lệ
-    if (!in_array($decision, ['approved', 'rejected'])) {
-        header('Location: Index.php?page=admin_user_posts');
-        exit;
-    }
-
-    $this->postRepository->reviewPost($postId, $decision, $reason);
-
-    header('Location: Index.php?page=admin_user_posts');
-    exit;
-}
 
     // ==========================================
     // CÁC HÀM XỬ LÝ AJAX (THÍCH, LƯU, BÌNH LUẬN)
     // ==========================================
 
-private function getCurrentUserId() {
+    private function getCurrentUserId() {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         return $_SESSION['user_id'] ?? null;
     }
