@@ -10,3 +10,5 @@ $router->get('client_profile', [ClientController::class, 'index']);
 $router->get('client_account_sub_page', [ClientController::class, 'loadSubPage']);
 
 $router->post('handle_profile', [ClientController::class, 'updateProfile']);
+$router->post('handle_change_password', [ClientController::class, 'changePasswordProcess']);
+$router->get('logout', [ClientController::class, 'logout']);

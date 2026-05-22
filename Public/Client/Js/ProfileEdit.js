@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // 4. Khóa và làm mờ chính nó (nút Chỉnh sửa) để tránh người dùng bấm lại nhiều lần
             e.target.disabled = true;
-            e.target.style.opacity = "0.5";
         }
     });
 });
