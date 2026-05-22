@@ -19,10 +19,10 @@
         </div>
     </div>
 
-    <a href="Index.php?page=profile" class="profile-menu-item">
+    <button type="button" class="profile-menu-item" id="btnOpenEditProfile">
         <i class="fa-regular fa-user"></i>
         Thông tin tài khoản
-    </a>
+    </button>
 
     <button type="button" class="profile-menu-item" id="btnOpenChangePassword">
         <i class="fa-solid fa-shield-halved"></i>
@@ -30,5 +30,7 @@
     </button>
 
 </div>
+
+<?php require_once __DIR__ . '/edit.php'; ?>
 
 <?php require_once __DIR__ . '/change_password.php'; ?>

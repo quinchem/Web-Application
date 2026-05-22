@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="Public/Admin/Css/Profile.css">
 <script src="Public/Admin/Js/Profile.js" defer></script>
 
-<div class="custom-modal-backdrop">
+<div class="custom-modal-backdrop" id="changePasswordModal">
     <div class="custom-modal-dialog">
         <div class="custom-modal-content">
             
@@ -15,7 +15,7 @@
                         <p class="modal-subtitle-text">Vui lòng cập nhật mật khẩu định kỳ để bảo mật.</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close-modal" onclick="window.history.back();">&times;</button>
+                <button type="button" class="btn-close-modal" id="btnCloseChangePassword">&times;</button>
             </div>
 
             <?php if (isset($_SESSION['error_message'])): ?>
@@ -48,14 +48,15 @@
                     <div class="custom-input-wrapper">
                         <i class="fa-solid fa-lock left-icon"></i>
                         <input type="password" name="new_password" required placeholder="Tối thiểu 8 ký tự">
-                        <i class="fa-regular fa-eye-slash toggle-password right-icon"></i>
+                        <i class="fa-regular fa-eye toggle-password right-icon"></i>
                     </div>
                 </div>
 
                 <div class="custom-form-group">
                     <label class="form-label-custom">Xác nhận mật khẩu mới</label>
                     <div class="custom-input-wrapper">
-                        <i class="fa-solid fa-shield-cat left-icon"></i> <input type="password" name="confirm_password" required placeholder="Nhập lại mật khẩu mới">
+                        <i class="fa-solid fa-shield-cat left-icon"></i> 
+                        <input type="password" name="confirm_password" required placeholder="Nhập lại mật khẩu mới">
                         <i class="fa-regular fa-eye toggle-password right-icon"></i>
                     </div>
                 </div>
@@ -68,7 +69,7 @@
                 </div>
 
                 <div class="custom-modal-footer">
-                    <button type="button" class="btn-custom-cancel" onclick="window.history.back();">Hủy</button>
+                    <button type="button" class="btn-custom-cancel" id="btnCancelChangePassword">Hủy</button>
                     <button type="submit" class="btn-custom-submit">Cập nhật mật khẩu</button>
                 </div>
 
