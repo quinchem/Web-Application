@@ -18,3 +18,5 @@ $router->post('api_save', [PostController::class, 'apiToggleSave']);
 $router->get('api_comment', [PostController::class, 'apiAddComment']);
 $router->post('api_comment', [PostController::class, 'apiAddComment']);
 
+$router->get('post', [PostController::class, 'post']);
+
