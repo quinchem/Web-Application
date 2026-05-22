@@ -154,5 +154,28 @@ class ClientRepository
             return false;
         }
     }
+
+    /**
+ * Cập nhật mật khẩu mới đã băm vào Cơ sở dữ liệu
+ * @param string|int $userId Định danh người dùng (user_id)
+ * @param string $hashedPassword Mật khẩu mới đã được băm qua password_hash
+ * @return bool Trả về true nếu thành công, false nếu thất bại
+ */
+public function updatePassword($userId, $hashedPassword) 
+{
+    try {
+        // Tên bảng: user | Thuộc tính: password, user_id
+        $sql = "UPDATE user SET password = ? WHERE user_id = ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        
+        // Thực thi truyền mảng tham số theo đúng thứ tự dấu hỏi chấm (?)
+        return $stmt->execute([$hashedPassword, $userId]);
+        
+    } catch (PDOException $e) {
+        error_log("Lỗi tại updatePassword: " . $e->getMessage());
+        return false;
+    }
+}
 }
 

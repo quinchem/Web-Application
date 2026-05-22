@@ -116,3 +116,4 @@
         </a>
     </div>
 </div>
+   <script src="Public/Client/Js/ProfileTab.js"></script>

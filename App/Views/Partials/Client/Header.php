@@ -54,7 +54,7 @@
                             <img src="<?= !empty($_SESSION['avatar']) ? $_SESSION['avatar'] : '/Public/Admin/Images/admin-avatar.png'; ?>"
                                 alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
 
-                            <a href="index.php?page=client_profile">
+                            <a href="index.php?page=client_profile" style="text-decoration: none !important;">
     <span style="color: white; text-transform: uppercase; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px;">
         <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['user_name']); ?>
     </span>
