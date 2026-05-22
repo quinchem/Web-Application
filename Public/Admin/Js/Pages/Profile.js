@@ -26,24 +26,35 @@ document.addEventListener('click', function(e) {
 document.addEventListener("DOMContentLoaded", function () {
     
     // --- 2.1. XỬ LÝ ẨN/HIỆN MẮT XEM MẬT KHẨU (Ẩn/Hiện password) ---
-    const togglePasswordIcons = document.querySelectorAll('.toggle-password');
+const togglePasswordIcons = document.querySelectorAll('.toggle-password');
 
-    togglePasswordIcons.forEach(function (icon) {
-        icon.addEventListener('click', function () {
-            // Tìm ô input nằm ngay phía trước icon con mắt này
-            const input = this.previousElementSibling;
+togglePasswordIcons.forEach(function (icon) {
+    icon.addEventListener('click', function () {
+        // Tìm thẻ cha bao bọc gần nhất (.custom-input-wrapper)
+        const wrapper = this.closest('.custom-input-wrapper');
+        
+        // Từ thẻ cha, tìm chính xác thẻ input bên trong nó
+        const input = wrapper ? wrapper.querySelector('input') : null;
 
-            if (input && input.type === 'password') {
+        if (input) {
+            if (input.type === 'password') {
+                // Hiện số: Đổi type thành text
                 input.type = 'text';
+                
+                // Đổi icon thành mắt gạch (ẩn số)
                 this.classList.remove('fa-eye');
-                this.classList.add('fa-eye-slash'); // Đổi sang mắt gạch
-            } else if (input) {
+                this.classList.add('fa-eye-slash');
+            } else {
+                // Tắt số (ẩn mật khẩu): Đổi type về password
                 input.type = 'password';
+                
+                // Đổi icon thành mắt mở (hiện số)
                 this.classList.remove('fa-eye-slash');
-                this.classList.add('fa-eye'); // Đổi về mắt mở
+                this.classList.add('fa-eye');
             }
-        });
+        }
     });
+});
 
     // --- 2.2. XỬ LÝ ĐÓNG/MỞ MODAL ĐỔI MẬT KHẨU TẠI CHỖ ---
     const btnOpen = document.getElementById('btnOpenChangePassword');
@@ -78,3 +89,59 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+// =========================================================================
+    // PART 3: XỬ LÝ ĐÓNG/MỞ MODAL CHỈNH SỬA THÔNG TIN TÀI KHOẢN
+    // =========================================================================
+    
+    // Gán ID cho nút "Thông tin tài khoản" trong HTML menu con của bạn (ví dụ id="btnOpenEditProfile")
+    // Hoặc bạn có thể gán trực tiếp class hoặc tìm thông qua cấu trúc phần tử.
+    const btnOpenEdit = document.getElementById('btnOpenEditProfile') || document.querySelector('.profile-menu-item:not(.logout):not(#btnOpenChangePassword)');
+    const btnCloseEdit = document.getElementById('btnCloseEditProfile');
+    const btnCancelEdit = document.getElementById('btnCancelEditProfile');
+    const modalEditProfile = document.getElementById('editProfileModal');
+
+    // Hàm mở Modal chỉnh sửa thông tin
+    if (btnOpenEdit) {
+        btnOpenEdit.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (modalEditProfile) modalEditProfile.style.display = 'flex';
+            
+            // Ẩn menu nhỏ phía sau
+            const menu = document.getElementById('profileMenu');
+            if (menu) menu.classList.remove('active');
+        });
+    }
+
+    // Hàm đóng Modal chỉnh sửa thông tin
+    function closeEditModal() {
+        if (modalEditProfile) modalEditProfile.style.display = 'none';
+    }
+
+    if (btnCloseEdit) btnCloseEdit.addEventListener('click', closeEditModal);
+    if (btnCancelEdit) btnCancelEdit.addEventListener('click', closeEditModal);
+
+    // Click vùng ngoài nền mờ để tự đóng
+    if (modalEditProfile) {
+        modalEditProfile.addEventListener('click', function(e) {
+            if (e.target === modalEditProfile) {
+                closeEditModal();
+            }
+        });
+    }
+
+    // --- LOGIC XỬ LÝ PREVIEW ẢNH AVATAR NGAY KHI CHỌN FILE ---
+    const avatarInput = document.getElementById('avatarFileInput');
+    const avatarPreview = document.getElementById('profileAvatarPreview');
+
+    if (avatarInput && avatarPreview) {
+        avatarInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatarPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
