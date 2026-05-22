@@ -2,9 +2,11 @@
 /**
  * ProfileController.php
  */
+namespace App\Controllers;
 
 // Sửa đường dẫn trỏ tới ClientRepository
 require_once __DIR__ . '/../../Repositories/ClientRepository.php';
+
 
 class ProfileController
 {
@@ -13,7 +15,7 @@ class ProfileController
     public function __construct()
     {
         // Khởi tạo ClientRepository
-        $this->clientRepository = new ClientRepository();
+        $this->clientRepository = new \ClientRepository();
     }
 
     public function changePassword()

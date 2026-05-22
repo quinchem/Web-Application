@@ -1,4 +1,5 @@
 <?php
+namespace App\Controllers;
 /**
  * PostController.php
  * Controller xử lý các yêu cầu liên quan đến bài viết (post)
@@ -22,7 +23,7 @@ class PostController
      */
     public function __construct()
     {
-        $this->postRepository = new PostRepository();
+        $this->postRepository = new \PostRepository();
     }
 
     /**

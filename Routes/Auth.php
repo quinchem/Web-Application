@@ -1,29 +1,11 @@
 <?php
-require_once __DIR__ . '/../App/Controllers/ClientController.php';
+// Routes/Auth.php
 
-$clientController = new ClientController();
-$method = $_SERVER['REQUEST_METHOD'];
+use App\Controllers\ClientController;
 
-// Gọi biến $page từ file index.php
-global $page;
+// Đăng ký luồng hiển thị trang đăng nhập độc lập (GET) và xử lý gửi form dữ liệu (POST)
+$router->get('login', [ClientController::class, 'loginForm']); 
+$router->post('login', [ClientController::class, 'loginProcess']); 
 
-// Kiểm tra nếu người dùng đang ở trang đăng nhập
-if ($page === 'login') {
-    if ($method === 'POST') {
-        // Xử lý gửi form đăng nhập
-        $clientController->loginProcess(); 
-    } else {
-        // Hiển thị trang đăng nhập độc lập
-        require_once __DIR__ . '/../App/Views/Client/Auth/Login.php';
-        
-        // BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ CHẶN KHÔNG CHO LOAD TIẾP TRANG CHỦ
-        exit(); 
-    }
-}
-
-// Xử lý đăng xuất
-if ($page === 'logout') {
-    $clientController->logout();
-    exit(); // Thêm vào đây luôn cho an toàn tuyệt đối
-}
-?>
+// Luồng xử lý Đăng xuất tài khoản công khai
+$router->get('logout', [ClientController::class, 'logout']);
