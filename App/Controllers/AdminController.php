@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../../Configs/Database.php';
-require_once __DIR__ . '/../Models/Client.php';
-require_once __DIR__ . '/../../Repositories/ClientRepository.php';
+
+require_once __DIR__ .
+'/../../Repositories/ClientRepository.php';
 
 class AdminController
 {
@@ -9,95 +9,288 @@ class AdminController
 
     public function __construct()
     {
-        $this->clientRepository = new ClientRepository();
+        $this->clientRepository =
+        new ClientRepository();
     }
+
+
+    // ====================================
+    // LOGIN PAGE
+    // ====================================
 
     public function login()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+
+    session_start();
+}
+
+        // Remember Login
 
         if (isset($_COOKIE['remember_user'])) {
-            $_SESSION['user'] = $_COOKIE['remember_user'];
-            header("Location: /Web-Application/App/Views/Admin/Dashboard/Dashboard.php");
+
+            $_SESSION['user'] =
+            $_COOKIE['remember_user'];
+
+            header(
+            "Location: http://localhost/Web-Application/Index.php?page=admin_dashboard"
+            );
+
             exit();
         }
 
-        require_once __DIR__ . '/../Views/Admin/Auth/Login.php';
+        require_once __DIR__ .
+        '/../Views/Admin/Auth/Login.php';
     }
+
+
+    // ====================================
+    // HANDLE LOGIN
+    // ====================================
 
     public function handleLogin()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
 
-        $email    = $_POST['email']    ?? '';
-        $password = $_POST['password'] ?? '';
-        $remember = $_POST['remember'] ?? null;
+    session_start();
+}
 
-        $user = $this->clientRepository->checkLogin($email, $password);
+        $email =
+        $_POST['email'] ?? '';
+
+        $password =
+        $_POST['password'] ?? '';
+
+        $remember =
+        $_POST['remember'] ?? null;
+
+
+        // CHECK LOGIN
+
+        $user =
+        $this->clientRepository
+        ->checkLogin(
+            $email,
+            $password
+        );
+
+
+        // LOGIN SUCCESS
 
         if ($user) {
+
             $_SESSION['user'] = $user;
 
+
+            // REMEMBER LOGIN
+
             if ($remember) {
-                setcookie('remember_user', $user->user_id, time() + (86400 * 30), "/");
+
+                setcookie(
+
+                    'remember_user',
+
+                    $user->user_id,
+
+                    time() + (86400 * 30),
+
+                    "/"
+                );
             }
 
-            // ✅ Có đủ html + body thì SweetAlert mới hiện được
+
             echo "
+
             <!DOCTYPE html>
-            <html><body>
+
+            <html>
+
+            <body>
+
             <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+
             <script>
+
                 Swal.fire({
+
                     icon: 'success',
+
                     title: 'Đăng nhập thành công!',
+
                     text: 'Đang chuyển đến Dashboard...',
+
                     showConfirmButton: false,
+
                     timer: 1800
+
                 });
+
                 setTimeout(() => {
-                    window.location.href = '/Web-Application/App/Views/Admin/Dashboard/Dashboard.php';
+
+                    window.location.href =
+'http://localhost/Web-Application/Index.php?page=admin_user_posts';
+
                 }, 1800);
+
             </script>
-            </body></html>
+
+            </body>
+
+            </html>
+
             ";
+
             exit();
         }
 
+
+        // LOGIN FAILED
+
         echo "
+
         <!DOCTYPE html>
-        <html><body>
+
+        <html>
+
+        <body>
+
         <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+
         <script>
+
             Swal.fire({
+
                 icon: 'error',
+
                 title: 'Đăng nhập thất bại',
+
                 text: 'Sai email hoặc mật khẩu!',
+
                 confirmButtonColor: '#d10016'
+
             }).then(() => {
-                window.location.href = '/Web-Application/App/Views/Admin/Auth/Login.php';
+
+                window.location.href =
+                'http://localhost/Web-Application/Index.php?page=admin_login';
+
             });
+
         </script>
-        </body></html>
+
+        </body>
+
+        </html>
+
         ";
+
         exit();
     }
+
+
+    // ====================================
+    // DASHBOARD
+    // ====================================
+
+    public function dashboard()
+    {
+        require_once __DIR__ .
+        '/../Views/Admin/Dashboard/Dashboard.php';
+    }
+
+
+    // ====================================
+    // LOGOUT
+    // ====================================
 
     public function logout()
     {
-        session_start();
-        session_destroy();
-        setcookie('remember_user', '', time() - 3600, "/");
-        header("Location: /Web-Application/App/Views/Admin/Auth/Login.php");
-        exit();
-    }
+        if (session_status() === PHP_SESSION_NONE) {
+
+    session_start();
 }
 
-$controller = new AdminController();
+        session_destroy();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $controller->handleLogin();
-} else {
-    // ✅ Thêm else này — GET request thì load trang login
-    $controller->login();
+        setcookie(
+            'remember_user',
+            '',
+            time() - 3600,
+            "/"
+        );
+
+        header(
+        "Location: http://localhost/Web-Application/Index.php?page=admin_login"
+        );
+
+        exit();
+    }
+
+
+    // ====================================
+    // FORGOT PASSWORD PAGE
+    // ====================================
+
+    public function forgotPassword()
+    {
+        require_once __DIR__ .
+        '/../Views/Admin/Auth/ForgotPassword.php';
+    }
+
+
+    // ====================================
+    // HANDLE FORGOT PASSWORD
+    // ====================================
+
+    public function handleForgotPassword()
+    {
+        header('Content-Type: application/json');
+
+        $email =
+        $_POST['email'] ?? '';
+
+
+        // EMPTY EMAIL
+
+        if (empty($email)) {
+
+            echo json_encode([
+
+                'status' => 'error',
+
+                'message' =>
+                'Vui lòng nhập email'
+
+            ]);
+
+            exit();
+        }
+
+
+        // TEST EMAIL
+
+        if ($email === 'admin@gmail.com') {
+
+            echo json_encode([
+
+                'status' => 'success',
+
+                'message' =>
+                'Đã gửi email khôi phục mật khẩu'
+
+            ]);
+
+        } else {
+
+            echo json_encode([
+
+                'status' => 'error',
+
+                'message' =>
+                'Email không tồn tại trong hệ thống'
+
+            ]);
+        }
+
+        exit();
+    }
 }

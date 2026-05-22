@@ -22,8 +22,8 @@
 
     <!-- CSS -->
 
-    <link rel="stylesheet"
-          href="../../../../Public/Admin/Css/Login.css">
+<link rel="stylesheet"
+      href="http://localhost/Web-Application/Public/Admin/Css/Pages/Login.css">
 
 </head>
 
@@ -42,7 +42,9 @@
 
         <!-- FORM -->
 
-<form action="/Web-Application/App/Controllers/AdminController.php" method="POST">
+        <form
+        action="http://localhost/Web-Application/Index.php?page=admin_login"
+        method="POST">
 
             <!-- EMAIL -->
 
@@ -95,7 +97,7 @@
                 <label class="remember-box">
 
                     <input type="checkbox"
-                           name="remember"> 
+                           name="remember">
 
                     <span>
                         Ghi nhớ đăng nhập
@@ -103,7 +105,7 @@
 
                 </label>
 
-                <a href="#"
+                <a href="http://localhost/Web-Application/Index.php?page=forgot_password"
                    class="forgot-password">
 
                     Quên mật khẩu?
@@ -145,7 +147,7 @@
 
 </div>
 
-<script src="../../../../Public/Admin/Js/login.js"></script>
+<script src="http://localhost/Web-Application/Public/Admin/Js/Pages/login.js"></script>
 
 </body>
 </html>
