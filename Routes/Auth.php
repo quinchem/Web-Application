@@ -14,10 +14,6 @@ $method = $_SERVER['REQUEST_METHOD'];
 global $page;
 
 
-
-
-
-
 // ========================================
 // ADMIN LOGIN
 // URL:
@@ -46,10 +42,6 @@ if ($page === 'admin_login') {
 }
 
 
-
-
-
-
 // ========================================
 // FORGOT PASSWORD
 // URL:
@@ -63,6 +55,38 @@ if ($page === 'forgot_password') {
     require_once __DIR__ .
     '/../App/Views/Admin/Auth/Forgot_password.php';
 
+
+    exit();
+}
+
+// ========================================
+// RESET PASSWORD
+// FORM ĐỔI MẬT KHẨU MỚI
+//
+// URL:
+// Index.php?page=reset_password
+// ========================================
+
+if ($page === 'reset_password') {
+
+    require_once __DIR__ .
+    '/../App/Views/Admin/Auth/Reset_password.php';
+
+    exit();
+}
+
+
+
+// ========================================
+// AJAX RESET PASSWORD
+//
+// URL:
+// Index.php?page=reset_password_ajax
+// ========================================
+
+if ($page === 'reset_password_ajax') {
+
+    $adminController->resetPasswordAjax();
 
     exit();
 }
@@ -83,8 +107,6 @@ if ($page === 'admin_dashboard') {
 
     exit();
 }
-
-
 
 
 

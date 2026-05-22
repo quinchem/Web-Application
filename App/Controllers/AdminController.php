@@ -293,4 +293,50 @@ class AdminController
 
         exit();
     }
+
+      public function resetPasswordAjax()
+    {
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $password = $_POST['password'] ?? '';
+            $confirmPassword = $_POST['confirmPassword'] ?? '';
+
+            // VALIDATE
+
+            if (empty($password) || empty($confirmPassword)) {
+
+                echo json_encode([
+                    'status' => false,
+                    'message' => 'Vui lòng nhập đầy đủ thông tin!'
+                ]);
+
+                return;
+            }
+
+            if ($password !== $confirmPassword) {
+
+                echo json_encode([
+                    'status' => false,
+                    'message' => 'Mật khẩu xác nhận không khớp!'
+                ]);
+
+                return;
+            }
+
+            // TODO:
+            // UPDATE PASSWORD DATABASE Ở ĐÂY
+
+            echo json_encode([
+                'status' => true,
+                'message' => 'Đổi mật khẩu thành công!'
+            ]);
+        } else {
+
+            echo json_encode([
+                'status' => false,
+                'message' => 'Yêu cầu không hợp lệ!'
+            ]);
+        }
+}
 }
