@@ -93,7 +93,7 @@
         </div>
     </header>
     </body>
-    <script src="/Public/Client/Js/Current_day.js"></script>
+    <script src="/../Web-Application/Public/Client/Js/Current_date.js"></script>
 <?php if (isset($_SESSION['success_msg'])): ?>
         <script>
             alert('<?= $_SESSION['success_msg']; ?>');
