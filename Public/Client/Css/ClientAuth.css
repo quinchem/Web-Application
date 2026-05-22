@@ -1,0 +1,180 @@
+/* Nền màu xám nhạt nhẹ nhàng như ảnh */
+body {
+    background-color: #f4f6f9; 
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+/* Khung form đăng nhập vuông vức, đổ bóng cực nhẹ */
+.auth-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px; 
+    padding: 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border-radius: 4px; 
+}
+
+/* Phần Logo Trạm Tin Việt */
+.brand-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.brand-line {
+    width: 18px;
+    height: 2px;
+    background-color: #c92a2a;
+    margin-right: 12px;
+}
+
+.brand-name {
+    font-family: 'Newsreader', serif;
+    color: #003049;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Tiêu đề "Chào mừng trở lại" */
+.auth-title {
+    font-family: 'Newsreader', serif;
+    color: #003049;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.auth-subtitle {
+    color: #6c757d;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 35px;
+    max-width: 90%;
+}
+
+/* Label "Đăng nhập" phía trên input */
+.form-section-label {
+    font-weight: 700;
+    color: #333;
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+/* Ô nhập liệu nền xám, không viền như bản thiết kế */
+.input-wrapper {
+    background-color: #f4f5f7; 
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.input-wrapper:focus-within {
+    border-color: #c92a2a;
+    background-color: #ffffff;
+}
+
+.input-wrapper i {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.input-wrapper input {
+    border: none;
+    background: transparent;
+    padding: 14px 12px;
+    width: 100%;
+    font-size: 0.95rem;
+    color: #333;
+    outline: none;
+}
+
+.input-wrapper input::placeholder {
+    color: #6c757d;
+}
+
+.eye-icon {
+    cursor: pointer;
+    color: #6c757d;
+}
+
+/* Nút Quên mật khẩu căn lề phải */
+.forgot-password {
+    display: block;
+    text-align: right;
+    color: #c92a2a;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Nút Đăng nhập đỏ */
+.btn-submit {
+    background-color: #b90c17;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 14px;
+    width: 100%;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 16px;
+    transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+    background-color: #920a12;
+}
+
+/* Nút Google nền trắng viền mỏng */
+.btn-google {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 12px;
+    width: 100%;
+    font-weight: 500;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    transition: background-color 0.3s;
+}
+
+.btn-google:hover {
+    background-color: #f8f9fa;
+}
+
+/* Chân trang form đăng nhập */
+.auth-footer {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+.auth-footer a {
+    color: #c92a2a;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
