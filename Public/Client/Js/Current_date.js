@@ -1,4 +1,4 @@
-// Public/Client/Js/Current_day.js
+// Public/Client/Js/Current_date.js
 
 document.addEventListener('DOMContentLoaded', function() {
     function updateCurrentDate() {
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             dateEl.innerHTML = `${dayName}, ngày ${day} tháng ${month} năm ${year}`;
         }
-    }s
+    }
 
     updateCurrentDate();
 });
