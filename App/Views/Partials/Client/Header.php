@@ -54,10 +54,11 @@
                             <img src="<?= !empty($_SESSION['avatar']) ? $_SESSION['avatar'] : '/Public/Admin/Images/admin-avatar.png'; ?>"
                                 alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
 
-                            <span
-                                style="color: white; text-transform: uppercase; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px;">
-                                <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['user_name']); ?>
-                            </span>
+                            <a href="index.php?page=client_profile">
+    <span style="color: white; text-transform: uppercase; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px;">
+        <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['user_name']); ?>
+    </span>
+</a>
 
                             <a href="index.php?page=logout"
                                 style="color: white; text-decoration: none; border: 1px solid rgba(255,255,255,0.7); padding: 5px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-left: 8px; transition: 0.3s;">

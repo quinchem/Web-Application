@@ -1,37 +1,9 @@
 <?php
-/**
- * Routes/Profile.php
- * Xử lý định tuyến cho các trang liên quan đến tài khoản cá nhân
- */
+// Routes/Profile.php
 
-require_once __DIR__ . '/../App/Controllers/ProfileController.php';
+use App\Controllers\ProfileController;
 
-$profileController = new ProfileController();
-
-// Lấy tham số page từ URL. Nếu không có thì gán mặc định là 'profile'
-// Dòng này giúp giải quyết lỗi "Undefined variable '$page'" của VS Code
-$page = $_GET['page'] ?? 'profile'; 
-
-switch ($page) {
-    case 'profile':
-        // Trang thông tin tài khoản (nếu có)
-        // $profileController->index();
-        break;
-
-    case 'change_password':
-        // Nếu là method POST (nhấn nút Cập nhật)
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $profileController->updatePassword();
-        } else {
-            // Nếu là method GET (chỉ hiển thị trang)
-            $profileController->changePassword();
-        }
-        break;
-
-    // ... các case khác của profile (ví dụ: edit_profile)
-    
-    default:
-        // Xử lý khi nhập sai page
-        echo "<h1>404 - Không tìm thấy trang</h1>";
-        break;
-}
+// Nếu bạn vẫn dùng song song cho các hành động form cũ
+$router->get('profile', [ProfileController::class, 'index']);
+$router->get('change_password', [ProfileController::class, 'changePassword']);
+$router->post('change_password', [ProfileController::class, 'updatePassword']);

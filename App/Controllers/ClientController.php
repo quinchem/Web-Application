@@ -1,6 +1,6 @@
 <?php
 // App/Controllers/ClientController.php 
-
+namespace App\Controllers;
 class ClientController {
 
     private $clientRepository;
@@ -11,7 +11,12 @@ class ClientController {
         require_once __DIR__ . '/../../Repositories/ClientRepository.php';
         
         // Khởi tạo đối tượng gán vào biến
-        $this->clientRepository = new ClientRepository();
+        $this->clientRepository = new \ClientRepository();
+    }
+
+    public function loginForm() {
+        require_once __DIR__ . '/../Views/Client/Auth/Login.php';
+        exit(); 
     }
 
     public function loginProcess() {
@@ -47,7 +52,6 @@ class ClientController {
                 $_SESSION['error'] = 'Thông tin đăng nhập không chính xác hoặc tài khoản không hợp lệ.';
                 
                 // ĐIỀU HƯỚNG KHI THẤT BẠI:
-                // Sai ở đâu thì load lại y xì trang đó để báo lỗi
                 header('Location: ' . $referer);
                 exit();
             }
