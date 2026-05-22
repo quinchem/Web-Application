@@ -40,4 +40,45 @@ class ClientRepository
             return false;
         }
     }
+    // =========================
+    // QUẢN LÝ TÀI KHOẢN
+    // =========================
+
+    public function changeUserPassword($userId, $currentPassword, $newPassword)
+    {
+        try {
+            // 1. Lấy mật khẩu hiện tại từ DB để kiểm tra
+            $sql = "SELECT password FROM user WHERE user_id = :user_id LIMIT 1";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT); // Hoặc PARAM_STR tùy kiểu dữ liệu ID của bạn
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                return "Không tìm thấy tài khoản!";
+            }
+
+            // 2. Kiểm tra mật khẩu cũ (Dùng password_verify nếu lúc đăng ký bạn băm mật khẩu bằng password_hash)
+            // Lưu ý: Nếu data cũ của bạn đang lưu password dạng chữ thường (không mã hóa), 
+            // thì đổi dòng if này thành: if ($currentPassword !== $user['password'])
+            if (!password_verify($currentPassword, $user['password'])) {
+                return "Mật khẩu hiện tại không chính xác!";
+            }
+
+            // 3. Mã hóa mật khẩu mới và Cập nhật
+            $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+            $updateSql = "UPDATE user SET password = :new_password WHERE user_id = :user_id";
+            $updateStmt = $this->conn->prepare($updateSql);
+            $updateStmt->bindParam(':new_password', $hashedNewPassword, PDO::PARAM_STR);
+            $updateStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            
+            $success = $updateStmt->execute();
+
+            return $success ? true : "Đã xảy ra lỗi khi cập nhật mật khẩu!";
+            
+        } catch (PDOException $e) {
+            return "Lỗi CSDL: " . $e->getMessage();
+        }
+    }
 }   
