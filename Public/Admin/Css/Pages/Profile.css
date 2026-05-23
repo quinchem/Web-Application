@@ -1,5 +1,7 @@
 /* =========================================================================
-   PART 1: PROFILE MENU (Giao diện bảng menu nhỏ góc dưới Sidebar)
+   PART 1: PROFILE MENU
+   Những gì Bootstrap không thay thế được: absolute positioning, box-shadow tùy chỉnh,
+   animation, border-radius tùy chỉnh, transition
    ========================================================================= */
 .profile-menu {
     display: none;
@@ -19,54 +21,21 @@
     display: block;
 }
 
+/* Bootstrap xử lý: border-bottom, padding — dùng .border-bottom .px-3 .py-3 trong HTML */
 .profile-menu-header {
-    padding: 16px 18px;
-    border-bottom: 1px solid #eef1f3;
+    border-color: #eef1f3 !important; /* override màu border Bootstrap mặc định */
 }
 
-.profile-menu-header strong {
-    display: block;
-    font-size: 14px;
-    font-weight: 900;
-    color: #07344a;
-    margin-bottom: 4px;
-}
+/* Bootstrap xử lý: d-flex align-items-center gap-3 trong HTML */
+/* Bootstrap xử lý: rounded-circle object-fit-cover width height qua style inline */
 
-.profile-menu-header span {
-    font-size: 12px;
-    color: #9fb0bc;
-    font-weight: 500;
-}
-
-.profile-menu-user {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.profile-menu-user img {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.profile-menu-info {
-    display: flex;
-    flex-direction: column;
-}
-
+/* Bootstrap xử lý: d-flex flex-column */
+/* Màu chữ tùy chỉnh không có trong Bootstrap */
 .profile-menu-info strong {
-    font-size: 15px;
-    font-weight: 800;
     color: #07344a;
-    margin-bottom: 4px;
 }
-
 .profile-menu-info span {
-    font-size: 13px;
     color: #8ea2b2;
-    font-weight: 500;
 }
 
 .profile-menu-item {
@@ -106,10 +75,13 @@
 }
 
 /* =========================================================================
-   PART 2: MODAL OVERLAY CHANGE PASSWORD (Chuẩn 100% theo bản Design mới)
+   PART 2: MODAL CHANGE PASSWORD
+   Bootstrap xử lý: d-flex align-items-center justify-content-center,
+   w-100, p-3, gap-*, rounded-*, shadow, border, flex-column, text-*, fw-*,
+   mb-*, mt-*, position-relative/absolute, d-block, overflow-hidden
    ========================================================================= */
 
-/* Lớp phủ mờ nền */
+/* Backdrop — Bootstrap modal có .modal-backdrop nhưng dùng custom để giữ blur */
 .custom-modal-backdrop {
     display: none;
     position: fixed;
@@ -125,7 +97,6 @@
     font-family: 'Barlow', sans-serif;
 }
 
-/* Khung hộp thoại chính */
 .custom-modal-dialog {
     width: 100%;
     max-width: 520px;
@@ -134,26 +105,25 @@
     animation: zoomInModal 0.2s ease-out;
 }
 
+/* .rounded-4 (Bootstrap) + shadow-lg + overflow-hidden + p-0 dùng trong HTML */
 .custom-modal-content {
-    background-color: #ffffff; 
-    border-radius: 24px;       
+    background-color: #ffffff;
+    border-radius: 24px !important; /* Bootstrap .rounded-4 = 0.5rem, cần 24px cụ thể */
     box-shadow: 0 16px 48px rgba(7, 52, 74, 0.12);
-    overflow: hidden !important; /* 🌟 BẮT BUỘC: Cắt các góc nhọn của footer theo bo tròn 24px */
+    overflow: hidden !important;
     border: none;
     display: flex;
     flex-direction: column;
-    padding: 0 !important;       /* 🌟 KHẮC PHỤC: Xóa bỏ hoàn toàn padding của khối cha để footer tràn sát biên */
+    padding: 0 !important;
 }
 
-/* Header */
+/* Header — Bootstrap: d-flex justify-content-between align-items-start p-4 bg-white */
 .custom-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     padding: 32px 32px 16px 32px;
     background-color: #ffffff;
 }
 
+/* Bootstrap: .rounded-circle d-flex align-items-center justify-content-center */
 .modal-icon-title {
     width: 46px;
     height: 46px;
@@ -164,8 +134,10 @@
     justify-content: center;
     color: #07344a;
     font-size: 18px;
+    flex-shrink: 0;
 }
 
+/* Bootstrap: .fs-4 .fw-bold .text-* — màu tùy chỉnh cần giữ */
 .modal-title-text {
     font-size: 22px;
     font-weight: 800;
@@ -173,7 +145,6 @@
     margin: 0 0 6px 0;
 }
 
-/* Màu chữ phụ đề #003049 nguyên bản */
 .modal-subtitle-text {
     font-size: 13.5px;
     color: #003049;
@@ -181,6 +152,7 @@
     font-weight: 500;
 }
 
+/* Bootstrap: .btn .p-1 */
 .btn-close-modal {
     background: none;
     border: none;
@@ -190,21 +162,21 @@
     transition: color 0.2s;
     padding: 4px;
 }
-.btn-close-modal:hover {
-    color: #07344a;
-}
+.btn-close-modal:hover { color: #07344a; }
 
-/* Form body */
+/* Body — Bootstrap: px-4 pb-4 bg-white */
 .custom-modal-body {
-    padding: 0 32px 24px 32px !important; /* Đệm dưới vừa phải trước khi đến footer */
-    background-color: #ffffff; 
-    margin-bottom: 0 !important;         /* Xóa margin thừa tránh đẩy footer */
+    padding: 0 32px 24px 32px !important;
+    background-color: #ffffff;
+    margin-bottom: 0 !important;
 }
 
+/* Bootstrap: mb-4 (24px gap) */
 .custom-form-group {
     margin-bottom: 24px;
 }
 
+/* Bootstrap: d-block fw-bold mb-2 */
 .form-label-custom {
     display: block;
     font-size: 14px;
@@ -213,7 +185,7 @@
     margin-bottom: 10px;
 }
 
-/* Ô Input bọc dữ liệu */
+/* Bootstrap: position-relative d-flex align-items-center w-100 */
 .custom-input-wrapper {
     position: relative;
     display: flex;
@@ -221,10 +193,10 @@
     width: 100%;
 }
 
-/* Nền input mặc định thành màu #D0E8F2 với độ trong suốt 70% */
+/* Input — nền màu tùy chỉnh, Bootstrap không có */
 .custom-input-wrapper input {
     width: 100%;
-    background-color: rgba(208, 232, 242, 0.7); 
+    background-color: rgba(208, 232, 242, 0.7);
     border: 1px solid rgba(208, 232, 242, 0.9);
     border-radius: 12px;
     padding: 14px 44px 14px 46px;
@@ -246,6 +218,7 @@
     font-weight: 500;
 }
 
+/* Bootstrap: position-absolute start-0 ms-3 */
 .custom-input-wrapper .left-icon {
     position: absolute;
     left: 18px;
@@ -253,6 +226,7 @@
     font-size: 15px;
 }
 
+/* Bootstrap: position-absolute end-0 me-3 */
 .custom-input-wrapper .right-icon {
     position: absolute;
     right: 18px;
@@ -261,11 +235,9 @@
     font-size: 16px;
     transition: color 0.2s;
 }
-.custom-input-wrapper .right-icon:hover {
-    color: #cc2429;
-}
+.custom-input-wrapper .right-icon:hover { color: #cc2429; }
 
-/* Khung lưu ý bảo mật */
+/* Security notice — Bootstrap: rounded-3 p-3 d-flex gap-3 mt-2 */
 .security-notice-box {
     background-color: #cccccc;
     border-radius: 14px;
@@ -295,18 +267,7 @@
     font-weight: 700;
 }
 
-/* 🌟 FOOTER - SỬA ĐỂ TRÀN KÍN 100% KHÔNG CÒN VỆT TRẮNG */
-.custom-modal-content {
-    background-color: #ffffff; 
-    border-radius: 24px;       
-    box-shadow: 0 16px 48px rgba(7, 52, 74, 0.12);
-    border: none;
-    display: flex;
-    flex-direction: column;
-    padding: 0 !important;
-    /* XÓA overflow: hidden, isolation, transform hoàn toàn */
-}
-
+/* Footer — Bootstrap: d-flex justify-content-end align-items-center gap-4 p-4 w-100 */
 .custom-modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -319,11 +280,11 @@
     width: 100%;
     box-sizing: border-box;
     flex-shrink: 0;
-
-    /* ✅ Bo góc dưới khớp modal */
     border-bottom-left-radius: 24px;
     border-bottom-right-radius: 24px;
 }
+
+/* Bootstrap: .btn .border-0 .bg-transparent .fw-bold */
 .btn-custom-cancel {
     background: none;
     border: none;
@@ -334,10 +295,9 @@
     padding: 10px 14px;
     transition: opacity 0.2s;
 }
-.btn-custom-cancel:hover {
-    opacity: 0.7;
-}
+.btn-custom-cancel:hover { opacity: 0.7; }
 
+/* Bootstrap: .btn .rounded-3 .px-4 .py-3 .fw-bold — màu brand tùy chỉnh */
 .btn-custom-submit {
     background-color: #cc2429;
     color: #ffffff;
@@ -357,7 +317,7 @@
     box-shadow: 0 6px 16px rgba(204, 36, 41, 0.25);
 }
 
-/* Alert hệ thống */
+/* Bootstrap: .alert .alert-danger / .alert-success — màu brand override */
 .alert {
     padding: 12px 18px;
     border-radius: 10px;
@@ -376,17 +336,16 @@
     border: 1px solid #bbf7d0;
 }
 
-/* Animation */
 @keyframes zoomInModal {
     from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
+    to   { opacity: 1; transform: scale(1); }
 }
 
 /* =========================================================================
-   PART 3: MODAL OVERLAY EDIT PROFILE (Layout Chỉnh Sửa Thông Tin 2 Cột)
+   PART 3: MODAL EDIT PROFILE (2-column layout)
    ========================================================================= */
 
-/* Container chính chia khung */
+/* Bootstrap: d-flex gap-4 align-items-start pt-3 */
 .profile-layout-container {
     display: flex;
     gap: 36px;
@@ -394,7 +353,7 @@
     padding-top: 12px;
 }
 
-/* Khối Avatar bên trái */
+/* Bootstrap: d-flex flex-column align-items-center */
 .profile-avatar-section {
     display: flex;
     flex-direction: column;
@@ -403,6 +362,7 @@
     flex-shrink: 0;
 }
 
+/* Bootstrap: position-relative */
 .avatar-upload-wrapper {
     position: relative;
     width: 120px;
@@ -410,6 +370,7 @@
     margin-bottom: 16px;
 }
 
+/* Bootstrap: rounded-circle object-fit-cover border border-white shadow */
 .avatar-upload-wrapper img {
     width: 100%;
     height: 100%;
@@ -419,7 +380,7 @@
     box-shadow: 0 4px 14px rgba(7, 52, 74, 0.15);
 }
 
-/* Nút icon Camera màu đỏ cam nằm đè góc ảnh */
+/* Bootstrap: position-absolute bottom-0 end-0 rounded-circle d-flex align-items-center justify-content-center */
 .avatar-edit-badge {
     position: absolute;
     bottom: 2px;
@@ -438,12 +399,12 @@
     box-shadow: 0 2px 8px rgba(204, 36, 41, 0.3);
     transition: transform 0.2s, background-color 0.2s;
 }
-
 .avatar-edit-badge:hover {
     background-color: #b21f23;
     transform: scale(1.08);
 }
 
+/* Bootstrap: fw-bold text-center */
 .profile-display-name {
     font-size: 16px;
     font-weight: 800;
@@ -461,14 +422,14 @@
     text-align: center;
 }
 
-/* Khối Form nhập liệu bên phải */
+/* Bootstrap: flex-grow-1 d-flex flex-column */
 .profile-fields-section {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
 }
 
-/* Dòng đôi chứa Họ Tên và Username */
+/* Bootstrap: d-flex gap-3 */
 .profile-form-row {
     display: flex;
     gap: 16px;
@@ -478,7 +439,7 @@
     flex: 1;
 }
 
-/* Định dạng riêng cho ô Textarea phần giới thiệu */
+/* Textarea — nền màu tùy chỉnh Bootstrap không có */
 .custom-textarea-profile {
     width: 100%;
     background-color: rgba(208, 232, 242, 0.7);
@@ -501,7 +462,7 @@
     box-shadow: 0 0 0 4px rgba(7, 52, 74, 0.08);
 }
 
-/* Responsive khi thu màn hình nhỏ */
+/* Responsive */
 @media (max-width: 620px) {
     .profile-layout-container {
         flex-direction: column;
@@ -516,8 +477,7 @@
         width: 100%;
     }
 }
-/* Thêm vào cuối file profile.css để tối ưu lại khoảng cách header sau khi bỏ icon */
-#editProfileModal .custom-modal-header {
-    padding: 32px 32px 20px 32px; /* Giữ khoảng cách thoáng đãng, sang trọng cho tiêu đề */
-}
 
+#editProfileModal .custom-modal-header {
+    padding: 32px 32px 20px 32px;
+}

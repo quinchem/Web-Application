@@ -4,10 +4,37 @@
  * Web Application - Admin Entry Point (Cổng vào phân hệ Quản trị)
  * --------------------------------------------------------------------------
  */
+// 1. Hàm tự viết để đọc file .env
+function loadEnv($filePath) {
+    if (!file_exists($filePath)) {
+        return; // Nếu không có file .env thì bỏ qua
+    }
+    
+    // Đọc từng dòng trong file .env
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // Bỏ qua các dòng chú thích (bắt đầu bằng dấu #)
+        if (strpos(trim($line), '#') === 0) continue;
+        
+        // Tách biến và giá trị qua dấu '='
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            
+            // Đẩy vào biến siêu toàn cục $_ENV của PHP
+            $_ENV[$key] = $value;
+        }
+    }
+}
+
+// 2. Kích hoạt hàm và trỏ tới file .env đang nằm cùng thư mục gốc
+loadEnv(__DIR__ . '/.env');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
 
 // =========================================================================
 // KHÔNG GIAN PHÂN QUYỀN TOÀN CỤC (GLOBAL SECURITY GATE)

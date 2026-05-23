@@ -1,113 +1,31 @@
-<?php 
-require_once __DIR__ . '/../../Partials/Client/Header.php'; 
+<?php
+include __DIR__ . '/../../Partials/Client/Header.php';
 
 $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Montserrat:ital,wght@0,400;0,500;0,700;1,400&family=Newsreader:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="Public/Client/Css/PostDetail.css">
+<script src="Public/Client/Js/PostDetail.js"></script>
 
-<style>
-    .breadcrumb {
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
-    }
-
-    .article-title {
-        font-size: 2.8rem;
-        font-family: 'Newsreader', serif;
-        line-height: 1.2;
-        color: #111;
-        margin-top: 10px;
-    }
-
-    .sapo-box {
-        font-style: italic;
-        font-family: 'Montserrat', sans-serif;
-        color: #5a7d9a;
-        font-size: 1.15rem;
-        border-left: 4px solid #B90C17;
-        padding-left: 20px;
-        line-height: 1.7;
-    }
-
-    .article-content p {
-        font-size: 1.1rem;
-        font-family: 'Montserrat', sans-serif;
-        line-height: 1.8;
-        margin-bottom: 1.5rem;
-        text-align: justify;
-    }
-
-    .sidebar-title {
-        font-size: 1.1rem;
-        font-family: 'Barlow', sans-serif;
-        font-weight: 700;
-        border-left: 5px solid #B90C17;
-        padding-left: 12px;
-        color: #111;
-        margin-bottom: 20px;
-    }
-
-    .sidebar-thumb {
-        width: 85px;
-        height: 65px;
-        object-fit: cover;
-        flex-shrink: 0;
-    }
-
-    .comment-input-box {
-        background-color: #F2F4F5;
-        border-radius: 8px;
-    }
-
-    .comment-avatar {
-        width: 48px;
-        height: 48px;
-        object-fit: cover;
-        border-radius: 6px;
-        flex-shrink: 0;
-    }
-
-    .btn-send {
-        background-color: #003049;
-        border: none;
-        font-family: 'Barlow', sans-serif;
-        color: white;
-    }
-    
-    .btn-send:hover {
-        background-color: #001f33;
-    }
-
-    /* CSS giới hạn nội dung tóm tắt bài viết đề xuất trong vòng 2 dòng */
-    .summary-clamp {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        font-size: 0.85rem;
-        color: #5a7d9a;
-        margin-top: 5px;
-        line-height: 1.5;
-    }
-</style>
 
 <main id="page-article" class="container my-5">
     <div class="row">
         <div class="col-lg-8 pe-lg-5">
-            
+
             <div class="breadcrumb text-muted mb-3 text-uppercase fw-bold" style="font-size: 0.8rem;">
-                <a href="index.php?page=homepage" class="text-decoration-none text-muted">Trang chủ</a> 
-                
+                <a href="index.php?page=homepage" class="text-decoration-none text-muted">Trang chủ</a>
+
                 <?php if (!empty($post['parent_category_name'])): ?>
-                    <span class="mx-2">></span> 
+                    <span class="mx-2">></span>
                     <a href="index.php?page=category&name=<?= urlencode($post['parent_category_name']) ?>" class="text-decoration-none text-muted">
                         <?= htmlspecialchars($post['parent_category_name']) ?>
                     </a>
                 <?php endif; ?>
 
-                <span class="mx-2">></span> 
+                <span class="mx-2">></span>
                 <a href="index.php?page=category&id=<?= $post['category_id'] ?>" class="text-decoration-none text-danger" style="color: var(--red) !important;">
                     <?= htmlspecialchars($post['category_name']) ?>
                 </a>
@@ -117,7 +35,7 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
             <div class="d-flex align-items-center mb-4 pb-3 border-bottom mt-4">
                 <img src="<?= htmlspecialchars($post['avatar'] ?? $defaultAvatar) ?>" alt="Avatar" class="rounded-circle me-3" style="width: 55px; height: 55px; object-fit: cover; border: 2px solid #eee;">
-                
+
                 <div class="w-100 d-flex justify-content-between align-items-center">
                     <div>
                         <div class="fw-bold fs-6" style="color: var(--navy);"><?= htmlspecialchars($post['author_name']) ?></div>
@@ -125,14 +43,14 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                             <i class="fa-regular fa-calendar me-1"></i> <?= date('d/m/Y H:i', strtotime($post['published_at'])) ?>
                         </div>
                     </div>
-                    
+
                     <div class="text-end">
                         <?php if (!empty($post['parent_category_name'])): ?>
                             <span class="badge border text-muted bg-light me-1 px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">
                                 <?= htmlspecialchars($post['parent_category_name']) ?>
                             </span>
                         <?php endif; ?>
-                        
+
                         <span class="badge px-3 py-2 rounded-pill shadow-sm" style="background-color: var(--red); font-size: 0.8rem; letter-spacing: 0.5px;">
                             <?= htmlspecialchars($post['category_name']) ?>
                         </span>
@@ -143,19 +61,19 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
             <div class="sapo-box mb-4">
                 <?= nl2br(htmlspecialchars($post['summary'])) ?>
             </div>
-            
+
             <img src="<?= htmlspecialchars($post['thumbnail_URL']) ?>" class="img-fluid rounded mb-4 w-100" alt="Thumbnail">
-            
+
             <div class="article-content">
                 <?= $post['content'] ?>
             </div>
 
-            <?php if(!empty($tags)): ?>
-            <div class="mt-4 pt-3 mb-2">
-                <?php foreach($tags as $tag): ?>
-                    <span class="badge bg-light text-dark border me-1 py-2 px-3 rounded-pill">#<?= htmlspecialchars($tag['slug']) ?></span>
-                <?php endforeach; ?>
-            </div>
+            <?php if (!empty($tags)): ?>
+                <div class="mt-4 pt-3 mb-2">
+                    <?php foreach ($tags as $tag): ?>
+                        <span class="badge bg-light text-dark border me-1 py-2 px-3 rounded-pill">#<?= htmlspecialchars($tag['slug']) ?></span>
+                    <?php endforeach; ?>
+                </div>
             <?php endif; ?>
 
             <div class="d-flex mt-5 mb-4 pb-4 border-bottom border-top pt-4">
@@ -168,7 +86,7 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
             </div>
 
             <div class="comments-section mt-5" id="comment-section">
-  <h3 id="comment-count-title" class="fw-bold mb-4" style="color: var(--navy); font-family: 'Newsreader', serif;" data-count="<?= $totalComments ?>">Bình luận (<?= $totalComments ?>)</h3>              
+                <h3 id="comment-count-title" class="fw-bold mb-4" style="color: var(--navy); font-family: 'Newsreader', serif;" data-count="<?= $totalComments ?>">Bình luận (<?= $totalComments ?>)</h3>
                 <div class="comment-input-box p-4 mb-5">
                     <textarea id="comment-content" class="form-control border-0 bg-white" rows="3" placeholder="Chia sẻ ý kiến của bạn..." style="resize: none;"></textarea>
                     <div class="text-end mt-3">
@@ -180,7 +98,7 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                     <?php if (empty($comments)): ?>
                         <p class="text-muted text-center py-4 bg-light rounded">Chưa có bình luận nào. Hãy là người đầu tiên để lại ý kiến!</p>
                     <?php else: ?>
-                        <?php foreach($comments as $cmt): ?>
+                        <?php foreach ($comments as $cmt): ?>
                             <div class="d-flex mb-4 pb-4 border-bottom">
                                 <img src="<?= $defaultAvatar ?>" class="comment-avatar me-3" alt="Avatar">
                                 <div class="w-100">
@@ -196,25 +114,35 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                     <?php endif; ?>
                 </div>
 
-                <?php if($totalPages > 1): ?>
-                <div class="d-flex justify-content-center align-items-center mt-4">
-                    <?php if($page > 1): ?>
-                        <a href="index.php?page=post&id=<?= $post['post_id'] ?>&cpage=<?= $page - 1 ?>#comment-section" class="btn btn-sm btn-outline-secondary me-2"><i class="fa-solid fa-chevron-left"></i></a>
-                    <?php endif; ?>
-                    <span class="mx-3 fw-bold text-muted small">Trang <?= $page ?> / <?= $totalPages ?></span>
-                    <?php if($page < $totalPages): ?>
-                        <a href="index.php?page=post&id=<?= $post['post_id'] ?>&cpage=<?= $page + 1 ?>#comment-section" class="btn btn-sm btn-outline-secondary ms-2"><i class="fa-solid fa-chevron-right"></i></a>
+                <div id="comment-pagination-wrapper">
+                    <?php if ($totalPages > 1): ?>
+                        <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
+
+                            <?php if ($page > 1): ?>
+                                <button onclick="loadComments(<?= $page - 1 ?>)" class="btn btn-pagination-arrow">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                            <?php endif; ?>
+
+                            <span class="comment-pagination-text">Trang <?= $page ?> / <?= $totalPages ?></span>
+
+                            <?php if ($page < $totalPages): ?>
+                                <button onclick="loadComments(<?= $page + 1 ?>)" class="btn btn-pagination-arrow">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            <?php endif; ?>
+
+                        </div>
                     <?php endif; ?>
                 </div>
-                <?php endif; ?>
             </div>
         </div>
 
         <div class="col-lg-4 mt-5 mt-lg-0">
             <h3 class="sidebar-title text-uppercase">BÀI VIẾT ĐỀ XUẤT</h3>
-            
+
             <div class="mt-4">
-                <?php foreach($recommendedPosts as $rec): ?>
+                <?php foreach ($recommendedPosts as $rec): ?>
                     <div class="d-flex mb-4" style="cursor: pointer;" onclick="window.location.href='index.php?page=post&id=<?= $rec['post_id'] ?>'">
                         <img src="<?= htmlspecialchars($rec['thumbnail_URL']) ?>" class="sidebar-thumb rounded me-3" alt="Thumb">
                         <div>
@@ -229,83 +157,149 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
         </div>
     </div>
 </main>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const currentPostId = '<?= $post['post_id'] ?>';
-    
+
     // Kiểm tra xem session có tồn tại user_id không để JS biết trạng thái
     const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
 
-    /**
-     * Hàm gọi Modal đăng nhập (Dùng chung)
-     */
+
     function requireLogin() {
-        if (typeof bootstrap !== 'undefined') {
-            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-            loginModal.show();
-        } else {
-            // Đề phòng bootstrap chưa load kịp hoặc đang dùng giao diện Login riêng
-            window.location.href = 'index.php?page=login';
-        }
+        // Gọi SweetAlert2 hiện thông báo chặn người dùng
+        Swal.fire({
+            title: '<div style="font-family: \'Barlow\', sans-serif; font-weight: 700; color: #003049; font-size: 1.8rem;">Yêu cầu đăng nhập</div>',
+            html: '<div style="font-family: \'Montserrat\', sans-serif; font-size: 1rem; color: #5a7d9a; line-height: 1.6;">Bạn cần đăng nhập tài khoản để tương tác với bài viết</div>',
+            icon: 'info',
+            iconColor: '#B90C17',
+            showCancelButton: true,
+            confirmButtonText: 'Đăng nhập ngay',
+            cancelButtonText: 'Để sau',
+            confirmButtonColor: '#003049',
+            cancelButtonColor: '#f8f9fa',
+            backdrop: `rgba(0, 48, 73, 0.6)`,
+            customClass: {
+                confirmButton: 'fw-bold px-4 py-2 rounded-pill',
+                cancelButton: 'text-dark border fw-bold px-4 py-2 rounded-pill shadow-none'
+            }
+        }).then((result) => {
+            // Chỉ khi nào họ bấm "Đăng nhập ngay" (Confirm) thì mới đẩy qua trang kia
+            if (result.isConfirmed) {
+                window.location.href = 'index.php?page=login';
+            }
+        });
     }
 
     function handleLike() {
-        if (!isLoggedIn) { requireLogin(); return; }
+        if (!isLoggedIn) {
+            requireLogin();
+            return;
+        }
 
         let formData = new FormData();
         formData.append('post_id', currentPostId);
-        fetch('index.php?page=api_like', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'unauthorized') { requireLogin(); return; }
+        fetch('index.php?page=api_like', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'unauthorized') {
+                    requireLogin();
+                    return;
+                }
 
-            const btn = document.getElementById('btn-like');
-            if(data.status === 'liked') {
-                btn.style.background = '#003049'; btn.style.color = '#fff';
-                btn.classList.remove('btn-light', 'text-muted');
-                btn.querySelector('span').innerText = 'ĐÃ THÍCH';
-                Swal.fire({ icon: 'success', title: data.message, toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
-            } else {
-                btn.style.background = ''; btn.style.color = '';
-                btn.classList.add('btn-light', 'text-muted');
-                btn.querySelector('span').innerText = 'THÍCH';
-                Swal.fire({ icon: 'info', title: data.message, toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
-            }
-        });
+                const btn = document.getElementById('btn-like');
+                if (data.status === 'liked') {
+                    btn.style.background = '#003049';
+                    btn.style.color = '#fff';
+                    btn.classList.remove('btn-light', 'text-muted');
+                    btn.querySelector('span').innerText = 'ĐÃ THÍCH';
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.classList.add('btn-light', 'text-muted');
+                    btn.querySelector('span').innerText = 'THÍCH';
+                    Swal.fire({
+                        icon: 'info',
+                        title: data.message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
     }
 
     function handleSave() {
-        if (!isLoggedIn) { requireLogin(); return; }
+        if (!isLoggedIn) {
+            requireLogin();
+            return;
+        }
 
         let formData = new FormData();
         formData.append('post_id', currentPostId);
-        fetch('index.php?page=api_save', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'unauthorized') { requireLogin(); return; }
+        fetch('index.php?page=api_save', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'unauthorized') {
+                    requireLogin();
+                    return;
+                }
 
-            const btn = document.getElementById('btn-save');
-            if(data.status === 'saved') {
-                btn.style.background = '#B90C17'; btn.style.color = '#fff';
-                btn.classList.remove('btn-light', 'text-muted');
-                btn.querySelector('span').innerText = 'ĐÃ LƯU';
-                Swal.fire({ icon: 'success', title: data.message, toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
-            } else {
-                btn.style.background = ''; btn.style.color = '';
-                btn.classList.add('btn-light', 'text-muted');
-                btn.querySelector('span').innerText = 'LƯU';
-                Swal.fire({ icon: 'info', title: data.message, toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
-            }
-        });
+                const btn = document.getElementById('btn-save');
+                if (data.status === 'saved') {
+                    btn.style.background = '#B90C17';
+                    btn.style.color = '#fff';
+                    btn.classList.remove('btn-light', 'text-muted');
+                    btn.querySelector('span').innerText = 'ĐÃ LƯU';
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.classList.add('btn-light', 'text-muted');
+                    btn.querySelector('span').innerText = 'LƯU';
+                    Swal.fire({
+                        icon: 'info',
+                        title: data.message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
     }
 
     function submitComment() {
-        if (!isLoggedIn) { requireLogin(); return; }
+        if (!isLoggedIn) {
+            requireLogin();
+            return;
+        }
 
         const contentInput = document.getElementById('comment-content');
         const content = contentInput.value.trim();
-        
-        if(!content) {
+
+        if (!content) {
             Swal.fire('Cảnh báo', 'Vui lòng nhập nội dung bình luận trước khi bấm gửi!', 'warning');
             return;
         }
@@ -313,27 +307,39 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
         let formData = new FormData();
         formData.append('post_id', currentPostId);
         formData.append('content', content);
-        
-        fetch('index.php?page=api_comment', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'unauthorized') { requireLogin(); return; }
 
-            if(data.status === 'success') {
-                Swal.fire({ icon: 'success', title: 'Thành công', text: 'Bình luận của bạn đã được đăng tải!', timer: 1500, showConfirmButton: false });
-                
-                // 1. Dọn dẹp ô nhập liệu
-                contentInput.value = '';
+        fetch('index.php?page=api_comment', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'unauthorized') {
+                    requireLogin();
+                    return;
+                }
 
-                // 2. Chèn bình luận mới vào đầu danh sách (AJAX thuần không reload)
-                const commentArea = document.querySelector('.comment-area');
-                
-                // Xóa dòng chữ "Chưa có bình luận nào" nếu có
-                const noCommentMsg = commentArea.querySelector('p.text-muted');
-                if (noCommentMsg) noCommentMsg.remove();
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Bình luận của bạn đã được đăng tải!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
 
-                // Tạo cấu trúc HTML cho bình luận mới
-                const newCommentHtml = `
+                    // 1. Dọn dẹp ô nhập liệu
+                    contentInput.value = '';
+
+                    // 2. Chèn bình luận mới vào đầu danh sách (AJAX thuần không reload)
+                    const commentArea = document.querySelector('.comment-area');
+
+                    // Xóa dòng chữ "Chưa có bình luận nào" nếu có
+                    const noCommentMsg = commentArea.querySelector('p.text-muted');
+                    if (noCommentMsg) noCommentMsg.remove();
+
+                    // Tạo cấu trúc HTML cho bình luận mới
+                    const newCommentHtml = `
                     <div class="d-flex mb-4 pb-4 border-bottom" style="animation: fadeIn 0.5s;">
                         <img src="${data.comment.avatar}" class="comment-avatar me-3" alt="Avatar">
                         <div class="w-100">
@@ -346,28 +352,27 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                         </div>
                     </div>
                 `;
-                
-                // Chèn vào vị trí trên cùng
-                commentArea.insertAdjacentHTML('afterbegin', newCommentHtml);
 
-                // 3. Tăng bộ đếm bình luận lên 1
-                const titleEl = document.getElementById('comment-count-title');
-                let currentCount = parseInt(titleEl.getAttribute('data-count'));
-                currentCount++;
-                titleEl.setAttribute('data-count', currentCount);
-                titleEl.innerText = `Bình luận (${currentCount})`;
-                
-            } else {
-                Swal.fire('Lỗi', data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Lỗi AJAX:', error);
-            Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
-        });
+                    // Chèn vào vị trí trên cùng
+                    commentArea.insertAdjacentHTML('afterbegin', newCommentHtml);
+
+                    // 3. Tăng bộ đếm bình luận lên 1
+                    const titleEl = document.getElementById('comment-count-title');
+                    let currentCount = parseInt(titleEl.getAttribute('data-count'));
+                    currentCount++;
+                    titleEl.setAttribute('data-count', currentCount);
+                    titleEl.innerText = `Bình luận (${currentCount})`;
+
+                } else {
+                    Swal.fire('Lỗi', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi AJAX:', error);
+                Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
+            });
     }
 </script>
-
-<?php 
-require_once __DIR__ . '/../../Partials/Client/Footer.php'; 
+<?php
+include __DIR__ . '/../../Partials/Client/Footer.php';
 ?>

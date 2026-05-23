@@ -1,7 +1,10 @@
 /* ================================
    REVIEW MODAL - Duyệt bài viết
+   Bootstrap xử lý: d-flex, align-items-center, justify-content-between,
+   justify-content-end, gap-*, d-grid, w-100, mb-*, position-fixed
 ================================ */
 
+/* Backdrop — giữ: màu tùy chỉnh, z-index, display:none toggle */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -16,6 +19,7 @@
     display: flex;
 }
 
+/* Modal box — giữ: kích thước, border-radius, shadow tùy chỉnh */
 .modal-box {
     background: #fff;
     border-radius: 16px;
@@ -23,54 +27,69 @@
     max-width: 95vw;
     position: relative;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    padding: 0;  /* ← bỏ hết padding */
-    overflow: hidden; /* ← giữ border-radius */
+    padding: 0;
+    overflow: hidden;
 }
 
+/* HEADER — Bootstrap xử lý: d-flex align-items-center justify-content-between */
+.modal-header {
+    background: #f0f5f8;
+    padding: 20px 36px;
+    border-bottom: 0.75px solid #e8eff3;
+    min-height: 60px;
+}
+
+/* BODY — Bootstrap xử lý: p-4 / padding tương đương */
+.modal-body {
+    padding: 24px 36px;
+}
+
+/* Close button — Bootstrap xử lý: btn p-0 lh-1 */
 .modal-close {
     background: none;
     border: none;
     font-size: 18px;
     color: #aabcc6;
     cursor: pointer;
-    /* xóa position: absolute, top, right đi */
     padding: 0;
     line-height: 1;
 }
 
+/* Label — màu tùy chỉnh */
 .modal-label {
     font-size: 13px;
     font-weight: 900;
     letter-spacing: 1px;
-    color: #e52328;
-    margin-bottom: 14px;
+    color: #07344a;
 }
 
+/* Section label — màu xám tùy chỉnh */
+.modal-section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: #8fa8b5;
+    margin-bottom: 12px;
+    margin-top: 0;
+}
+
+/* Post title */
 .modal-title {
     font-family: 'Newsreader', serif;
     font-size: 20px;
     font-weight: 700;
     color: #07344a;
     margin-bottom: 24px;
-    line-height: 1.35;
+    line-height: 1.5;
 }
 
-.modal-section-label {
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 1.2px;
-    color: #07344a;
-    margin-bottom: 12px;
-    margin-top: 0;
-}
-
+/* Decision grid — Bootstrap xử lý: d-grid gap-3 mb-4 trong HTML */
 .modal-decision {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    grid-template-columns: 1fr 1fr; /* Bootstrap d-grid không tự chia 2 cột — cần giữ */
     margin-bottom: 28px;
 }
 
+/* Decision buttons — giữ: style tùy chỉnh hoàn toàn */
 .decision-btn {
     height: 56px;
     border-radius: 14px;
@@ -111,8 +130,8 @@
     color: #e52328;
 }
 
+/* Textarea — Bootstrap xử lý: w-100 mb-4 trong HTML; giữ: màu nền, border-radius tùy chỉnh */
 .modal-textarea {
-    width: 100%;
     height: 120px;
     background: #e8f4fb;
     border: none;
@@ -124,24 +143,18 @@
     font-family: 'Barlow', sans-serif;
     resize: none;
     outline: none;
-    margin-bottom: 28px;
 }
 
-.modal-textarea::placeholder {
-    color: #9fb0bc;
-}
+.modal-textarea::placeholder { color: #9fb0bc; }
 
+/* FOOTER — Bootstrap xử lý: d-flex justify-content-end align-items-center gap-4 */
 .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 24px;
     background: #f0f5f8;
     padding: 20px 36px;
     border-top: 1px solid #e8eff3;
-    /* bỏ hết margin */
 }
 
+/* Cancel — Bootstrap xử lý: btn border-0 bg-transparent fw-bold */
 .modal-cancel {
     background: none;
     border: none;
@@ -152,6 +165,7 @@
     font-family: 'Barlow', sans-serif;
 }
 
+/* Confirm — giữ: màu brand, border-radius, shadow tùy chỉnh */
 .modal-confirm {
     background: #e52328;
     color: #fff;
@@ -165,47 +179,4 @@
     box-shadow: 0 8px 20px rgba(229, 35, 40, 0.25);
 }
 
-.modal-confirm:hover {
-    background: #c81d22;
-}
-/* Label header - căn giữa theo chiều dọc */
-.modal-header {
-    background: #f0f5f8;
-    padding: 20px 36px;
-    border-bottom: 0.75px solid #e8eff3;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 60px;
-}
-
-.modal-body {
-    padding: 24px 36px;
-}
-
-.modal-label {
-    font-size: 13px;
-    font-weight: 900;
-    letter-spacing: 1px;
-    color: #07344a;
-}
-
-/* Section label màu xám */
-.modal-section-label {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    color: #8fa8b5;  /* ← đổi sang xám */
-    margin-bottom: 12px;
-    margin-top: 0;
-}
-
-/* Tên bài viết đậm hơn */
-.modal-title {
-    font-family: 'Newsreader', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: #07344a;
-    margin-bottom: 24px;
-    line-height: 1.5;
-}
+.modal-confirm:hover { background: #c81d22; }
