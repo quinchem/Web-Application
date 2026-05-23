@@ -5,6 +5,17 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 🔥 BỔ SUNG: Nạp cấu hình file .env để phía Client cũng đọc được dữ liệu kết nối TiDB Cloud
+if (file_exists(__DIR__ . '/.env')) {
+    $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        list($name, $value) = explode('=', $line, 2);
+        $_ENV[trim($name)] = trim($value);
+        putenv(trim($name) . '=' . trim($value));
+    }
+}
+
 // 1. Tự động nạp file Class theo Namespace (Autoload)
 spl_autoload_register(function ($class) {
     $file = __DIR__ . '/' . str_replace('\\', '/', $class) . '.php';
