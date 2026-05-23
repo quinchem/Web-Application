@@ -109,8 +109,8 @@ $uAvatar  = htmlspecialchars($user['avatar'] ?? $_SESSION['avatar'] ?? 'https://
     }
 </style>
 
-<div class="card shadow-sm border-0 p-4" style="min-height: 480px;">
-    <div class="profile-edit-container p-2">
+<div class="card shadow-sm border-0 p-4" style="min-height: 500px;">
+    <div class="profile-edit-container p-3">
         <?php if (isset($_SESSION['success_msg'])): ?>
             <div class="alert alert-success py-2 small mb-4">
                 <?= $_SESSION['success_msg'];
