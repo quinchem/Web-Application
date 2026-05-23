@@ -304,7 +304,7 @@ public function countUserPostsFiltered($filters = [])
         $stmt->execute(['post_id' => $postId]);
         return $stmt->fetchColumn();
     }
-
+    
     /**
      * Hàm hỗ trợ tự động sinh mã ID (LK0001, BM0001, CM0001)
      */

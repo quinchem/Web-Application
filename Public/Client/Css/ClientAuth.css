@@ -139,27 +139,6 @@ body {
     background-color: #920a12;
 }
 
-/* Nút Google nền trắng viền mỏng */
-.btn-google {
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 12px;
-    width: 100%;
-    font-weight: 500;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 40px;
-    transition: background-color 0.3s;
-}
-
-.btn-google:hover {
-    background-color: #f8f9fa;
-}
 
 /* Chân trang form đăng nhập */
 .auth-footer {

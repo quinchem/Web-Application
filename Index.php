@@ -26,9 +26,12 @@ function loadEnv($filePath) {
 // 2. Kích hoạt hàm và trỏ tới file .env đang nằm cùng thư mục gốc
 loadEnv(__DIR__ . '/.env');
 
+// Index.php (Thư mục gốc)
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
 
 // 1. Tự động nạp file Class theo Namespace (Autoload)
 spl_autoload_register(function ($class) {
