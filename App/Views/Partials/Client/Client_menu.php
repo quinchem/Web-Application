@@ -3,7 +3,7 @@
         background-color: #e3edf7 !important; /* Màu nền xanh xám nhạt như hình */
         border-radius: 0px; /* Bỏ bo góc nếu muốn vuông vắn hoặc chỉnh 12px tùy ý */
         overflow: hidden;
-        padding-bottom: 30px; /* Loại bỏ padding dưới cùng để sát với chân trang hơn */
+        padding-bottom: 15px; /* Loại bỏ padding dưới cùng để sát với chân trang hơn */
     }
     
     .profile-sidebar .avatar-section {
