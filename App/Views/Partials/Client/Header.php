@@ -76,12 +76,26 @@
                 </div>
             </div>
 
+            <?php 
+                // NÂNG CẤP: Dùng !empty để xử lý triệt để trường hợp URL bị rỗng
+                $currentPage = !empty($_GET['page']) ? $_GET['page'] : 'homepage'; 
+                $currentCategory = !empty($_GET['name']) ? $_GET['name'] : '';
+            ?>
             <nav class="nav-bar">
                 <ul class="menu-items">
-                    <li><a href="index.php?page=homepage" class="active">Trang Chủ</a></li>
-                    <li><a href="index.php?page=category&name=Thời sự">Thời Sự</a></li>
-                    <li><a href="index.php?page=category&name=Kinh tế">Kinh Tế</a></li>
-                    <li><a href="index.php?page=category&name=Tiện ích">Tiện Ích</a></li>
+                    <li>
+                        <a href="index.php?page=homepage" class="<?= ($currentPage === 'homepage') ? 'active' : ''; ?>">Trang Chủ</a>
+                    </li>
+                    
+                    <li>
+                        <a href="index.php?page=category&name=Thời sự" class="<?= ($currentPage === 'category' && $currentCategory === 'Thời sự') ? 'active' : ''; ?>">Thời Sự</a>
+                    </li>
+                    <li>
+                        <a href="index.php?page=category&name=Kinh tế" class="<?= ($currentPage === 'category' && $currentCategory === 'Kinh tế') ? 'active' : ''; ?>">Kinh Tế</a>
+                    </li>
+                    <li>
+                        <a href="index.php?page=category&name=Tiện ích" class="<?= ($currentPage === 'category' && $currentCategory === 'Tiện ích') ? 'active' : ''; ?>">Tiện Ích</a>
+                    </li>
                 </ul>
                 <div class="search-box" style="position: relative;">
                     <input type="text" placeholder="Tìm kiếm..."

@@ -119,28 +119,101 @@ class ClientController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userId   = $_SESSION['user_id'] ?? null;
-            $username = trim($_POST['username'] ?? ''); 
-            $fullName = trim($_POST['fullname'] ?? '');
-            $email    = trim($_POST['email'] ?? '');
-            $gender   = $_POST['gender'] ?? 'female';
-
+            
             if (!$userId) {
                 header('Location: index.php?page=login');
                 exit();
             }
 
-            $result = $this->clientRepository->updateProfile($userId, $username, $fullName, $gender);
+            // ==========================================================
+            // PHẦN 1: CẬP NHẬT THÔNG TIN VĂN BẢN VÀO DB
+            // ==========================================================
+            $username = trim($_POST['username'] ?? ''); 
+            $fullName = trim($_POST['fullname'] ?? '');
+            $gender   = $_POST['gender'] ?? $_POST['current_gender'] ?? '';
 
-            if ($result) {
-                // Đồng bộ cập nhật ngay lập tức lên Header và Sidebar toàn hệ thống
-                $_SESSION['user_name']   = $username;
-                $_SESSION['full_name']   = $fullName;
-                $_SESSION['success_msg'] = "Cập nhật hồ sơ cá nhân thành công!";
-            } else {
-                $_SESSION['error_msg']   = "Lỗi: Không thể lưu thay đổi vào cơ sở dữ liệu.";
+            if ($username !== '' && $fullName !== '') {
+                $updateTextResult = $this->clientRepository->updateProfile($userId, $username, $fullName, $gender);
+
+                if ($updateTextResult) {
+                    $_SESSION['user_name'] = $username;
+                    $_SESSION['full_name'] = $fullName;
+                } else {
+                    $_SESSION['error_msg'] = "Lỗi lưu thông tin văn bản!";
+                    header('Location: index.php?page=client_profile&tab=edit');
+                    exit();
+                }
             }
 
-            // Chuyển hướng reload lại trang cá nhân
+            // ==========================================================
+            // PHẦN 2: XỬ LÝ ẢNH ĐẠI DIỆN (AVATAR) HOẠT ĐỘNG ĐỘC LẬP
+            // ==========================================================
+            $isRemoveAvatar = $_POST['remove_avatar'] ?? '0';
+
+            // TRƯỜNG HỢP 2.1: Gỡ bỏ ảnh về mặc định
+            if ($isRemoveAvatar === '1') {
+                $defaultAvatar = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                $this->clientRepository->updateAvatarUrl($userId, $defaultAvatar);
+                $_SESSION['avatar'] = $defaultAvatar;
+            } 
+            // TRƯỜNG HỢP 2.2: Chọn file ảnh mới từ máy tính và tải lên
+            elseif (isset($_FILES['avatar_file']) && $_FILES['avatar_file']['name'] !== '') {
+                
+                if ($_FILES['avatar_file']['error'] !== UPLOAD_ERR_OK) {
+                    $_SESSION['error_msg'] = "Thông tin đã lưu, nhưng ảnh bị lỗi (Mã lỗi: " . $_FILES['avatar_file']['error'] . ")";
+                    header('Location: index.php?page=client_profile&tab=edit');
+                    exit();
+                }
+                
+                $cloudName = $_ENV['CLOUDINARY_CLOUD_NAME'];
+                $apiKey    = $_ENV['CLOUDINARY_API_KEY'];
+                $apiSecret = $_ENV['CLOUDINARY_API_SECRET'];
+
+                $fileTmp   = $_FILES['avatar_file']['tmp_name'];
+                $fileType  = $_FILES['avatar_file']['type'];
+                $fileName  = $_FILES['avatar_file']['name'];
+                
+                // ĐÃ THAY ĐỔI: Cấu hình lưu trữ vào folder mới theo yêu cầu
+                $folder    = 'tramtinviet/avatar'; 
+                $timestamp = time();
+                
+                // Chữ ký bảo mật sha1 tự động cập nhật theo cấu trúc folder mới
+                $signature = sha1("folder=" . $folder . "&timestamp=" . $timestamp . $apiSecret);
+
+                $cfile = new \CURLFile($fileTmp, $fileType, $fileName);
+                $data = [
+                    'file'      => $cfile,
+                    'api_key'   => $apiKey,
+                    'timestamp' => $timestamp,
+                    'signature' => $signature,
+                    'folder'    => $folder
+                ];
+
+                $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/image/upload");
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                
+                $response = curl_exec($ch);
+                curl_close($ch);
+
+                $result = json_decode($response, true);
+
+                if (!isset($result['secure_url'])) {
+                    $_SESSION['error_msg'] = "Lỗi Cloudinary từ chối nhận ảnh!";
+                    header('Location: index.php?page=client_profile&tab=edit');
+                    exit();
+                }
+
+                // Lấy URL an toàn (https) do Cloudinary trả về
+                $newAvatarUrl = $result['secure_url'];
+                
+                // Thực hiện gọi hàm lưu đường dẫn mới vào cột thumbnail_url trong CSDL
+                $this->clientRepository->updateAvatarUrl($userId, $newAvatarUrl);
+                $_SESSION['avatar'] = $newAvatarUrl; 
+            }
+
+            $_SESSION['success_msg'] = "Cập nhật hồ sơ thành công!";
             header('Location: index.php?page=client_profile&tab=edit');
             exit();
         }
@@ -211,6 +284,7 @@ if (!$isPasswordCorrect) {
         exit();
     }
 }
+
 }
 
 ?>

@@ -173,9 +173,31 @@ public function updatePassword($userId, $hashedPassword)
         return $stmt->execute([$hashedPassword, $userId]);
         
     } catch (PDOException $e) {
-        error_log("Lỗi tại updatePassword: " . $e->getMessage());
+        error_log("Lỗi tại Update Password: " . $e->getMessage());
         return false;
     }
 }
+
+/**
+     * Cập nhật URL ảnh đại diện vào cột thumbnail_url trong CSDL
+     * @param int|string $userId Định danh người dùng
+     * @param string $thumbnailUrl Link URL tải từ Cloudinary
+     * @return bool
+     */
+    public function updateAvatarUrl($userId, $avatarUrl) 
+    {
+        try {
+            // Sửa tên cột thành `avatar`
+            $sql = "UPDATE user SET avatar = ? WHERE user_id = ?";
+            
+            $stmt = $this->conn->prepare($sql);
+            
+            return $stmt->execute([$avatarUrl, $userId]);
+            
+        } catch (PDOException $e) {
+            error_log("Lỗi hệ thống khi cập nhật cột ảnh đại diện: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 
