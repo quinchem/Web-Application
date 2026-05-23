@@ -25,7 +25,7 @@ class AdminController
             session_start();
         }
 
-        // Remember Login
+        // Remember Login ==> SAU NHỚ MỞ LẠI
 
         if (isset($_COOKIE['remember_user'])) {
 
@@ -33,15 +33,15 @@ class AdminController
                 $_COOKIE['remember_user'];
 
             header(
-                "Location: http://localhost/Web-Application/Index.php?page=admin_dashboard"
+            "Location: http://localhost/Web-Application/Admin_index.php?page=admin_user_posts"
             );
 
             exit();
         }
 
         require_once __DIR__ .
-            '/../Views/Admin/Auth/Login.php';
-    }
+        '/../Views/Admin/Auth/Login.php';
+     }
 
 
     // ====================================
@@ -92,7 +92,7 @@ class AdminController
 
                     $user->user_id,
 
-                    time() + (86400 * 30),
+                    time() + (86400 * 1),
 
                     "/"
                 );
@@ -128,7 +128,7 @@ class AdminController
                 setTimeout(() => {
 
                     window.location.href =
-'http://localhost/Web-Application/Index.php?page=admin_user_posts';
+'http://localhost/Web-Application/Admin_index.php?page=admin_user_posts';
 
                 }, 1800);
 
@@ -171,7 +171,7 @@ class AdminController
             }).then(() => {
 
                 window.location.href =
-                'http://localhost/Web-Application/Index.php?page=admin_login';
+                'http://localhost/Web-Application/Admin_index.php?page=admin_login';
 
             });
 
@@ -219,7 +219,7 @@ class AdminController
         );
 
         header(
-            "Location: http://localhost/Web-Application/Index.php?page=admin_login"
+        "Location: http://localhost/Web-Application/Admin_index.php?page=admin_login"
         );
 
         exit();
@@ -293,7 +293,11 @@ class AdminController
 
         exit();
     }
-
+    public function resetPassword()
+    {
+    require_once __DIR__ .
+    '/../Views/Admin/Auth/Reset_password.php';
+    }
       public function resetPasswordAjax()
     {
 
