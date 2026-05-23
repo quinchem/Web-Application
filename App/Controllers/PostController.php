@@ -60,79 +60,7 @@ class PostController
      * Hiển thị chi tiết một bài viết cụ thể
      * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
      */
-    public function post()
-    {
-        $postId = $_GET['id'] ?? null;
-        if (!$postId) {
-            $this->homepage();
-            return;
-        }
-
-        // 1. Khởi tạo biến mặc định để View không bị lỗi
-        $post = null; 
-        $tags = []; 
-        $recommendedPosts = []; 
-        $comments = [];
-        $totalComments = 0; 
-        $totalPages = 1; 
-
-        $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
-        $limit = 5; 
-        $offset = ($page - 1) * $limit;
-
-        // 2. Lấy thông tin bài viết
-        $post = $this->postRepository->getPostById($postId);
-        if (!$post) {
-            echo "<div style='text-align:center; padding:50px; font-family:sans-serif;'><h2>Bài viết không tồn tại hoặc đã bị ẩn!</h2><a href='Index.php'>Về trang chủ</a></div>";
-            exit;
-        }
-
-        // 3. Lấy dữ liệu bổ sung
-        $tags = $this->postRepository->getPostTags($postId);
-        $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
-        
-        // 4. Tính toán và lấy bình luận
-        $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
-        if ($totalComments > 0) {
-            $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
-            $totalPages = ceil($totalComments / $limit);
-        }
-
-        // 5. Gọi View
-        require __DIR__ . '/../Views/Client/Post/Detail.php';
-    }
-
-    /**
-     * Admin quản lý bài viết người đọc
-     */
-    public function adminUserPosts()
-    {
-        $filters = [
-            'keyword'     => $_GET['keyword'] ?? '',
-            'category_id' => $_GET['category_id'] ?? '',
-            'author_id'   => $_GET['author_id'] ?? '',
-            'status'      => $_GET['status'] ?? '',
-            'date'        => $_GET['date'] ?? ''
-        ];
-
-        $perPage     = 10;
-        $currentPage = max(1, (int)($_GET['p'] ?? 1));
-        $offset      = ($currentPage - 1) * $perPage;
-
-        $posts      = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
-        $categories = $this->postRepository->getCategoriesForFilter();
-        $authors    = $this->postRepository->getAuthorsForFilter();
-
-        $totalPosts = $this->postRepository->countUserPosts();              // stat card: tất cả
-        $totalForPages = $this->postRepository->countUserPostsFiltered($filters); // pagination: theo filter
-        $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
-        $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
-        $trendingPosts = $this->postRepository->countTrendingUserPosts();
-
-        $totalPages = (int)ceil($totalForPages / $perPage);
-
-        require_once __DIR__ . '/../Views/Admin/Post/Index.php';
-    }
+   
 
     public function hidePost()
     {
@@ -194,17 +122,29 @@ class PostController
     }
 
     public function apiToggleSave() {
-        $userId = $this->getCurrentUserId();
-        if (!$userId) { 
-            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
-            return; 
-        }
+    $userId = $this->getCurrentUserId();
 
-        $postId = $_POST['post_id'] ?? null;
-        if($postId) {
-            echo json_encode($this->postRepository->toggleBookmark($postId, $userId));
-        }
+    if (!$userId) { 
+        $this->jsonResponse([
+            'status' => 'unauthorized', 
+            'message' => 'Vui lòng đăng nhập.'
+        ]);
     }
+
+    $postId = $_POST['post_id'] ?? null;
+
+    if (!$postId) {
+        $this->jsonResponse([
+            'status' => 'error', 
+            'message' => 'Thiếu post_id'
+        ]);
+    }
+
+    $this->jsonResponse(
+        $this->postRepository->toggleBookmark($postId, $userId)
+    );
+}
+
 
     public function apiAddComment() {
         $userId = $this->getCurrentUserId();
@@ -233,5 +173,91 @@ class PostController
                 echo json_encode(['status' => 'error', 'message' => 'Lỗi khi gửi bình luận']);
             }
         }
+    }
+    public function post()
+{
+    $postId = $_GET['id'] ?? null;
+    if (!$postId) {
+        $this->homepage();
+        return;
+    }
+
+    // Lấy user hiện tại
+    $userId = $this->getCurrentUserId();
+
+    // 1. Khởi tạo biến mặc định để View không bị lỗi
+    $post = null; 
+    $tags = []; 
+    $recommendedPosts = []; 
+    $comments = [];
+    $totalComments = 0; 
+    $totalPages = 1;
+    $isSaved = false;
+
+    $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
+    $limit = 5; 
+    $offset = ($page - 1) * $limit;
+
+    // 2. Lấy thông tin bài viết
+    $post = $this->postRepository->getPostById($postId);
+
+    if (!$post) {
+        echo "<div style='text-align:center; padding:50px; font-family:sans-serif;'>
+                <h2>Bài viết không tồn tại hoặc đã bị ẩn!</h2>
+                <a href='Index.php'>Về trang chủ</a>
+              </div>";
+        exit;
+    }
+
+    // 3. Kiểm tra bài viết đã được user lưu chưa
+    if ($userId) {
+        $isSaved = $this->postRepository->isBookmarked($postId, $userId);
+    }
+
+    // 4. Lấy dữ liệu bổ sung
+    $tags = $this->postRepository->getPostTags($postId);
+    $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
+    
+    // 5. Tính toán và lấy bình luận
+    $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
+
+    if ($totalComments > 0) {
+        $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
+        $totalPages = ceil($totalComments / $limit);
+    }
+
+    // 6. Gọi View
+    require __DIR__ . '/../Views/Client/Post/Detail.php';
+}
+    /**
+     * Admin quản lý bài viết người đọc
+     */
+    public function adminUserPosts()
+    {
+        $filters = [
+            'keyword'     => $_GET['keyword'] ?? '',
+            'category_id' => $_GET['category_id'] ?? '',
+            'author_id'   => $_GET['author_id'] ?? '',
+            'status'      => $_GET['status'] ?? '',
+            'date'        => $_GET['date'] ?? ''
+        ];
+
+        $perPage     = 10;
+        $currentPage = max(1, (int)($_GET['p'] ?? 1));
+        $offset      = ($currentPage - 1) * $perPage;
+
+        $posts      = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
+        $categories = $this->postRepository->getCategoriesForFilter();
+        $authors    = $this->postRepository->getAuthorsForFilter();
+
+        $totalPosts = $this->postRepository->countUserPosts();              // stat card: tất cả
+        $totalForPages = $this->postRepository->countUserPostsFiltered($filters); // pagination: theo filter
+        $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
+        $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
+        $trendingPosts = $this->postRepository->countTrendingUserPosts();
+
+        $totalPages = (int)ceil($totalForPages / $perPage);
+
+        require_once __DIR__ . '/../Views/Admin/Post/Index.php';
     }
 }

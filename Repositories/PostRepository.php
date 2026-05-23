@@ -370,6 +370,22 @@ $sql = "INSERT INTO Bookmark (bookmark_id, post_id, user_id) VALUES (:bookmark_i
         }
     }
 
+public function isBookmarked($postId, $userId)
+{
+    $sql = "SELECT 1 FROM Bookmark 
+            WHERE post_id = :post_id 
+            AND user_id = :user_id 
+            LIMIT 1";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([
+        'post_id' => $postId,
+        'user_id' => $userId
+    ]);
+
+    return $stmt->fetchColumn() !== false;
+}
+
     public function addComment($postId, $userId, $content) {
         // Tự động sinh mã
         $newCommentId = $this->generateNewId('Comment', 'comment_id', 'CM');
