@@ -2,8 +2,8 @@
     <div class="custom-modal-dialog" style="max-width: 680px;"> 
         <div class="custom-modal-content">
             
-            <div class="custom-modal-header">
-                <div style="display: flex; gap: 16px; align-items: center;">
+            <div class="custom-modal-header d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center gap-3">
                     <div>
                         <h3 class="modal-title-text">Chỉnh sửa thông tin</h3>
                         <p class="modal-subtitle-text">Thông tin hồ sơ sẽ giúp nhận diện quản trị viên trong hệ thống.</p>
@@ -14,7 +14,12 @@
                 </button>
             </div>
 
-            <form action="Index.php?page=update-profile" method="POST" enctype="multipart/form-data" style="margin: 0;">
+            <!-- Thông báo kết quả (ẩn mặc định) -->
+            <div id="editProfileAlert" class="d-none mx-4 mt-3 mb-0 rounded-3 px-3 py-2" style="font-size: 13.5px; font-weight: 500;"></div>
+
+            <form id="editProfileForm" enctype="multipart/form-data" class="m-0">
+                <input type="hidden" name="page" value="update-profile">
+
                 <div class="custom-modal-body">
                     <div class="profile-layout-container">
                         
@@ -24,9 +29,9 @@
                                 <label for="avatarFileInput" class="avatar-edit-badge">
                                     <i class="fa-solid fa-camera"></i>
                                 </label>
-                                <input type="file" id="avatarFileInput" name="avatar" accept="image/*" style="display: none;">
+                                <input type="file" id="avatarFileInput" name="avatar" accept="image/*" class="d-none">
                             </div>
-                            <h4 class="profile-display-name"><?= htmlspecialchars($_SESSION['admin_name'] ?? 'Nguyễn Văn An') ?></h4>
+                            <h4 class="profile-display-name" id="profileDisplayName"><?= htmlspecialchars($_SESSION['admin_name'] ?? 'Nguyễn Văn An') ?></h4>
                             <span class="profile-display-role">QUẢN TRỊ VIÊN</span>
                         </div>
 
@@ -35,7 +40,7 @@
                                 <div class="custom-form-group">
                                     <label class="form-label-custom">HỌ VÀ TÊN</label>
                                     <div class="custom-input-wrapper">
-                                        <input type="text" name="fullname" value="<?= htmlspecialchars($_SESSION['admin_name'] ?? 'Nguyễn Văn An') ?>" placeholder="Nhập họ và tên...">
+                                        <input type="text" name="fullname" id="inputFullname" value="<?= htmlspecialchars($_SESSION['admin_name'] ?? 'Nguyễn Văn An') ?>" placeholder="Nhập họ và tên...">
                                     </div>
                                 </div>
                                 <div class="custom-form-group">
@@ -53,7 +58,7 @@
                                 </div>
                             </div>
 
-                            <div class="custom-form-group" style="margin-bottom: 8px;">
+                            <div class="custom-form-group mb-2">
                                 <label class="form-label-custom">GIỚI THIỆU NGẮN</label>
                                 <textarea class="custom-textarea-profile" name="bio" rows="3" placeholder="Nhập mô tả ngắn về bản thân..."><?= htmlspecialchars($_SESSION['admin_bio'] ?? 'Quản trị nội dung hệ thống Trạm Tin Việt') ?></textarea>
                             </div>
@@ -64,10 +69,63 @@
 
                 <div class="custom-modal-footer">
                     <button type="button" id="btnCancelEditProfile" class="btn-custom-cancel">Hủy</button>
-                    <button type="submit" class="btn-custom-submit">Lưu thay đổi</button>
+                    <button type="submit" class="btn-custom-submit" id="btnSubmitEditProfile">Lưu thay đổi</button>
                 </div>
             </form>
 
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('editProfileForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Chặn submit thông thường — không nhảy trang
+
+    const form     = this;
+    const btn      = document.getElementById('btnSubmitEditProfile');
+    const alertBox = document.getElementById('editProfileAlert');
+    const formData = new FormData(form);
+
+    btn.disabled    = true;
+    btn.textContent = 'Đang lưu...';
+    alertBox.classList.add('d-none');
+
+    fetch('Index.php?page=update-profile', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alertBox.classList.remove('d-none');
+
+        if (data.success) {
+            alertBox.style.cssText = 'color:#208b3a; background:#f0fdf4; border:1px solid #bbf7d0;';
+            alertBox.textContent   = data.message ?? 'Cập nhật thành công!';
+
+            // Cập nhật tên hiển thị trên modal ngay lập tức
+            const nameEl = document.getElementById('profileDisplayName');
+            if (nameEl && formData.get('fullname')) {
+                nameEl.textContent = formData.get('fullname');
+            }
+
+            // Đóng modal sau 1.2 giây
+            setTimeout(() => {
+                alertBox.classList.add('d-none');
+                document.getElementById('editProfileModal').style.display = 'none';
+            }, 1200);
+        } else {
+            alertBox.style.cssText = 'color:#cc2429; background:#fdf2f2; border:1px solid #f9d5d6;';
+            alertBox.textContent   = data.message ?? 'Cập nhật thất bại, vui lòng thử lại.';
+        }
+    })
+    .catch(() => {
+        alertBox.classList.remove('d-none');
+        alertBox.style.cssText = 'color:#cc2429; background:#fdf2f2; border:1px solid #f9d5d6;';
+        alertBox.textContent   = 'Lỗi kết nối, vui lòng thử lại.';
+    })
+    .finally(() => {
+        btn.disabled    = false;
+        btn.textContent = 'Lưu thay đổi';
+    });
+});
+</script>

@@ -5,7 +5,7 @@
     <div class="custom-modal-dialog">
         <div class="custom-modal-content">
             
-            <div class="custom-modal-header">
+            <div class="custom-modal-header d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center gap-3">
                     <div class="modal-icon-title">
                         <i class="fa-solid fa-shield-halved"></i>
@@ -19,14 +19,14 @@
             </div>
 
             <?php if (isset($_SESSION['error_message'])): ?>
-                <div class="alert alert-danger mx-4 mt-3 mb-0 py-2 fs-7" role="alert">
+                <div class="alert alert-danger mx-4 mt-3 mb-0 py-2" role="alert">
                     <i class="fa-solid fa-triangle-exclamation me-2"></i> <?= htmlspecialchars($_SESSION['error_message']) ?>
                 </div>
                 <?php unset($_SESSION['error_message']); ?>
             <?php endif; ?>
 
             <?php if (isset($_SESSION['success_message'])): ?>
-                <div class="alert alert-success mx-4 mt-3 mb-0 py-2 fs-7" role="alert">
+                <div class="alert alert-success mx-4 mt-3 mb-0 py-2" role="alert">
                     <i class="fa-solid fa-circle-check me-2"></i> <?= htmlspecialchars($_SESSION['success_message']) ?>
                 </div>
                 <?php unset($_SESSION['success_message']); ?>
@@ -55,7 +55,7 @@
                 <div class="custom-form-group">
                     <label class="form-label-custom">Xác nhận mật khẩu mới</label>
                     <div class="custom-input-wrapper">
-                        <i class="fa-solid fa-shield-cat left-icon"></i> 
+                        <i class="fa-solid fa-shield-cat left-icon"></i>
                         <input type="password" name="confirm_password" required placeholder="Nhập lại mật khẩu mới">
                         <i class="fa-regular fa-eye toggle-password right-icon"></i>
                     </div>

@@ -199,5 +199,26 @@ public function updatePassword($userId, $hashedPassword)
             return false;
         }
     }
+    // =========================
+    // ADMIN PROFILE
+    // =========================
+
+    public function updateAdminProfile($userId, $fullname, $username, $email, $bio, $avatarPath = null)
+    {
+        try {
+            if ($avatarPath) {
+                $sql = "UPDATE user SET full_name = ?, user_name = ?, email = ?, bio = ?, avatar = ? WHERE user_id = ?";
+                $stmt = $this->conn->prepare($sql);
+                return $stmt->execute([$fullname, $username, $email, $bio, $avatarPath, $userId]);
+            } else {
+                $sql = "UPDATE user SET full_name = ?, user_name = ?, email = ?, bio = ? WHERE user_id = ?";
+                $stmt = $this->conn->prepare($sql);
+                return $stmt->execute([$fullname, $username, $email, $bio, $userId]);
+            }
+        } catch (PDOException $e) {
+            error_log("Lỗi updateAdminProfile: " . $e->getMessage());
+            return "Lỗi CSDL: " . $e->getMessage();
+        }
+    }
 }
 
