@@ -34,6 +34,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="Public/Client/Js/ProfileTab.js"></script>
+    <script src="Public/Client/Js/ProfileEdit.js"></script>
     
 </body>
 </html>
