@@ -43,7 +43,7 @@
         <!-- FORM -->
 
         <form
-        action="http://localhost/Web-Application/Index.php?page=admin_login"
+        action="http://localhost/Web-Application/Admin_index.php?page=admin_login"
         method="POST">
 
             <!-- EMAIL -->
@@ -105,7 +105,7 @@
 
                 </label>
 
-                <a href="http://localhost/Web-Application/Index.php?page=forgot_password"
+                <a href="http://localhost/Web-Application/Admin_index.php?page=admin_forgot_password"
                    class="forgot-password">
 
                     Quên mật khẩu?

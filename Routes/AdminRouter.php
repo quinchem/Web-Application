@@ -17,16 +17,28 @@ class AdminRouter {
     // Hàm điều hướng phân tích tham số ?page=...
     public function resolve(string $requestMethod) {
         // Mặc định đối với Admin là trang quản lý bài viết admin_user_posts
-        $page = $_GET['page'] ?? 'admin_user_posts';
+        $page = $_GET['page'] ?? 'admin_login';
         
         $handler = $this->routes[$requestMethod][$page] ?? null;
 
-        if (!$handler) {
+         if (!$handler) {
+
             header("HTTP/1.0 404 Not Found");
-            echo "<div style='text-align: center; padding: 50px; font-family: sans-serif;'>";
-            echo "  <h1 style='color: #dc3545;'>404 - Admin</h1>";
-            echo "  <h3>Trang quản trị không tồn tại hoặc khóa '<strong>".htmlspecialchars($page)."</strong>' chưa được đăng ký!</h3>";
-            echo "</div>";
+
+            echo "
+
+            <div style='padding:50px;text-align:center'>
+
+                <h1>404 - Admin Page Not Found</h1>
+
+                <p>Page:
+                <strong>{$page}</strong>
+                chưa được đăng ký.</p>
+
+            </div>
+
+            ";
+
             return;
         }
 

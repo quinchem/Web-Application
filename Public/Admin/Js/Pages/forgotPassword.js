@@ -9,7 +9,7 @@ document
 
     fetch(
 
-        "/Web-Application/Index.php?page=handle_forgot_password",
+        "http://localhost/Web-Application/Admin_index.php?url=admin/forgot-password",
 
         {
 
@@ -36,6 +36,14 @@ document
                 text: data.message,
 
                 confirmButtonColor: "#d10016"
+
+            }).then(() => {
+
+                // CHUYỂN SANG RESET PASSWORD
+
+                window.location.href =
+
+                "http://localhost/Web-Application/Admin_index.php?url=admin/reset-password";
 
             });
 

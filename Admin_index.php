@@ -30,7 +30,7 @@ $router = new AdminRouter();
 // 3. CHỈ NẠP DUY NHẤT FILE ROUTES CỦA ADMIN (Bảo mật tuyệt đối, không lẫn lộn với Client)
 require_once __DIR__ . '/Routes/Admin.php'; 
 require_once __DIR__ . '/Routes/Profile.php'; 
-
+require_once __DIR__ . '/Routes/Auth_Admin.php'; 
 // 4. Kích hoạt điều hướng cho Admin
 $requestMethod = $_SERVER['REQUEST_METHOD']; 
 $router->resolve($requestMethod);

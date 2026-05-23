@@ -91,7 +91,7 @@ $(document).ready(function () {
 
         $.ajax({
 
-            url: 'Index.php?page=reset_password_ajax',
+            url: 'http://localhost/Web-Application/Admin_index.php?page=admin/reset-password-ajax',
 
             type: 'POST',
 

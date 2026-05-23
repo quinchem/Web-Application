@@ -124,7 +124,7 @@
 
         <div class="back-login">
 
-            <a href="http://localhost/Web-Application/Index.php?page=admin_login">
+            <a href="http://localhost/Web-Application/Admin_index.php?page=admin_login">
 
                 <i class="fa-solid fa-arrow-left"></i>
 
