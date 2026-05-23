@@ -1,7 +1,11 @@
 <?php
-include __DIR__ . '/../../Partials/Client/Header.php';
-
+require_once __DIR__ . '/../../Partials/Client/Header.php';
 $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
+$usernameSession = $_SESSION['user_name'] ?? '';
+$avatar = $_SESSION['avatar'] ?? $defaultAvatar;
+
+$isSaved = $isSaved ?? false;
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -38,15 +42,19 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
                 <div class="w-100 d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="fw-bold fs-6" style="color: var(--navy);"><?= htmlspecialchars($post['author_name']) ?></div>
+                        <div class="fw-bold fs-6" style="color: var(--navy);">
+                            <?= htmlspecialchars($post['author_name']) ?>
+                        </div>
                         <div class="text-muted mt-1" style="font-size: 0.85rem;">
-                            <i class="fa-regular fa-calendar me-1"></i> <?= date('d/m/Y H:i', strtotime($post['published_at'])) ?>
+                            <i class="fa-regular fa-calendar me-1"></i>
+                            <?= date('d/m/Y H:i', strtotime($post['published_at'])) ?>
                         </div>
                     </div>
 
                     <div class="text-end">
                         <?php if (!empty($post['parent_category_name'])): ?>
-                            <span class="badge border text-muted bg-light me-1 px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                            <span class="badge border text-muted bg-light me-1 px-3 py-2 rounded-pill fw-bold"
+                                style="font-size: 0.75rem;">
                                 <?= htmlspecialchars($post['parent_category_name']) ?>
                             </span>
                         <?php endif; ?>
@@ -77,37 +85,51 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
             <?php endif; ?>
 
             <div class="d-flex mt-5 mb-4 pb-4 border-bottom border-top pt-4">
-                <button id="btn-like" class="btn btn-light border fw-bold me-3 text-muted px-4" onclick="handleLike()" style="transition: 0.3s;">
+                <button id="btn-like" class="btn btn-light border fw-bold me-3 text-muted px-4" onclick="handleLike()"
+                    style="transition: 0.3s;">
                     <i class="fa-regular fa-thumbs-up me-2"></i><span>THÍCH</span>
                 </button>
-                <button id="btn-save" class="btn btn-light border fw-bold text-muted px-4" onclick="handleSave()" style="transition: 0.3s;">
-                    <i class="fa-regular fa-bookmark me-2"></i><span>LƯU</span>
+                <button id="btn-save" class="btn border fw-bold px-4 <?= $isSaved ? '' : 'btn-light text-muted' ?>"
+                    onclick="handleSave()"
+                    style="transition: 0.3s; <?= $isSaved ? 'background:#B90C17; color:#fff;' : '' ?>">
+                    <i class="<?= $isSaved ? 'fa-solid' : 'fa-regular' ?> fa-bookmark me-2"></i>
+                    <span><?= $isSaved ? 'ĐÃ LƯU' : 'LƯU' ?></span>
                 </button>
             </div>
 
             <div class="comments-section mt-5" id="comment-section">
                 <h3 id="comment-count-title" class="fw-bold mb-4" style="color: var(--navy); font-family: 'Newsreader', serif;" data-count="<?= $totalComments ?>">Bình luận (<?= $totalComments ?>)</h3>
                 <div class="comment-input-box p-4 mb-5">
-                    <textarea id="comment-content" class="form-control border-0 bg-white" rows="3" placeholder="Chia sẻ ý kiến của bạn..." style="resize: none;"></textarea>
+                    <textarea id="comment-content" class="form-control border-0 bg-white" rows="3"
+                        placeholder="Chia sẻ ý kiến của bạn..." style="resize: none;"></textarea>
                     <div class="text-end mt-3">
-                        <button class="btn btn-send px-4 fw-bold py-2 rounded" onclick="submitComment()">Gửi bình luận</button>
+                        <button class="btn btn-send px-4 fw-bold py-2 rounded" onclick="submitComment()">Gửi bình
+                            luận</button>
                     </div>
                 </div>
 
                 <div class="comment-area">
                     <?php if (empty($comments)): ?>
-                        <p class="text-muted text-center py-4 bg-light rounded">Chưa có bình luận nào. Hãy là người đầu tiên để lại ý kiến!</p>
+                        <p class="text-muted text-center py-4 bg-light rounded">Chưa có bình luận nào. Hãy là người đầu tiên
+                            để lại ý kiến!</p>
                     <?php else: ?>
                         <?php foreach ($comments as $cmt): ?>
                             <div class="d-flex mb-4 pb-4 border-bottom">
                                 <img src="<?= $defaultAvatar ?>" class="comment-avatar me-3" alt="Avatar">
                                 <div class="w-100">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <div class="fw-bold" style="color: var(--navy);"><?= htmlspecialchars($cmt['full_name']) ?></div>
-                                        <div class="small text-muted"><?= date('d/m/Y H:i', strtotime($cmt['created_at'])) ?></div>
+                                        <div class="fw-bold" style="color: var(--navy);">
+                                            <?= htmlspecialchars($cmt['full_name']) ?>
+                                        </div>
+                                        <div class="small text-muted">
+                                            <?= date('d/m/Y H:i', strtotime($cmt['created_at'])) ?>
+                                        </div>
                                     </div>
-                                    <div class="text-dark" style="font-size: 0.95rem; line-height: 1.6;"><?= nl2br(htmlspecialchars($cmt['content'])) ?></div>
-                                    <a href="#" class="text-danger fw-bold text-decoration-none mt-2 d-inline-block" style="font-size: 0.8rem; color: var(--red) !important;">TRẢ LỜI</a>
+                                    <div class="text-dark" style="font-size: 0.95rem; line-height: 1.6;">
+                                        <?= nl2br(htmlspecialchars($cmt['content'])) ?>
+                                    </div>
+                                    <a href="#" class="text-danger fw-bold text-decoration-none mt-2 d-inline-block"
+                                        style="font-size: 0.8rem; color: var(--red) !important;">TRẢ LỜI</a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -146,7 +168,8 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                     <div class="d-flex mb-4" style="cursor: pointer;" onclick="window.location.href='index.php?page=post&id=<?= $rec['post_id'] ?>'">
                         <img src="<?= htmlspecialchars($rec['thumbnail_URL']) ?>" class="sidebar-thumb rounded me-3" alt="Thumb">
                         <div>
-                            <div class="fw-bold mb-1" style="color: #111; font-size: 0.95rem; line-height: 1.3; font-family: 'Newsreader', serif; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            <div class="fw-bold mb-1"
+                                style="color: #111; font-size: 0.95rem; line-height: 1.3; font-family: 'Newsreader', serif; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                 <?= htmlspecialchars($rec['title']) ?>
                             </div>
                             <div class="summary-clamp"><?= htmlspecialchars($rec['summary']) ?></div>
@@ -160,6 +183,7 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const currentPostId = '<?= $post['post_id'] ?>';
+
 
     // Kiểm tra xem session có tồn tại user_id không để JS biết trạng thái
     const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
@@ -248,23 +272,38 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
         let formData = new FormData();
         formData.append('post_id', currentPostId);
+
         fetch('index.php?page=api_save', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'unauthorized') {
+               
+            method: 'POST',
+               
+            body: formData
+           
+        })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'unauthorized') {
+                   
                     requireLogin();
+                   
                     return;
+               
                 }
 
                 const btn = document.getElementById('btn-save');
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('span');
+
                 if (data.status === 'saved') {
                     btn.style.background = '#B90C17';
                     btn.style.color = '#fff';
                     btn.classList.remove('btn-light', 'text-muted');
-                    btn.querySelector('span').innerText = 'ĐÃ LƯU';
+
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+
+                    text.innerText = 'ĐÃ LƯU';
+
                     Swal.fire({
                         icon: 'success',
                         title: data.message,
@@ -273,11 +312,16 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                         showConfirmButton: false,
                         timer: 1500
                     });
-                } else {
+                } else if (data.status === 'unsaved') {
                     btn.style.background = '';
                     btn.style.color = '';
                     btn.classList.add('btn-light', 'text-muted');
-                    btn.querySelector('span').innerText = 'LƯU';
+
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+
+                    text.innerText = 'LƯU';
+
                     Swal.fire({
                         icon: 'info',
                         title: data.message,
@@ -286,7 +330,26 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
                         showConfirmButton: false,
                         timer: 1500
                     });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: data.message || 'Có lỗi xảy ra',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
                 }
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Không thể kết nối máy chủ',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             });
     }
 
@@ -298,6 +361,8 @@ $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
         const contentInput = document.getElementById('comment-content');
         const content = contentInput.value.trim();
+
+        if (!content) {
 
         if (!content) {
             Swal.fire('Cảnh báo', 'Vui lòng nhập nội dung bình luận trước khi bấm gửi!', 'warning');
