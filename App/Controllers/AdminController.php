@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ .
-'/../../Repositories/ClientRepository.php';
+    '/../../Repositories/ClientRepository.php';
 
 class AdminController
 {
@@ -10,7 +10,7 @@ class AdminController
     public function __construct()
     {
         $this->clientRepository =
-        new ClientRepository();
+            new ClientRepository();
     }
 
 
@@ -22,25 +22,25 @@ class AdminController
     {
         if (session_status() === PHP_SESSION_NONE) {
 
-    session_start();
-}
+            session_start();
+        }
 
         // Remember Login
 
         if (isset($_COOKIE['remember_user'])) {
 
             $_SESSION['user'] =
-            $_COOKIE['remember_user'];
+                $_COOKIE['remember_user'];
 
             header(
-            "Location: http://localhost/Web-Application/Index.php?page=admin_dashboard"
+                "Location: http://localhost/Web-Application/Index.php?page=admin_dashboard"
             );
 
             exit();
         }
 
         require_once __DIR__ .
-        '/../Views/Admin/Auth/Login.php';
+            '/../Views/Admin/Auth/Login.php';
     }
 
 
@@ -52,27 +52,27 @@ class AdminController
     {
         if (session_status() === PHP_SESSION_NONE) {
 
-    session_start();
-}
+            session_start();
+        }
 
         $email =
-        $_POST['email'] ?? '';
+            $_POST['email'] ?? '';
 
         $password =
-        $_POST['password'] ?? '';
+            $_POST['password'] ?? '';
 
         $remember =
-        $_POST['remember'] ?? null;
+            $_POST['remember'] ?? null;
 
 
         // CHECK LOGIN
 
         $user =
-        $this->clientRepository
-        ->checkLogin(
-            $email,
-            $password
-        );
+            $this->clientRepository
+                ->checkLogin(
+                    $email,
+                    $password
+                );
 
 
         // LOGIN SUCCESS
@@ -194,7 +194,7 @@ class AdminController
     public function dashboard()
     {
         require_once __DIR__ .
-        '/../Views/Admin/Dashboard/Dashboard.php';
+            '/../Views/Admin/Dashboard/Dashboard.php';
     }
 
 
@@ -206,8 +206,8 @@ class AdminController
     {
         if (session_status() === PHP_SESSION_NONE) {
 
-    session_start();
-}
+            session_start();
+        }
 
         session_destroy();
 
@@ -219,7 +219,7 @@ class AdminController
         );
 
         header(
-        "Location: http://localhost/Web-Application/Index.php?page=admin_login"
+            "Location: http://localhost/Web-Application/Index.php?page=admin_login"
         );
 
         exit();
@@ -233,7 +233,7 @@ class AdminController
     public function forgotPassword()
     {
         require_once __DIR__ .
-        '/../Views/Admin/Auth/ForgotPassword.php';
+            '/../Views/Admin/Auth/ForgotPassword.php';
     }
 
 
@@ -246,7 +246,7 @@ class AdminController
         header('Content-Type: application/json');
 
         $email =
-        $_POST['email'] ?? '';
+            $_POST['email'] ?? '';
 
 
         // EMPTY EMAIL
@@ -258,7 +258,7 @@ class AdminController
                 'status' => 'error',
 
                 'message' =>
-                'Vui lòng nhập email'
+                    'Vui lòng nhập email'
 
             ]);
 
@@ -275,7 +275,7 @@ class AdminController
                 'status' => 'success',
 
                 'message' =>
-                'Đã gửi email khôi phục mật khẩu'
+                    'Đã gửi email khôi phục mật khẩu'
 
             ]);
 
@@ -286,11 +286,57 @@ class AdminController
                 'status' => 'error',
 
                 'message' =>
-                'Email không tồn tại trong hệ thống'
+                    'Email không tồn tại trong hệ thống'
 
             ]);
         }
 
         exit();
     }
+
+      public function resetPasswordAjax()
+    {
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $password = $_POST['password'] ?? '';
+            $confirmPassword = $_POST['confirmPassword'] ?? '';
+
+            // VALIDATE
+
+            if (empty($password) || empty($confirmPassword)) {
+
+                echo json_encode([
+                    'status' => false,
+                    'message' => 'Vui lòng nhập đầy đủ thông tin!'
+                ]);
+
+                return;
+            }
+
+            if ($password !== $confirmPassword) {
+
+                echo json_encode([
+                    'status' => false,
+                    'message' => 'Mật khẩu xác nhận không khớp!'
+                ]);
+
+                return;
+            }
+
+            // TODO:
+            // UPDATE PASSWORD DATABASE Ở ĐÂY
+
+            echo json_encode([
+                'status' => true,
+                'message' => 'Đổi mật khẩu thành công!'
+            ]);
+        } else {
+
+            echo json_encode([
+                'status' => false,
+                'message' => 'Yêu cầu không hợp lệ!'
+            ]);
+        }
+}
 }
