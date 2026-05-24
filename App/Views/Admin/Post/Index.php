@@ -9,11 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/PostIndex.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Post.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/ReviewPost.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
 <script src="Public/Admin/Js/Pages/ReviewPost.js?v=<?= time() ?>" defer></script>
-<script src="Public/Admin/Js/Pages/PostIndex.js?v=<?= time() ?>" defer></script>
+<script src="Public/Admin/Js/Pages/Post.js?v=<?= time() ?>" defer></script>
 <script src="Public/Admin/Js/Pages/Profile.js?v=<?= time() ?>" defer></script>
     <style>
         /* Sidebar cố định, chỉ main-content scroll */

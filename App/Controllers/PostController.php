@@ -260,4 +260,30 @@ class PostController
 
         require_once __DIR__ . '/../Views/Admin/Post/Index.php';
     }
+
+    /**
+     * Quản lý bài viết cho admin 
+     */
+    public function adminPosts()
+{
+    $filters = [
+        'keyword'     => $_GET['keyword'] ?? '',
+        'category_id' => $_GET['category_id'] ?? '',
+        'status'      => $_GET['status'] ?? '',
+        'date'        => $_GET['date'] ?? ''
+    ];
+
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['p'] ?? 1));
+    $offset      = ($currentPage - 1) * $perPage;
+
+    $posts         = $this->postRepository->getAdminPosts($filters, $perPage, $offset);
+    $totalPosts    = $this->postRepository->countAdminPosts();
+    $totalForPages = $this->postRepository->countAdminPostsFiltered($filters);
+    $hiddenPosts   = $this->postRepository->countAdminPostsByStatus('hidden');
+    $trendingPosts = $this->postRepository->countTrendingAdminPosts();
+    $totalPages    = (int)ceil($totalForPages / $perPage);
+
+    require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
+}
 }
