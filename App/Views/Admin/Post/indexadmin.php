@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <form class="filter-box" method="GET" action="Index.php">
+            <form class="filter-box" method="GET" action="Admin_index.php">
                 <input type="hidden" name="page" value="admin_posts">
 
                 <div class="search-input">
@@ -159,7 +159,7 @@
                                 </div>
                             </td>
                             <td>
-                                <strong><?= htmlspecialchars($post->author_name) ?></strong>
+                                <strong>Ban Biên tập Trạm Tin Việt</strong>
                                 <small><?= date('d/m/Y', strtotime($post->created_at)) ?><br><?= date('H:i', strtotime($post->created_at)) ?></small>
                             </td>
                             <td>
@@ -185,19 +185,30 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <div class="actions">
-                                    <a href="Index.php?page=view_post&id=<?= $post->post_id ?>" class="action-btn view-btn" title="Xem">
-                                        <i class="fa-regular fa-eye"></i>
-                                    </a>
-                                    <a href="Index.php?page=edit_post&id=<?= $post->post_id ?>" class="action-btn edit-btn" title="Sửa">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </a>
-                                    <button class="action-btn delete-btn" type="button"
-                                        onclick="confirmDelete('<?= $post->post_id ?>')" title="Xóa">
-                                        <i class="fa-regular fa-trash-can"></i>
-                                    </button>
-                                </div>
-                            </td>
+    <div class="actions">
+        <?php if ($post->status !== 'hidden'): ?>
+            <a href="Admin_index.php?page=hide_post&id=<?= $post->post_id ?>&from=admin_posts"
+               class="action-btn view-btn" title="Ẩn bài"
+               onclick="return confirm('Bạn muốn ẩn bài viết này?')">
+                <i class="fa-regular fa-eye"></i>
+            </a>
+        <?php else: ?>
+            <a href="Admin_index.php?page=unhide_post&id=<?= $post->post_id ?>&from=admin_posts"
+               class="action-btn" style="color:#aaa;" title="Bỏ ẩn"
+               onclick="return confirm('Bạn muốn hiện lại bài viết này?')">
+                <i class="fa-regular fa-eye-slash"></i>
+            </a>
+        <?php endif; ?>
+
+        <a href="Admin_index.php?page=edit_post&id=<?= $post->post_id ?>" class="action-btn edit-btn" title="Sửa">
+            <i class="fa-regular fa-pen-to-square"></i>
+        </a>
+        <button class="action-btn delete-btn" type="button"
+            onclick="confirmDelete('<?= $post->post_id ?>')" title="Xóa">
+            <i class="fa-regular fa-trash-can"></i>
+        </button>
+    </div>
+</td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
