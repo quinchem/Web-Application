@@ -20,4 +20,5 @@ $router->post('api_comment', [PostController::class, 'apiAddComment']);
 $router->post('api_delete_comment', [PostController::class, 'apiDeleteComment']);
 
 $router->get('post', [PostController::class, 'post']);
+$router->get('client_saved_posts_page', [PostController::class, 'savedPosts']);
 
