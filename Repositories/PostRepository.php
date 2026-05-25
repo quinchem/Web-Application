@@ -499,6 +499,13 @@ class PostRepository
 
     $stmt = $this->conn->prepare($sql);
 
+    $stmt->execute([
+        'post_id' => $postId,
+        'user_id' => $userId
+    ]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
+}
 public function countSavedPostsByUser($userId)
 {
     $sql = "
@@ -576,7 +583,6 @@ public function getSavedPostsByUser($userId, $limit, $offset)
             'content' => $content
         ]);
     }
-=======
 
     /*Quản lý bài viết admin */
     public function getAdminPosts($filters, $limit, $offset)

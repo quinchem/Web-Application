@@ -257,11 +257,8 @@ public function unhidePost()
         // 6. Gọi View
         require __DIR__ . '/../Views/Client/Post/Detail.php';
     }
-    // 6. Gọi View
-    require __DIR__ . '/../Views/Client/Post/Detail.php';
-}
 
-public function savedPosts()
+    public function savedPosts()
 {
      if (session_status() === PHP_SESSION_NONE) {
         session_start();
@@ -405,7 +402,6 @@ public function savedPosts()
         'pagination' => $pagination,
         'total'      => $totalComments
     ]);
-}
 }
 
     /**
