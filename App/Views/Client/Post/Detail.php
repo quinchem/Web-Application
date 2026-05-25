@@ -113,9 +113,9 @@ $isLiked = $isLiked ?? false;
             <div class="comments-section mt-5" id="comment-section">
                 <h3 id="comment-count-title" class="fw-bold mb-4" style="color: var(--navy); font-family: 'Newsreader', serif;" data-count="<?= $totalComments ?>">Bình luận (<?= $totalComments ?>)</h3>
                 <div class="comment-input-box p-4 mb-5">
-                    <textarea id="comment-content" 
-                    
-                    class="form-control border-0 bg-white" rows="3"
+                    <textarea id="comment-content"
+
+                        class="form-control border-0 bg-white" rows="3"
                         placeholder="Chia sẻ ý kiến của bạn..." style="resize: none;"></textarea>
                     <div class="text-end mt-3">
                         <button class="btn btn-send px-4 fw-bold py-2 rounded" onclick="submitComment()">Gửi bình
@@ -492,6 +492,31 @@ $isLiked = $isLiked ?? false;
             .catch(error => {
                 console.error('Lỗi AJAX:', error);
                 Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
+            });
+    }
+
+    function loadComments(page) {
+        fetch(`index.php?page=api_get_comments&post_id=${currentPostId}&cpage=${page}`)
+            .then(res => res.json())
+            .then(data => {
+                // Cập nhật danh sách comment
+                document.querySelector('.comment-area').innerHTML = data.html;
+
+                // Cập nhật pagination
+                document.querySelector('#comment-pagination-wrapper').innerHTML = data.pagination;
+
+                // Cập nhật số lượng comment
+                const titleEl = document.getElementById('comment-count-title');
+                titleEl.setAttribute('data-count', data.total);
+                titleEl.innerText = `Bình luận (${data.total})`;
+
+                // Scroll lên đầu phần comment
+                document.getElementById('comment-section').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            })
+            .catch(err => {
+                console.error('Lỗi loadComments:', err);
             });
     }
 </script>

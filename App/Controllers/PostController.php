@@ -269,4 +269,78 @@ class PostController
 
         require_once __DIR__ . '/../Views/Admin/Post/Index.php';
     }
+    public function apiGetComments()
+{
+    $postId = $_GET['post_id'] ?? null;
+    $page   = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
+    $limit  = 5;
+    $offset = ($page - 1) * $limit;
+
+    if (!$postId) {
+        echo json_encode(['html' => '', 'pagination' => '']);
+        return;
+    }
+
+    $comments      = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
+    $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
+    $totalPages    = ceil($totalComments / $limit);
+
+    $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
+    // Build HTML comment
+    ob_start();
+    if (empty($comments)): ?>
+        <p class="text-muted text-center py-4 bg-light rounded">Chưa có bình luận nào.</p>
+    <?php else:
+        foreach ($comments as $cmt): ?>
+            <div class="d-flex mb-4 pb-4 border-bottom">
+                <img src="<?= $defaultAvatar ?>" class="comment-avatar me-3" alt="Avatar">
+                <div class="w-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="fw-bold" style="color: var(--navy);">
+                            <?= htmlspecialchars($cmt['full_name']) ?>
+                        </div>
+                        <div class="small text-muted">
+                            <?= date('d/m/Y H:i', strtotime($cmt['created_at'])) ?>
+                        </div>
+                    </div>
+                    <div class="text-dark" style="font-size:0.95rem; line-height:1.6;">
+                        <?= nl2br(htmlspecialchars($cmt['content'])) ?>
+                    </div>
+                    <a href="#" class="text-danger fw-bold text-decoration-none mt-2 d-inline-block"
+                        style="font-size:0.8rem; color:var(--red) !important;">TRẢ LỜI</a>
+                </div>
+            </div>
+        <?php endforeach;
+    endif;
+    $html = ob_get_clean();
+
+    // Build HTML pagination
+    ob_start();
+    if ($totalPages > 1): ?>
+        <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
+            <?php if ($page > 1): ?>
+                <button onclick="loadComments(<?= $page - 1 ?>)" class="btn btn-pagination-arrow">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            <?php endif; ?>
+
+            <span class="comment-pagination-text">Trang <?= $page ?> / <?= $totalPages ?></span>
+
+            <?php if ($page < $totalPages): ?>
+                <button onclick="loadComments(<?= $page + 1 ?>)" class="btn btn-pagination-arrow">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            <?php endif; ?>
+        </div>
+    <?php endif;
+    $pagination = ob_get_clean();
+
+    header('Content-Type: application/json');
+    echo json_encode([
+        'html'       => $html,
+        'pagination' => $pagination,
+        'total'      => $totalComments
+    ]);
+}
 }
