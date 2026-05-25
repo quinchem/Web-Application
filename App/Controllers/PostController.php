@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Controllers;
+
 /**
  * PostController.php
  * Controller xử lý các yêu cầu liên quan đến bài viết (post)
@@ -60,7 +62,7 @@ class PostController
      * Hiển thị chi tiết một bài viết cụ thể
      * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
      */
-   
+
 
     public function hidePost()
 {
@@ -122,68 +124,66 @@ public function unhidePost()
     // CÁC HÀM XỬ LÝ AJAX (THÍCH, LƯU, BÌNH LUẬN)
     // ==========================================
 
-    private function getCurrentUserId() {
+    private function getCurrentUserId()
+    {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         return $_SESSION['user_id'] ?? null;
     }
 
-    public function apiToggleLike() {
+    // Thay thế hàm cũ bằng đoạn này trong PostController.php
+    public function api_like()
+    {
         $userId = $this->getCurrentUserId();
-        if (!$userId) { 
-            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
-            return; 
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized']);
+            return;
         }
 
         $postId = $_POST['post_id'] ?? null;
-        if($postId) {
-            echo json_encode($this->postRepository->toggleLike($postId, $userId));
+        if ($postId) {
+            $result = $this->postRepository->toggleLike($postId, $userId);
+            header('Content-Type: application/json');
+            echo json_encode($result);
         }
     }
 
-    public function apiToggleSave() {
-    $userId = $this->getCurrentUserId();
-
-    if (!$userId) { 
-        $this->jsonResponse([
-            'status' => 'unauthorized', 
-            'message' => 'Vui lòng đăng nhập.'
-        ]);
-    }
-
-    $postId = $_POST['post_id'] ?? null;
-
-    if (!$postId) {
-        $this->jsonResponse([
-            'status' => 'error', 
-            'message' => 'Thiếu post_id'
-        ]);
-    }
-
-    $this->jsonResponse(
-        $this->postRepository->toggleBookmark($postId, $userId)
-    );
-}
-
-
-    public function apiAddComment() {
+    public function api_save()
+    {
         $userId = $this->getCurrentUserId();
-        if (!$userId) { 
-            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
-            return; 
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized']);
+            return;
+        }
+
+        $postId = $_POST['post_id'] ?? null;
+        if ($postId) {
+            // Hàm toggleBookmark của bạn phải trả về mảng có key 'action' => 'saved' hoặc 'unsaved'
+            echo json_encode($this->postRepository->toggleBookmark($postId, $userId));
+        }
+    }
+
+
+
+    public function apiAddComment()
+    {
+        $userId = $this->getCurrentUserId();
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']);
+            return;
         }
 
         $postId = $_POST['post_id'] ?? null;
         $content = $_POST['content'] ?? null;
-        
-        if($postId && $content) {
-            if($this->postRepository->addComment($postId, $userId, $content)) {
+
+        if ($postId && $content) {
+            if ($this->postRepository->addComment($postId, $userId, $content)) {
                 // Trả về dữ liệu để AJAX tự động vẽ lên màn hình mà không cần reload
                 echo json_encode([
-                    'status' => 'success', 
+                    'status' => 'success',
                     'message' => 'Đã gửi bình luận',
                     'comment' => [
                         'full_name' => $_SESSION['full_name'] ?? $_SESSION['user_name'],
-                        'avatar' => $_SESSION['avatar'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+                        'avatar' => $_SESSION['avatar'] ?? $_SESSION['avatar_url'] ?? 'default-avatar.png',
                         'content' => nl2br(htmlspecialchars($content)),
                         'created_at' => date('d/m/Y H:i') // Lấy giờ hiện tại
                     ]
@@ -194,57 +194,69 @@ public function unhidePost()
         }
     }
     public function post()
-{
-    $postId = $_GET['id'] ?? null;
-    if (!$postId) {
-        $this->homepage();
-        return;
-    }
+    {
+        $postId = $_GET['id'] ?? null;
+        if (!$postId) {
+            $this->homepage();
+            return;
+        }
 
-    // Lấy user hiện tại
-    $userId = $this->getCurrentUserId();
+        // Lấy user hiện tại
+        $userId = $this->getCurrentUserId();
 
-    // 1. Khởi tạo biến mặc định để View không bị lỗi
-    $post = null; 
-    $tags = []; 
-    $recommendedPosts = []; 
-    $comments = [];
-    $totalComments = 0; 
-    $totalPages = 1;
-    $isSaved = false;
+        // 1. Khởi tạo biến mặc định để View không bị lỗi
+        $post = null;
+        $tags = [];
+        $recommendedPosts = [];
+        $comments = [];
+        $totalComments = 0;
+        $totalPages = 1;
+        $isSaved = false;
+        $isLiked = false;
 
-    $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
-    $limit = 5; 
-    $offset = ($page - 1) * $limit;
+        $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
 
-    // 2. Lấy thông tin bài viết
-    $post = $this->postRepository->getPostById($postId);
+        $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+        // 2. Lấy thông tin bài viết
+        $post = $this->postRepository->getPostById($postId);
 
-    if (!$post) {
-        echo "<div style='text-align:center; padding:50px; font-family:sans-serif;'>
+        if (!$post) {
+            echo "<div style='text-align:center; padding:50px; font-family:sans-serif;'>
                 <h2>Bài viết không tồn tại hoặc đã bị ẩn!</h2>
                 <a href='Index.php'>Về trang chủ</a>
               </div>";
-        exit;
+            exit;
+        }
+
+        // 3. Kiểm tra bài viết đã được user lưu chưa
+        if (isset($_SESSION['user_id'])) {
+
+            $userId = $_SESSION['user_id'];
+
+            $isLiked = $this->postRepository->isLiked($postId, $userId);
+
+            $isSaved = $this->postRepository->isBookmarked($postId, $userId);
+        }
+
+        // 4. Lấy dữ liệu bổ sung
+        $tags = $this->postRepository->getPostTags($postId);
+        $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
+
+        // 5. Tính toán và lấy bình luận
+        $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
+
+        if ($totalComments > 0) {
+            $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
+            $totalPages = ceil($totalComments / $limit);
+        }
+
+        // 6. Gọi View
+        require __DIR__ . '/../Views/Client/Post/Detail.php';
     }
-
-    // 3. Kiểm tra bài viết đã được user lưu chưa
-    if ($userId) {
-        $isSaved = $this->postRepository->isBookmarked($postId, $userId);
-    }
-
-    // 4. Lấy dữ liệu bổ sung
-    $tags = $this->postRepository->getPostTags($postId);
-    $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
-    
-    // 5. Tính toán và lấy bình luận
-    $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
-
-    if ($totalComments > 0) {
-        $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
-        $totalPages = ceil($totalComments / $limit);
-    }
-
     // 6. Gọi View
     require __DIR__ . '/../Views/Client/Post/Detail.php';
 }
@@ -320,6 +332,81 @@ public function savedPosts()
 
         require_once __DIR__ . '/../Views/Admin/Post/Index.php';
     }
+    public function apiGetComments()
+{
+    $postId = $_GET['post_id'] ?? null;
+    $page   = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
+    $limit  = 5;
+    $offset = ($page - 1) * $limit;
+
+    if (!$postId) {
+        echo json_encode(['html' => '', 'pagination' => '']);
+        return;
+    }
+
+    $comments      = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
+    $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
+    $totalPages    = ceil($totalComments / $limit);
+
+    $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
+    // Build HTML comment
+    ob_start();
+    if (empty($comments)): ?>
+        <p class="text-muted text-center py-4 bg-light rounded">Chưa có bình luận nào.</p>
+    <?php else:
+        foreach ($comments as $cmt): ?>
+            <div class="d-flex mb-4 pb-4 border-bottom">
+                <img src="<?= $defaultAvatar ?>" class="comment-avatar me-3" alt="Avatar">
+                <div class="w-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="fw-bold" style="color: var(--navy);">
+                            <?= htmlspecialchars($cmt['full_name']) ?>
+                        </div>
+                        <div class="small text-muted">
+                            <?= date('d/m/Y H:i', strtotime($cmt['created_at'])) ?>
+                        </div>
+                    </div>
+                    <div class="text-dark" style="font-size:0.95rem; line-height:1.6;">
+                        <?= nl2br(htmlspecialchars($cmt['content'])) ?>
+                    </div>
+                    <a href="#" class="text-danger fw-bold text-decoration-none mt-2 d-inline-block"
+                        style="font-size:0.8rem; color:var(--red) !important;">TRẢ LỜI</a>
+                </div>
+            </div>
+        <?php endforeach;
+    endif;
+    $html = ob_get_clean();
+
+    // Build HTML pagination
+    ob_start();
+    if ($totalPages > 1): ?>
+        <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
+            <?php if ($page > 1): ?>
+                <button onclick="loadComments(<?= $page - 1 ?>)" class="btn btn-pagination-arrow">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            <?php endif; ?>
+
+            <span class="comment-pagination-text">Trang <?= $page ?> / <?= $totalPages ?></span>
+
+            <?php if ($page < $totalPages): ?>
+                <button onclick="loadComments(<?= $page + 1 ?>)" class="btn btn-pagination-arrow">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            <?php endif; ?>
+        </div>
+    <?php endif;
+    $pagination = ob_get_clean();
+
+    header('Content-Type: application/json');
+    echo json_encode([
+        'html'       => $html,
+        'pagination' => $pagination,
+        'total'      => $totalComments
+    ]);
+}
+}
 
     /**
      * Quản lý bài viết cho admin 
