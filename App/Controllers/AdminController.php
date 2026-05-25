@@ -208,7 +208,7 @@ class AdminController
 
             session_start();
         }
-
+$_SESSION = [];
         session_destroy();
 
         setcookie(
@@ -224,8 +224,6 @@ class AdminController
 
         exit();
     }
-
-
     // ====================================
     // FORGOT PASSWORD PAGE
     // ====================================
