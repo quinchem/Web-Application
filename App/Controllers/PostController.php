@@ -121,26 +121,29 @@ class PostController
         }
     }
 
-    public function apiToggleSave() {
+   public function apiToggleSave() {
     $userId = $this->getCurrentUserId();
 
     if (!$userId) { 
-        $this->jsonResponse([
+        echo json_encode([
             'status' => 'unauthorized', 
             'message' => 'Vui lòng đăng nhập.'
         ]);
+        return; // Phải có return để dừng thực thi
     }
 
     $postId = $_POST['post_id'] ?? null;
 
     if (!$postId) {
-        $this->jsonResponse([
+        echo json_encode([
             'status' => 'error', 
             'message' => 'Thiếu post_id'
         ]);
+        return;
     }
 
-    $this->jsonResponse(
+    // Trả về kết quả đúng chuẩn JSON
+    echo json_encode(
         $this->postRepository->toggleBookmark($postId, $userId)
     );
 }
@@ -193,11 +196,15 @@ class PostController
     $totalComments = 0; 
     $totalPages = 1;
     $isSaved = false;
+    $isLiked = false;
 
     $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
     $limit = 5; 
     $offset = ($page - 1) * $limit;
 
+    $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
+    $limit = 5; 
+    $offset = ($page - 1) * $limit;
     // 2. Lấy thông tin bài viết
     $post = $this->postRepository->getPostById($postId);
 
@@ -210,9 +217,14 @@ class PostController
     }
 
     // 3. Kiểm tra bài viết đã được user lưu chưa
-    if ($userId) {
-        $isSaved = $this->postRepository->isBookmarked($postId, $userId);
-    }
+if (isset($_SESSION['user_id'])) {
+
+    $userId = $_SESSION['user_id'];
+
+    $isLiked = $this->postRepository->isLiked($postId, $userId);
+
+    $isSaved = $this->postRepository->isBookmarked($postId, $userId);
+}
 
     // 4. Lấy dữ liệu bổ sung
     $tags = $this->postRepository->getPostTags($postId);

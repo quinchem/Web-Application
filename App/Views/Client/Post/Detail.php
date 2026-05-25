@@ -6,6 +6,7 @@ $usernameSession = $_SESSION['user_name'] ?? '';
 $avatar = $_SESSION['avatar'] ?? $defaultAvatar;
 
 $isSaved = $isSaved ?? false;
+$isLiked = $isLiked ?? false;
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -85,15 +86,28 @@ $isSaved = $isSaved ?? false;
             <?php endif; ?>
 
             <div class="d-flex mt-5 mb-4 pb-4 border-bottom border-top pt-4">
-                <button id="btn-like" class="btn btn-light border fw-bold me-3 text-muted px-4" onclick="handleLike()"
-                    style="transition: 0.3s;">
-                    <i class="fa-regular fa-thumbs-up me-2"></i><span>THÍCH</span>
+                <button
+                    id="btn-like"
+                    class="btn border fw-bold me-3 px-4 <?= $isLiked ? 'active-like' : 'btn-light text-muted' ?>"
+                    onclick="handleLike()"
+                    style="transition: 0.3s; <?= $isLiked ? 'background:#003049;color:#fff;' : '' ?>">
+                    <i class="fa-thumbs-up me-2 <?= $isLiked ? 'fa-solid' : 'fa-regular' ?>"></i>
+
+                    <span>
+                        <?= $isLiked ? 'ĐÃ THÍCH' : 'THÍCH' ?>
+                    </span>
                 </button>
-                <button id="btn-save" class="btn border fw-bold px-4 <?= $isSaved ? '' : 'btn-light text-muted' ?>"
+
+                <button
+                    id="btn-save"
+                    class="btn border fw-bold px-4 <?= $isSaved ? 'active-save' : 'btn-light text-muted' ?>"
                     onclick="handleSave()"
-                    style="transition: 0.3s; <?= $isSaved ? 'background:#B90C17; color:#fff;' : '' ?>">
-                    <i class="<?= $isSaved ? 'fa-solid' : 'fa-regular' ?> fa-bookmark me-2"></i>
-                    <span><?= $isSaved ? 'ĐÃ LƯU' : 'LƯU' ?></span>
+                    style="transition: 0.3s; <?= $isSaved ? 'background:#B90C17;color:#fff;' : '' ?>">
+                    <i class="fa-bookmark me-2 <?= $isSaved ? 'fa-solid' : 'fa-regular' ?>"></i>
+
+                    <span>
+                        <?= $isSaved ? 'ĐÃ LƯU' : 'LƯU' ?>
+                    </span>
                 </button>
             </div>
 
@@ -183,14 +197,13 @@ $isSaved = $isSaved ?? false;
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const currentPostId = '<?= $post['post_id'] ?>';
-
-
-    // Kiểm tra xem session có tồn tại user_id không để JS biết trạng thái
     const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
 
+    // Flags để prevent double-click và track loading state
+    let isLikeProcessing = false;
+    let isSaveProcessing = false;
 
     function requireLogin() {
-        // Gọi SweetAlert2 hiện thông báo chặn người dùng
         Swal.fire({
             title: '<div style="font-family: \'Barlow\', sans-serif; font-weight: 700; color: #003049; font-size: 1.8rem;">Yêu cầu đăng nhập</div>',
             html: '<div style="font-family: \'Montserrat\', sans-serif; font-size: 1rem; color: #5a7d9a; line-height: 1.6;">Bạn cần đăng nhập tài khoản để tương tác với bài viết</div>',
@@ -207,7 +220,6 @@ $isSaved = $isSaved ?? false;
                 cancelButton: 'text-dark border fw-bold px-4 py-2 rounded-pill shadow-none'
             }
         }).then((result) => {
-            // Chỉ khi nào họ bấm "Đăng nhập ngay" (Confirm) thì mới đẩy qua trang kia
             if (result.isConfirmed) {
                 window.location.href = 'index.php?page=login';
             }
@@ -220,8 +232,17 @@ $isSaved = $isSaved ?? false;
             return;
         }
 
+        // Prevent double-click
+        if (isLikeProcessing) return;
+
+        isLikeProcessing = true;
+        const btn = document.getElementById('btn-like');
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+
         let formData = new FormData();
         formData.append('post_id', currentPostId);
+
         fetch('index.php?page=api_like', {
                 method: 'POST',
                 body: formData
@@ -233,76 +254,15 @@ $isSaved = $isSaved ?? false;
                     return;
                 }
 
-                const btn = document.getElementById('btn-like');
-                if (data.status === 'liked') {
-                    btn.style.background = '#003049';
-                    btn.style.color = '#fff';
-                    btn.classList.remove('btn-light', 'text-muted');
-                    btn.querySelector('span').innerText = 'ĐÃ THÍCH';
-                    Swal.fire({
-                        icon: 'success',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    btn.style.background = '';
-                    btn.style.color = '';
-                    btn.classList.add('btn-light', 'text-muted');
-                    btn.querySelector('span').innerText = 'THÍCH';
-                    Swal.fire({
-                        icon: 'info',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-            });
-    }
-
-    function handleSave() {
-        if (!isLoggedIn) {
-            requireLogin();
-            return;
-        }
-
-        let formData = new FormData();
-        formData.append('post_id', currentPostId);
-
-        fetch('index.php?page=api_save', {
-               
-            method: 'POST',
-               
-            body: formData
-           
-        })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'unauthorized') {
-                   
-                    requireLogin();
-                   
-                    return;
-               
-                }
-
-                const btn = document.getElementById('btn-save');
                 const icon = btn.querySelector('i');
                 const text = btn.querySelector('span');
 
-                if (data.status === 'saved') {
-                    btn.style.background = '#B90C17';
-                    btn.style.color = '#fff';
-                    btn.classList.remove('btn-light', 'text-muted');
-
-                    icon.classList.remove('fa-regular');
-                    icon.classList.add('fa-solid');
-
-                    text.innerText = 'ĐÃ LƯU';
+                if (data.status === 'liked') {
+                    // Liked state
+                    btn.className = 'btn border fw-bold me-3 px-4';
+                    btn.style.cssText = 'transition: 0.3s; background:#003049; color:#fff; opacity: 1;';
+                    icon.className = 'fa-solid fa-thumbs-up me-2';
+                    text.innerText = 'ĐÃ THÍCH';
 
                     Swal.fire({
                         icon: 'success',
@@ -312,25 +272,23 @@ $isSaved = $isSaved ?? false;
                         showConfirmButton: false,
                         timer: 1500
                     });
-                } else if (data.status === 'unsaved') {
-                    btn.style.background = '';
-                    btn.style.color = '';
-                    btn.classList.add('btn-light', 'text-muted');
-
-                    icon.classList.remove('fa-solid');
-                    icon.classList.add('fa-regular');
-
-                    text.innerText = 'LƯU';
+                } else if (data.status === 'unliked') {
+                    // Unliked state
+                    btn.className = 'btn border fw-bold me-3 px-4 btn-light text-muted';
+                    btn.style.cssText = 'transition: 0.3s; opacity: 1;';
+                    icon.className = 'fa-regular fa-thumbs-up me-2';
+                    text.innerText = 'THÍCH';
 
                     Swal.fire({
                         icon: 'info',
-                        title: data.message,
+                        title: data.message || 'Đã bỏ thích bài viết',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
                         timer: 1500
                     });
                 } else {
+                    // Error case
                     Swal.fire({
                         icon: 'error',
                         title: data.message || 'Có lỗi xảy ra',
@@ -350,6 +308,103 @@ $isSaved = $isSaved ?? false;
                     showConfirmButton: false,
                     timer: 1500
                 });
+            })
+            .finally(() => {
+                // Re-enable button
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                isLikeProcessing = false;
+            });
+    }
+
+    function handleSave() {
+        if (!isLoggedIn) {
+            requireLogin();
+            return;
+        }
+
+        // Prevent double-click
+        if (isSaveProcessing) return;
+
+        isSaveProcessing = true;
+        const btn = document.getElementById('btn-save');
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+
+        let formData = new FormData();
+        formData.append('post_id', currentPostId);
+
+        fetch('index.php?page=api_save', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'unauthorized') {
+                    requireLogin();
+                    return;
+                }
+
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('span');
+
+                if (data.status === 'saved') {
+                    // Saved state
+                    btn.className = 'btn border fw-bold px-4';
+                    btn.style.cssText = 'transition: 0.3s; background: #B90C17; color: #fff; opacity: 1;';
+                    icon.className = 'fa-solid fa-bookmark me-2';
+                    text.innerText = 'ĐÃ LƯU';
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else if (data.status === 'unsaved') {
+                    // Unsaved state
+                    btn.className = 'btn border fw-bold px-4 btn-light text-muted';
+                    btn.style.cssText = 'transition: 0.3s; opacity: 1;';
+                    icon.className = 'fa-regular fa-bookmark me-2';
+                    text.innerText = 'LƯU';
+
+                    Swal.fire({
+                        icon: 'info',
+                        title: data.message,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    // Error case
+                    Swal.fire({
+                        icon: 'error',
+                        title: data.message || 'Có lỗi xảy ra',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Không thể kết nối máy chủ',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            })
+            .finally(() => {
+                // Re-enable button
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                isSaveProcessing = false;
             });
     }
 
@@ -364,47 +419,47 @@ $isSaved = $isSaved ?? false;
 
         if (!content) {
 
-        if (!content) {
-            Swal.fire('Cảnh báo', 'Vui lòng nhập nội dung bình luận trước khi bấm gửi!', 'warning');
-            return;
-        }
+            if (!content) {
+                Swal.fire('Cảnh báo', 'Vui lòng nhập nội dung bình luận trước khi bấm gửi!', 'warning');
+                return;
+            }
 
-        let formData = new FormData();
-        formData.append('post_id', currentPostId);
-        formData.append('content', content);
+            let formData = new FormData();
+            formData.append('post_id', currentPostId);
+            formData.append('content', content);
 
-        fetch('index.php?page=api_comment', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'unauthorized') {
-                    requireLogin();
-                    return;
-                }
+            fetch('index.php?page=api_comment', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'unauthorized') {
+                        requireLogin();
+                        return;
+                    }
 
-                if (data.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công',
-                        text: 'Bình luận của bạn đã được đăng tải!',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: 'Bình luận của bạn đã được đăng tải!',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
 
-                    // 1. Dọn dẹp ô nhập liệu
-                    contentInput.value = '';
+                        // 1. Dọn dẹp ô nhập liệu
+                        contentInput.value = '';
 
-                    // 2. Chèn bình luận mới vào đầu danh sách (AJAX thuần không reload)
-                    const commentArea = document.querySelector('.comment-area');
+                        // 2. Chèn bình luận mới vào đầu danh sách (AJAX thuần không reload)
+                        const commentArea = document.querySelector('.comment-area');
 
-                    // Xóa dòng chữ "Chưa có bình luận nào" nếu có
-                    const noCommentMsg = commentArea.querySelector('p.text-muted');
-                    if (noCommentMsg) noCommentMsg.remove();
+                        // Xóa dòng chữ "Chưa có bình luận nào" nếu có
+                        const noCommentMsg = commentArea.querySelector('p.text-muted');
+                        if (noCommentMsg) noCommentMsg.remove();
 
-                    // Tạo cấu trúc HTML cho bình luận mới
-                    const newCommentHtml = `
+                        // Tạo cấu trúc HTML cho bình luận mới
+                        const newCommentHtml = `
                     <div class="d-flex mb-4 pb-4 border-bottom" style="animation: fadeIn 0.5s;">
                         <img src="${data.comment.avatar}" class="comment-avatar me-3" alt="Avatar">
                         <div class="w-100">
@@ -418,25 +473,25 @@ $isSaved = $isSaved ?? false;
                     </div>
                 `;
 
-                    // Chèn vào vị trí trên cùng
-                    commentArea.insertAdjacentHTML('afterbegin', newCommentHtml);
+                        // Chèn vào vị trí trên cùng
+                        commentArea.insertAdjacentHTML('afterbegin', newCommentHtml);
 
-                    // 3. Tăng bộ đếm bình luận lên 1
-                    const titleEl = document.getElementById('comment-count-title');
-                    let currentCount = parseInt(titleEl.getAttribute('data-count'));
-                    currentCount++;
-                    titleEl.setAttribute('data-count', currentCount);
-                    titleEl.innerText = `Bình luận (${currentCount})`;
+                        // 3. Tăng bộ đếm bình luận lên 1
+                        const titleEl = document.getElementById('comment-count-title');
+                        let currentCount = parseInt(titleEl.getAttribute('data-count'));
+                        currentCount++;
+                        titleEl.setAttribute('data-count', currentCount);
+                        titleEl.innerText = `Bình luận (${currentCount})`;
 
-                } else {
-                    Swal.fire('Lỗi', data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi AJAX:', error);
-                Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
-            });
-    }
+                    } else {
+                        Swal.fire('Lỗi', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi AJAX:', error);
+                    Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
+                });
+        }
 </script>
 <?php
 include __DIR__ . '/../../Partials/Client/Footer.php';
