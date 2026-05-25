@@ -1,7 +1,13 @@
 <?php
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+
 
 require_once __DIR__ .
-    '/../../Repositories/ClientRepository.php';
+'/../../Repositories/ClientRepository.php';
 
 class AdminController
 {
@@ -18,31 +24,30 @@ class AdminController
     // LOGIN PAGE
     // ====================================
 
-    public function login()
-    {
-        if (session_status() === PHP_SESSION_NONE) {
+public function login()
+{
+    if (session_status() === PHP_SESSION_NONE) {
 
-            session_start();
-        }
+        session_start();
+    }
 
-        // Remember Login ==> SAU NHỚ MỞ LẠI
+    // NẾU ĐÃ LOGIN
+    // => KHÔNG CHO VÀO LOGIN NỮA
 
-        if (isset($_COOKIE['remember_user'])) {
+    if (isset($_SESSION['user'])) {
 
-            $_SESSION['user'] =
-                $_COOKIE['remember_user'];
+        header(
 
-            header(
-            "Location: http://localhost/Web-Application/Admin_index.php?page=admin_user_posts"
-            );
+        "Location: http://localhost/Web-Application/Admin_index.php?page=admin_user_posts"
 
-            exit();
-        }
+        );
 
-        require_once __DIR__ .
-        '/../Views/Admin/Auth/Login.php';
-     }
+        exit();
+    }
 
+    require_once __DIR__ .
+    '/../Views/Admin/Auth/Login.php';
+}
 
     // ====================================
     // HANDLE LOGIN
@@ -84,19 +89,38 @@ class AdminController
 
             // REMEMBER LOGIN
 
-            if ($remember) {
+            // REMEMBER LOGIN
 
-                setcookie(
+if ($remember) {
 
-                    'remember_user',
+    // TẠO TOKEN RANDOM
 
-                    $user->user_id,
+    $token =
+    bin2hex(random_bytes(32));
 
-                    time() + (86400 * 1),
+    // LƯU DATABASE
 
-                    "/"
-                );
-            }
+    $this->clientRepository
+    ->saveRememberToken(
+
+        $user->user_id,
+
+        $token
+    );
+
+    // LƯU COOKIE
+
+    setcookie(
+
+        'remember_token',
+
+        $token,
+
+        time() + (86400 * 10),
+
+        "/"
+    );
+}
 
 
             echo "
@@ -202,9 +226,9 @@ class AdminController
     // LOGOUT
     // ====================================
 
-    public function logout()
-    {
-        if (session_status() === PHP_SESSION_NONE) {
+public function logout()
+{
+    if (session_status() === PHP_SESSION_NONE) {
 
             session_start();
         }
@@ -228,117 +252,268 @@ $_SESSION = [];
     // FORGOT PASSWORD PAGE
     // ====================================
 
-    public function forgotPassword()
-    {
-        require_once __DIR__ .
-            '/../Views/Admin/Auth/ForgotPassword.php';
-    }
+public function forgotPassword()
+{
+    require_once __DIR__ .
+    '/../Views/Admin/Auth/Forgot_password.php';
+}
 
 
     // ====================================
     // HANDLE FORGOT PASSWORD
     // ====================================
 
-    public function handleForgotPassword()
-    {
-        header('Content-Type: application/json');
+public function handleForgotPassword()
+{
+    header('Content-Type: application/json');
 
-        $email =
-            $_POST['email'] ?? '';
+    $email = trim($_POST['email'] ?? '');
 
+    if (empty($email)) {
+        echo json_encode([
+            'status'  => 'error',
+            'message' => 'Vui lòng nhập email'
+        ]);
+        exit();
+    }
 
-        // EMPTY EMAIL
+    // Tìm user theo email trước
+    $user = $this->clientRepository->findByEmail($email);
 
-        if (empty($email)) {
+    if (!$user) {
+        echo json_encode([
+            'status'  => 'error',
+            'message' => 'Email không tồn tại trong hệ thống'
+        ]);
+        exit();
+    }
 
+    try {
+        $token     = bin2hex(random_bytes(32));
+        $expiredAt = date('Y-m-d H:i:s', time() + 900); // Hết hạn sau 15 phút
+        $resetLink = "http://localhost/Web-Application/Admin_index.php"
+                   . "?page=admin_reset_password&token=" . $token;
+
+        // ✅ FIX: Truyền đúng thứ tự ($userId, $token, $expiredAt)
+        $saved = $this->clientRepository->saveResetToken(
+            $user->user_id,
+            $token,
+            $expiredAt
+        );
+
+        if (!$saved) {
             echo json_encode([
-
-                'status' => 'error',
-
-                'message' =>
-                    'Vui lòng nhập email'
-
+                'status'  => 'error',
+                'message' => 'Không thể lưu token, thử lại sau'
             ]);
-
             exit();
         }
 
+        $mail = new PHPMailer(true);
 
-        // TEST EMAIL
+        $mail->SMTPDebug  = 0; // ✅ Tắt debug output
+        $mail->isSMTP();
+        $mail->Host       = $_ENV['MAIL_HOST'];
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $_ENV['MAIL_USERNAME'];
+        $mail->Password   = $_ENV['MAIL_PASSWORD'];
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = $_ENV['MAIL_PORT'];
+        $mail->CharSet    = 'UTF-8';
 
-        if ($email === 'admin@gmail.com') {
+        $mail->setFrom($_ENV['MAIL_FROM'], $_ENV['MAIL_FROM_NAME']);
+        $mail->addAddress($email);
 
-            echo json_encode([
+        $mail->isHTML(true);
+        $mail->Subject = 'Đặt lại mật khẩu';
+        $mail->Body    = "
+            <h2>Khôi phục mật khẩu</h2>
+            <p>Link có hiệu lực trong <strong>15 phút</strong>.</p>
+            <a href='{$resetLink}'>Nhấn đây để đổi mật khẩu</a>
+        ";
 
-                'status' => 'success',
+        $mail->send();
 
-                'message' =>
-                    'Đã gửi email khôi phục mật khẩu'
+        echo json_encode([
+            'status'  => 'success',
+            'message' => 'Email khôi phục đã được gửi, vui lòng kiểm tra hộp thư'
+        ]);
 
-            ]);
-
-        } else {
-
-            echo json_encode([
-
-                'status' => 'error',
-
-                'message' =>
-                    'Email không tồn tại trong hệ thống'
-
-            ]);
-        }
-
-        exit();
+    } catch (Exception $e) {
+        echo json_encode([
+            'status'  => 'error',
+            'message' => 'Lỗi gửi mail: ' . $e->getMessage()
+        ]);
     }
+
+    exit();
+}
+
+    public function autoLogin()
+{
+    if (
+
+        isset($_COOKIE['remember_token'])
+
+        &&
+
+        !isset($_SESSION['user'])
+
+    ) {
+
+        $user =
+
+        $this->clientRepository
+        ->findByRememberToken(
+
+            $_COOKIE['remember_token']
+        );
+
+        if ($user) {
+
+            $_SESSION['user'] = $user;
+        }
+    }
+}
     public function resetPassword()
     {
     require_once __DIR__ .
     '/../Views/Admin/Auth/Reset_password.php';
     }
-      public function resetPasswordAjax()
-    {
+public function resetPasswordAjax()
+{
+    header('Content-Type: application/json');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token =
+    $_POST['token'] ?? '';
 
-            $password = $_POST['password'] ?? '';
-            $confirmPassword = $_POST['confirmPassword'] ?? '';
+    $password =
+    $_POST['password'] ?? '';
 
-            // VALIDATE
+    $confirmPassword =
+    $_POST['confirmPassword'] ?? '';
 
-            if (empty($password) || empty($confirmPassword)) {
 
-                echo json_encode([
-                    'status' => false,
-                    'message' => 'Vui lòng nhập đầy đủ thông tin!'
-                ]);
+    // =========================
+    // VALIDATE
+    // =========================
 
-                return;
-            }
+    if (
 
-            if ($password !== $confirmPassword) {
+        empty($token)
 
-                echo json_encode([
-                    'status' => false,
-                    'message' => 'Mật khẩu xác nhận không khớp!'
-                ]);
+        ||
 
-                return;
-            }
+        empty($password)
 
-            // TODO:
-            // UPDATE PASSWORD DATABASE Ở ĐÂY
+        ||
 
-            echo json_encode([
-                'status' => true,
-                'message' => 'Đổi mật khẩu thành công!'
-            ]);
-        } else {
+        empty($confirmPassword)
 
-            echo json_encode([
-                'status' => false,
-                'message' => 'Yêu cầu không hợp lệ!'
-            ]);
-        }
+    ) {
+
+        echo json_encode([
+
+            'status' => false,
+
+            'message' =>
+            'Vui lòng nhập đầy đủ thông tin!'
+        ]);
+
+        exit();
+    }
+
+
+    // PASSWORD KHÔNG KHỚP
+
+    if ($password !== $confirmPassword) {
+
+        echo json_encode([
+
+            'status' => false,
+
+            'message' =>
+            'Mật khẩu xác nhận không khớp!'
+        ]);
+
+        exit();
+    }
+
+
+    // =========================
+    // CHECK TOKEN
+    // =========================
+
+    $user =
+
+    $this->clientRepository
+    ->findByResetToken($token);
+
+
+    if (!$user) {
+
+        echo json_encode([
+
+            'status' => false,
+
+            'message' =>
+            'Token không hợp lệ hoặc đã hết hạn!'
+        ]);
+
+        exit();
+    }
+
+
+    // =========================
+    // HASH PASSWORD
+    // =========================
+
+    $hashedPassword =
+
+    password_hash(
+
+        $password,
+
+        PASSWORD_DEFAULT
+    );
+
+
+    // =========================
+    // UPDATE PASSWORD
+    // =========================
+
+    $success =
+
+    $this->clientRepository
+    ->updatePasswordByToken(
+
+        $token,
+
+        $hashedPassword
+    );
+
+
+    if ($success) {
+
+        echo json_encode([
+
+            'status' => true,
+
+            'message' =>
+            'Đổi mật khẩu thành công!'
+        ]);
+
+    } else {
+
+        echo json_encode([
+
+            'status' => false,
+
+            'message' =>
+            'Không thể cập nhật mật khẩu!'
+        ]);
+    }
+
+    exit();
 }
 }

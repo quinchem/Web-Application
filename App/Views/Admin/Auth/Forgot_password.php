@@ -110,8 +110,6 @@
     </div>
 
 </div>
-
-<script src="/Web-Application/Public/Admin/Js/Pages/forgotPassword.js"></script>
-
+<script src="http://localhost/Web-Application/Public/Admin/Js/Pages/forgotPassword.js?v=2"></script>
 </body>
 </html>

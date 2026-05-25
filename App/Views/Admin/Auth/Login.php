@@ -105,7 +105,7 @@
 
                 </label>
 
-                <a href="http://localhost/Web-Application/Admin_index.php?page=admin_forgot_password"
+                <a href="http://localhost/Web-Application/Admin_index.php?page=forgot_password"
                    class="forgot-password">
 
                     Quên mật khẩu?
@@ -128,20 +128,6 @@
 
 
         <!-- FOOTER -->
-
-        <div class="login-footer">
-
-            <span>
-                BẢN QUYỀN BIÊN TẬP 2024
-            </span>
-
-            <span>•</span>
-
-            <span>
-                HỖ TRỢ KỸ THUẬT
-            </span>
-
-        </div>
 
     </div>
 

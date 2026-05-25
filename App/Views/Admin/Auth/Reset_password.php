@@ -1,3 +1,6 @@
+<?php
+$token = $_GET['token'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -12,8 +15,8 @@
 
     <!-- GOOGLE FONT -->
 
-   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap"
+          rel="stylesheet">
 
     <!-- FONT AWESOME -->
 
@@ -35,9 +38,14 @@
 
 <div class="reset-wrapper">
 
+    <!-- LOGO -->
+
     <h1 class="logo">
         TRẠM TIN VIỆT
     </h1>
+
+
+    <!-- CARD -->
 
     <div class="reset-card">
 
@@ -46,12 +54,20 @@
         </h2>
 
         <p class="description">
-            Vui lòng nhập mật khẩu mới của bạn bên dưới.
+            Vui lòng nhập mật khẩu mới cho tài khoản của bạn.
         </p>
+
 
         <!-- FORM -->
 
         <form id="resetPasswordForm">
+
+            <!-- TOKEN -->
+
+            <input type="hidden"
+                   name="token"
+                   value="<?= htmlspecialchars($token) ?>">
+
 
             <!-- PASSWORD -->
 
@@ -66,13 +82,15 @@
                     <input type="password"
                            id="password"
                            name="password"
-                           placeholder="Nhập mật khẩu">
+                           placeholder="Nhập mật khẩu mới"
+                           required>
 
-                    <i class="fa-regular fa-eye toggle-password"></i>
+                    <i class="fa-regular fa-eye-slash toggle-password"></i>
 
                 </div>
 
             </div>
+
 
             <!-- CONFIRM PASSWORD -->
 
@@ -87,20 +105,24 @@
                     <input type="password"
                            id="confirmPassword"
                            name="confirmPassword"
-                           placeholder="Nhập lại mật khẩu">
+                           placeholder="Nhập lại mật khẩu"
+                           required>
 
-                    <i class="fa-regular fa-eye-slash toggle-password"></i>
+                    <i class="fa-regular fa-eye toggle-password"></i>
 
                 </div>
 
             </div>
+
 
             <!-- PASSWORD STRENGTH -->
 
             <div class="strength-container">
 
                 <div class="strength-bar">
-                    <span id="strength-fill"></span>
+
+                    <div id="strength-fill"></div>
+
                 </div>
 
                 <p id="strength-text">
@@ -108,6 +130,7 @@
                 </p>
 
             </div>
+
 
             <!-- BUTTON -->
 
@@ -120,7 +143,8 @@
 
         </form>
 
-        <!-- FOOTER -->
+
+        <!-- BACK LOGIN -->
 
         <div class="back-login">
 
@@ -138,7 +162,12 @@
 
 </div>
 
+
+<!-- JQUERY -->
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- JS -->
 
 <script src="/Web-Application/Public/Admin/Js/Pages/resetPassword.js"></script>
 
