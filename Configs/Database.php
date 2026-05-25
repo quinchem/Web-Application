@@ -20,28 +20,20 @@ class Database
     }
 
     public function connect()
-    {
-        try {
-            return new PDO(
-                "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4",
-                $this->username,
-                $this->password,
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    
-                    // 🔥 BỔ SUNG 1: Giữ kết nối liên tục, chống lỗi "MySQL server has gone away" với TiDB
-                    PDO::ATTR_PERSISTENT => true,
-                    
-                    // Giữ nguyên đường dẫn chứng chỉ SSL CA cũ của bạn
-                    PDO::MYSQL_ATTR_SSL_CA => dirname($_SERVER['SCRIPT_FILENAME']) . '/CA.pem'
-                ]
-            );
-        } catch (PDOException $e) {
-            // 🔥 BỔ SUNG 2: Không dùng die() nữa! Trả về null để Router tiếp tục chạy được giao diện.
-            // Đồng thời in lỗi ra comment ẩn trong HTML để bạn bấm Ctrl + U vẫn check được lỗi.
-            echo "";
-            return null; 
-        }
+{
+    try {
+        return new PDO(
+            "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4",
+            $this->username,
+            $this->password,
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::MYSQL_ATTR_SSL_CA => dirname($_SERVER['SCRIPT_FILENAME']) . '/CA.pem'
+            ]
+        );
+    } catch (PDOException $e) {
+        die("Database connection failed: " . $e->getMessage());
     }
+}
 }

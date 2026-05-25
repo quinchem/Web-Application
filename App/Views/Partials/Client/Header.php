@@ -32,7 +32,10 @@
         }
     </style>
 </head>
-
+<?php
+$currentPage = !empty($_GET['page']) ? $_GET['page'] : 'homepage'; 
+                $currentCategory = !empty($_GET['name']) ? $_GET['name'] : '';
+?>
 <body>
     <header class="header-container">
         <div class="container" style="width: 1140px;">
@@ -54,8 +57,8 @@
                             <img src="<?= !empty($_SESSION['avatar']) ? $_SESSION['avatar'] : '/Public/Admin/Images/admin-avatar.png'; ?>"
                                 alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
 
-                            <a href="index.php?page=client_profile">
-    <span style="color: white; text-transform: uppercase; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px;">
+                            <a href="index.php?page=client_profile" style ="text-decoration: none !important;">
+    <span style="color: white; text-transform: uppercase; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px; ">
         <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['user_name']); ?>
     </span>
 </a>
@@ -76,12 +79,21 @@
                 </div>
             </div>
 
-            <nav class="nav-bar">
+           <nav class="nav-bar">
                 <ul class="menu-items">
-                    <li><a href="index.php?page=homepage" class="active">Trang Chủ</a></li>
-                    <li><a href="index.php?page=category&name=Thời sự">Thời Sự</a></li>
-                    <li><a href="index.php?page=category&name=Kinh tế">Kinh Tế</a></li>
-                    <li><a href="index.php?page=category&name=Tiện ích">Tiện Ích</a></li>
+                    <li>
+                        <a href="index.php?page=homepage" class="<?= ($currentPage === 'homepage') ? 'active' : ''; ?>">Trang Chủ</a>
+                    </li>
+                    
+                    <li>
+                        <a href="index.php?page=category&name=Thời sự" class="<?= ($currentPage === 'category' && $currentCategory === 'Thời sự') ? 'active' : ''; ?>">Thời Sự</a>
+                    </li>
+                    <li>
+                        <a href="index.php?page=category&name=Kinh tế" class="<?= ($currentPage === 'category' && $currentCategory === 'Kinh tế') ? 'active' : ''; ?>">Kinh Tế</a>
+                    </li>
+                    <li>
+                        <a href="index.php?page=category&name=Tiện ích" class="<?= ($currentPage === 'category' && $currentCategory === 'Tiện ích') ? 'active' : ''; ?>">Tiện Ích</a>
+                    </li>
                 </ul>
                 <div class="search-box" style="position: relative;">
                     <input type="text" placeholder="Tìm kiếm..."

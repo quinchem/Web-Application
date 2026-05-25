@@ -4,6 +4,9 @@
         border-radius: 0px; /* Bỏ bo góc nếu muốn vuông vắn hoặc chỉnh 12px tùy ý */
         overflow: hidden;
         padding-bottom: 15px; /* Loại bỏ padding dưới cùng để sát với chân trang hơn */
+        height: fit-content;    /* Khóa chiều cao: chỉ dài bằng nội dung bên trong nó */
+        position: sticky;       /* Trượt theo màn hình khi cuộn */
+        top: 20px;
     }
     
     .profile-sidebar .avatar-section {
@@ -88,7 +91,7 @@
 }
 </style>
 
-<div class="card profile-sidebar border-0 h-100 shadow-sm">
+<div class="card profile-sidebar border-0 shadow-sm">
     <div class="avatar-section">
         <div class="avatar-wrapper">
             <img src="<?= htmlspecialchars($_SESSION['avatar'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png'); ?>" alt="Avatar">
