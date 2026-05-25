@@ -5,15 +5,18 @@ class ClientController
 {
 
     private $clientRepository;
+    private $postRepository;
 
     // Hàm khởi tạo sẽ tự động chạy đầu tiên khi Controller được gọi
     public function __construct()
     {
         // Nhúng file ClientRepository vào
         require_once __DIR__ . '/../../Repositories/ClientRepository.php';
+        require_once __DIR__ . '/../../Repositories/PostRepository.php';
 
         // Khởi tạo đối tượng gán vào biến
         $this->clientRepository = new \ClientRepository();
+        $this->postRepository = new \PostRepository();
     }
 
     public function loginForm()

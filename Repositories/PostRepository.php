@@ -30,13 +30,6 @@ class PostRepository
 
         $params = [];
 
-        if (!empty($filters['status'])) {
-            $sql .= " AND p.status = :status";
-            $params['status'] = $filters['status'];
-        } else {
-            $sql .= " AND p.status != 'hidden'";
-        }
-
         if (!empty($filters['keyword'])) {
             $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
             $params['keyword'] = '%' . $filters['keyword'] . '%';
@@ -136,6 +129,10 @@ class PostRepository
         } else {
             $sql .= " AND p.status != 'hidden'";
         }
+    if (!empty($filters['status'])) {
+        $sql .= " AND p.status = :status";
+        $params['status'] = $filters['status'];
+    } 
 
         if (!empty($filters['keyword'])) {
             $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
@@ -502,15 +499,71 @@ class PostRepository
 
     $stmt = $this->conn->prepare($sql);
 
-    $stmt->execute([
-        'post_id' => $postId,
-        'user_id' => $userId
-    ]);
+public function countSavedPostsByUser($userId)
+{
+    $sql = "
+        SELECT COUNT(*) AS total
+        FROM Bookmark
+        WHERE user_id = :user_id
+    ";
 
-    return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_STR);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return (int)($row['total'] ?? 0);
 }
-    public function addComment($postId, $userId, $content)
-    {
+
+public function getSavedPostsByUser($userId, $limit, $offset)
+{
+    $sql = "
+        SELECT 
+            p.post_id,
+            p.title,
+            p.content,
+            p.summary,
+            p.thumbnail_URL,
+            p.category_id,
+            b.saved_at,
+
+            c.name AS category_name,
+            c.slug AS category_slug,
+
+            parent.name AS parent_category_name,
+            parent.slug AS parent_category_slug
+
+        FROM Bookmark b
+
+        INNER JOIN Post p 
+            ON b.post_id = p.post_id
+
+        LEFT JOIN Category c 
+            ON p.category_id = c.category_id
+
+        LEFT JOIN Category parent 
+            ON c.parent_id = parent.category_id
+
+        WHERE b.user_id = :user_id
+
+        ORDER BY b.saved_at DESC
+
+        LIMIT :limit OFFSET :offset
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    $stmt->bindValue(':user_id', $userId, \PDO::PARAM_STR);
+    $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+}
+
+    public function addComment($postId, $userId, $content) {
         // Tự động sinh mã
         $newCommentId = $this->generateNewId('Comment', 'comment_id', 'CM');
 
@@ -523,4 +576,184 @@ class PostRepository
             'content' => $content
         ]);
     }
+=======
+
+    /*Quản lý bài viết admin */
+    public function getAdminPosts($filters, $limit, $offset)
+{
+    $where  = ["r.role_name = 'admin'"];
+    $params = [];
+
+    if (!empty($filters['keyword'])) {
+        $where[]  = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
+        $params['kw1'] = '%' . $filters['keyword'] . '%';
+        $params['kw2'] = '%' . $filters['keyword'] . '%';
+    }
+    if (!empty($filters['category_id'])) {
+        $where[]  = "(c.category_id = :category_id OR c.parent_id = :category_id)";
+        $params['category_id'] = $filters['category_id'];
+    }
+    if (!empty($filters['status'])) {
+        $where[]  = "p.status = :status";
+        $params['status'] = $filters['status'];
+    }
+    if (!empty($filters['date'])) {
+        $where[]  = "DATE(p.created_at) = :date";
+        $params['date'] = $filters['date'];
+    }
+
+    $whereSQL = implode(' AND ', $where);
+
+    $sql = "SELECT p.*, u.full_name AS author_name,
+                   c.name AS category_name, c.parent_id,
+                   cp.name AS parent_category_name
+            FROM Post p
+            JOIN `User` u ON p.user_id = u.user_id
+            JOIN Role r ON u.role_id = r.role_id
+            JOIN Category c ON p.category_id = c.category_id
+            LEFT JOIN Category cp ON c.parent_id = cp.category_id
+            WHERE $whereSQL
+            ORDER BY p.created_at DESC
+            LIMIT :limit OFFSET :offset";
+
+    $stmt = $this->conn->prepare($sql);
+    foreach ($params as $key => $value) {
+        $stmt->bindValue(':' . $key, $value);
+    }
+    $stmt->bindValue(':limit',  (int)$limit,  PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $posts = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $posts[] = new Post($row);
+    }
+    return $posts;
+}
+
+public function countAdminPosts()
+{
+    $sql = "SELECT COUNT(*) AS total FROM Post p
+            JOIN `User` u ON p.user_id = u.user_id
+            JOIN Role r ON u.role_id = r.role_id
+            WHERE r.role_name = 'admin'";
+    return $this->conn->query($sql)->fetch()['total'];
+}
+
+public function countAdminPostsFiltered($filters)
+{
+    $where  = ["r.role_name = 'admin'"];
+    $params = [];
+
+    if (!empty($filters['keyword'])) {
+        $where[]  = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
+        $params['kw1'] = '%' . $filters['keyword'] . '%';
+        $params['kw2'] = '%' . $filters['keyword'] . '%';
+    }
+    if (!empty($filters['category_id'])) {
+        $where[]  = "(c.category_id = :category_id OR c.parent_id = :category_id)";
+        $params['category_id'] = $filters['category_id'];
+    }
+    if (!empty($filters['status'])) {
+        $where[]  = "p.status = :status";
+        $params['status'] = $filters['status'];
+    }
+    if (!empty($filters['date'])) {
+        $where[]  = "DATE(p.created_at) = :date";
+        $params['date'] = $filters['date'];
+    }
+
+    $whereSQL = implode(' AND ', $where);
+    $sql = "SELECT COUNT(*) AS total FROM Post p
+            JOIN `User` u ON p.user_id = u.user_id
+            JOIN Role r ON u.role_id = r.role_id
+            JOIN Category c ON p.category_id = c.category_id
+            WHERE $whereSQL";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetch()['total'];
+}
+
+public function countAdminPostsByStatus($status)
+{
+    $sql = "SELECT COUNT(*) AS total FROM Post p
+            JOIN `User` u ON p.user_id = u.user_id
+            JOIN Role r ON u.role_id = r.role_id
+            WHERE r.role_name = 'admin' AND p.status = :status";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute(['status' => $status]);
+    return $stmt->fetch()['total'];
+}
+
+public function countTrendingAdminPosts()
+{
+    $sql = "SELECT COUNT(*) AS total FROM Post p
+            JOIN `User` u ON p.user_id = u.user_id
+            JOIN Role r ON u.role_id = r.role_id
+            WHERE r.role_name = 'admin' AND p.is_trending = TRUE";
+    return $this->conn->query($sql)->fetch()['total'];
+}
+public function unhidePost($postId)
+{
+    $sql = "UPDATE Post SET status = 'approved' WHERE post_id = :post_id";
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute(['post_id' => $postId]);
+}
+public function createPost($data)
+{
+    // Sinh post_id mới
+    $stmt = $this->conn->query("SELECT post_id FROM Post ORDER BY post_id DESC LIMIT 1");
+    $last = $stmt->fetch(PDO::FETCH_ASSOC);
+    $newNum = $last ? (int)substr($last['post_id'], 2) + 1 : 1;
+    $postId = 'PS' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
+
+    $sql = "INSERT INTO Post 
+                (post_id, title, summary, content, category_id, user_id, 
+                 thumbnail_URL, status, published_at, created_at)
+            VALUES 
+                (:post_id, :title, :summary, :content, :category_id, :user_id,
+                 :thumbnail_url, :status, :published_at, NOW())";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([
+        ':post_id'       => $postId,
+        ':title'         => $data['title'],
+        ':summary'       => $data['summary'],
+        ':content'       => $data['content'],
+        ':category_id'   => $data['category_id'],
+        ':user_id'       => $data['author_id'],
+        ':thumbnail_url' => $data['thumbnail_url'],
+        ':status'        => $data['status'],
+        ':published_at'  => $data['publish_at'],
+    ]);
+
+    // Thêm tags nếu có
+    if (!empty($data['tags'])) {
+        foreach ($data['tags'] as $tagSlug) {
+            $tagSlug = trim($tagSlug);
+            if (!$tagSlug) continue;
+
+            // Tìm hoặc tạo tag
+            $tagStmt = $this->conn->prepare("SELECT tag_id FROM Tag WHERE slug = :slug LIMIT 1");
+            $tagStmt->execute([':slug' => $tagSlug]);
+            $tag = $tagStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$tag) {
+                $lastTag = $this->conn->query("SELECT tag_id FROM Tag ORDER BY tag_id DESC LIMIT 1")->fetch();
+                $newTagNum = $lastTag ? (int)substr($lastTag['tag_id'], 2) + 1 : 1;
+                $tagId = 'TG' . str_pad($newTagNum, 4, '0', STR_PAD_LEFT);
+                $this->conn->prepare("INSERT INTO Tag (tag_id, slug) VALUES (:id, :slug)")
+                    ->execute([':id' => $tagId, ':slug' => $tagSlug]);
+            } else {
+                $tagId = $tag['tag_id'];
+            }
+
+            $this->conn->prepare("INSERT IGNORE INTO Post_tag (post_id, tag_id) VALUES (:post_id, :tag_id)")
+                ->execute([':post_id' => $postId, ':tag_id' => $tagId]);
+        }
+    }
+
+    return $postId;
+}
 }

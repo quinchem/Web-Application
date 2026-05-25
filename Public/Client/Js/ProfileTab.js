@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!menuItems.length || !contentArea) return;
 
-    // 1. ĐỌC THAM SỐ 'tab' TỪ URL KHI VỪA VÀO TRANG HOẶC F5
+    // 1. ĐỌC THAM SỐ 'tab' TỪ URL KHI VỪA VÀO TRANG 
     const urlParams = new URLSearchParams(window.location.search);
     const activeTabFromUrl = urlParams.get('tab');
 
@@ -38,19 +38,28 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
 
-        // Giữ nguyên luồng gọi Fetch dữ liệu của bạn
-        fetch(`index.php?page=client_account_sub_page&action=${targetPage}`)
-            .then(response => {
-                if (!response.ok) throw new Error("Lỗi kết nối.");
-                return response.text();
-            })
-            .then(htmlContent => {
-                contentArea.innerHTML = htmlContent;
-            })
-            .catch(error => {
-                console.error(error);
-                contentArea.innerHTML = `<div class="alert alert-danger">Không thể tải nội dung.</div>`;
-            });
+       let fetchUrl = `index.php?page=client_account_sub_page&action=${targetPage}`;
+
+if (targetPage === 'saved') {
+    const currentParams = new URLSearchParams(window.location.search);
+    const savedPage = currentParams.get('saved_page') || 1;
+
+    fetchUrl = `index.php?page=client_saved_posts_page&saved_page=${savedPage}`;
+}
+
+fetch(fetchUrl)
+    .then(response => {
+        if (!response.ok) throw new Error("Lỗi kết nối.");
+        return response.text();
+    })
+    .then(htmlContent => {
+        contentArea.innerHTML = htmlContent;
+    })
+    .catch(error => {
+        console.error(error);
+        contentArea.innerHTML = `<div class="alert alert-danger">Không thể tải nội dung.</div>`;
+    });
+        
     }
 
     // Lắng nghe sự kiện click chuyển mục Menu dọc bên trái

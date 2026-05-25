@@ -9,11 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/PostIndex.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Post.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/ReviewPost.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
 <script src="Public/Admin/Js/Pages/ReviewPost.js?v=<?= time() ?>" defer></script>
-<script src="Public/Admin/Js/Pages/PostIndex.js?v=<?= time() ?>" defer></script>
+<script src="Public/Admin/Js/Pages/Post.js?v=<?= time() ?>" defer></script>
 <script src="Public/Admin/Js/Pages/Profile.js?v=<?= time() ?>" defer></script>
     <style>
         /* Sidebar cố định, chỉ main-content scroll */
@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            <form class="filter-box" method="GET" action="Index.php">
+            <form class="filter-box" method="GET" action="Admin_index.php">
                 <input type="hidden" name="page" value="admin_user_posts">
 
                 <div class="search-input">
@@ -271,35 +271,46 @@
                                 </td>
 
                                 <td>
-                                    <div class="actions">
-                                        <?php $status = strtolower(preg_replace('/\s+/', '', $post->status)); ?>
+    <div class="actions">
+        <?php $status = strtolower(preg_replace('/\s+/', '', $post->status)); ?>
 
-                                        <?php if ($status === 'pending'): ?>
-                                            <button
-                                                class="approve-btn"
-                                                type="button"
-                                                onclick="openReviewModal(
-                                                    '<?= htmlspecialchars($post->post_id) ?>',
-                                                    '<?= htmlspecialchars(addslashes($post->title)) ?>'
-                                                )"
-                                            >
-                                                DUYỆT<br>BÀI
-                                            </button>
+        <?php if ($status === 'pending'): ?>
+            <button
+                class="approve-btn"
+                type="button"
+                onclick="openReviewModal(
+                    '<?= htmlspecialchars($post->post_id) ?>',
+                    '<?= htmlspecialchars(addslashes($post->title)) ?>'
+                )"
+            >
+                DUYỆT<br>BÀI
+            </button>
 
-                                        <?php elseif ($status !== 'hidden'): ?>
-                                            <a
-                                                href="Index.php?page=hide_post&id=<?= htmlspecialchars($post->post_id) ?>"
-                                                class="view-btn"
-                                                onclick="return confirm('Bạn muốn ẩn bài viết này?')"
-                                            >
-                                                <i class="fa-regular fa-eye"></i>
-                                            </a>
-                                            <button class="delete-btn" type="button">
-                                                <i class="fa-regular fa-trash-can"></i>
-                                            </button>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
+        <?php elseif ($status === 'hidden'): ?>
+            <a href="Admin_index.php?page=unhide_post&id=<?= htmlspecialchars($post->post_id) ?>&from=admin_user_posts"
+               class="view-btn"
+               title="Bỏ ẩn"
+               onclick="return confirm('Bạn muốn hiện lại bài viết này?')">
+                <i class="fa-regular fa-eye-slash"></i>
+            </a>
+            <button class="delete-btn" type="button">
+                <i class="fa-regular fa-trash-can"></i>
+            </button>
+
+        <?php else: ?>
+            <a href="Admin_index.php?page=hide_post&id=<?= htmlspecialchars($post->post_id) ?>&from=admin_user_posts"
+               class="view-btn"
+               title="Ẩn bài"
+               onclick="return confirm('Bạn muốn ẩn bài viết này?')">
+                <i class="fa-regular fa-eye"></i>
+            </a>
+            <button class="delete-btn" type="button">
+                <i class="fa-regular fa-trash-can"></i>
+            </button>
+
+        <?php endif; ?>
+    </div>
+</td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
