@@ -29,7 +29,7 @@ $router->get(
 );
 
 $router->post(
-    'forgot_password',
+    'handle_forgot_password',
     [AdminController::class, 'handleForgotPassword']
 );
 
@@ -39,12 +39,12 @@ $router->post(
 // =====================================================
 
 $router->get(
-    'reset_password',
+    'admin_reset_password',
     [AdminController::class, 'resetPassword']
 );
 
 $router->post(
-    'reset_password_ajax',
+    'admin_reset_password_ajax',
     [AdminController::class, 'resetPasswordAjax']
 );
 
