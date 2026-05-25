@@ -132,11 +132,141 @@ class ClientRepository
 
             return false;
         }
-
-        // Bổ sung vào bên trong Class ClientRepository (file Repositories/ClientRepository.php)
-
-
     }
+
+    public function saveRememberToken(
+    $userId,
+    $token)
+    {
+
+    $sql = "
+
+        UPDATE User
+
+        SET remember_token = ?
+
+        WHERE user_id = ?
+
+    ";
+
+    $stmt =
+    $this->conn->prepare($sql);
+
+    $stmt->execute([
+        $token,
+        $userId
+    ]);
+}
+    public function findByRememberToken($token)
+{
+    try {
+
+        $sql = "
+
+            SELECT *
+
+            FROM user
+
+            WHERE remember_token = :token
+
+            LIMIT 1
+
+        ";
+
+        $stmt =
+        $this->conn->prepare($sql);
+
+        $stmt->execute([
+
+            'token' => $token
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_OBJ);
+
+    } catch (PDOException $e) {
+
+        echo $e->getMessage();
+
+        return false;
+    }
+}
+
+    public function saveResetToken(
+    $userId,
+    $token,
+    $expiredAt
+) {
+
+    $sql = "
+
+        UPDATE User
+
+        SET reset_token = ?,
+            reset_token_expired_at = ?
+
+        WHERE user_id = ?
+    ";
+
+    $stmt =
+    $this->conn->prepare($sql);
+
+    return $stmt->execute([
+        $token,
+        $expiredAt,
+        $userId
+    ]);
+}
+public function findByEmail($email)
+{
+    $sql = "
+
+        SELECT *
+
+        FROM User
+
+        WHERE email = ?
+
+        LIMIT 1
+    ";
+
+    $stmt =
+    $this->conn->prepare($sql);
+
+    $stmt->execute([$email]);
+
+    return $stmt->fetch(PDO::FETCH_OBJ);
+}
+
+public function findByResetToken($token)
+{
+    $sql = "
+        SELECT *
+        FROM User
+        WHERE reset_token = ?
+          AND reset_token_expired_at > NOW()
+        LIMIT 1
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([$token]);
+    return $stmt->fetch(PDO::FETCH_OBJ);
+}
+
+public function updatePasswordByToken($token, $hashedPassword)
+{
+    $sql = "
+        UPDATE User
+        SET
+            password               = ?,
+            reset_token            = NULL,
+            reset_token_expired_at = NULL
+        WHERE reset_token = ?
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute([$hashedPassword, $token]);
+}
+
     public function updateProfile($userId, $username, $fullName, $gender) 
     {
         try {

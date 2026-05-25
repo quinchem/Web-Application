@@ -1,1 +1,2 @@
-select * FROM bookmark
+select * from user
+
