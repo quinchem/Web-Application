@@ -13,7 +13,6 @@ $isLiked = $isLiked ?? false;
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Montserrat:ital,wght@0,400;0,500;0,700;1,400&family=Newsreader:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="Public/Client/Css/PostDetail.css">
-<script src="Public/Client/Js/PostDetail.js"></script>
 
 
 <main id="page-article" class="container my-5">
@@ -114,7 +113,9 @@ $isLiked = $isLiked ?? false;
             <div class="comments-section mt-5" id="comment-section">
                 <h3 id="comment-count-title" class="fw-bold mb-4" style="color: var(--navy); font-family: 'Newsreader', serif;" data-count="<?= $totalComments ?>">Bình luận (<?= $totalComments ?>)</h3>
                 <div class="comment-input-box p-4 mb-5">
-                    <textarea id="comment-content" class="form-control border-0 bg-white" rows="3"
+                    <textarea id="comment-content" 
+                    
+                    class="form-control border-0 bg-white" rows="3"
                         placeholder="Chia sẻ ý kiến của bạn..." style="resize: none;"></textarea>
                     <div class="text-end mt-3">
                         <button class="btn btn-send px-4 fw-bold py-2 rounded" onclick="submitComment()">Gửi bình
@@ -226,13 +227,11 @@ $isLiked = $isLiked ?? false;
         });
     }
 
-    function handleLike() {
+    async function handleLike() {
         if (!isLoggedIn) {
             requireLogin();
             return;
         }
-
-        // Prevent double-click
         if (isLikeProcessing) return;
 
         isLikeProcessing = true;
@@ -240,90 +239,58 @@ $isLiked = $isLiked ?? false;
         btn.disabled = true;
         btn.style.opacity = '0.6';
 
-        let formData = new FormData();
-        formData.append('post_id', currentPostId);
+        try {
+            const formData = new FormData();
+            formData.append('post_id', currentPostId);
 
-        fetch('index.php?page=api_like', {
+            const res = await fetch('index.php?page=api_like', {
                 method: 'POST',
                 body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'unauthorized') {
-                    requireLogin();
-                    return;
-                }
-
-                const icon = btn.querySelector('i');
-                const text = btn.querySelector('span');
-
-                if (data.status === 'liked') {
-                    // Liked state
-                    btn.className = 'btn border fw-bold me-3 px-4';
-                    btn.style.cssText = 'transition: 0.3s; background:#003049; color:#fff; opacity: 1;';
-                    icon.className = 'fa-solid fa-thumbs-up me-2';
-                    text.innerText = 'ĐÃ THÍCH';
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else if (data.status === 'unliked') {
-                    // Unliked state
-                    btn.className = 'btn border fw-bold me-3 px-4 btn-light text-muted';
-                    btn.style.cssText = 'transition: 0.3s; opacity: 1;';
-                    icon.className = 'fa-regular fa-thumbs-up me-2';
-                    text.innerText = 'THÍCH';
-
-                    Swal.fire({
-                        icon: 'info',
-                        title: data.message || 'Đã bỏ thích bài viết',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    // Error case
-                    Swal.fire({
-                        icon: 'error',
-                        title: data.message || 'Có lỗi xảy ra',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-            })
-            .catch(() => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Không thể kết nối máy chủ',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            })
-            .finally(() => {
-                // Re-enable button
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                isLikeProcessing = false;
             });
+            const data = await res.json();
+
+            if (data.status === 'unauthorized') {
+                requireLogin();
+                return;
+            }
+
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span');
+
+            if (data.action === 'liked') {
+                btn.classList.add('active-like');
+                btn.classList.remove('btn-light', 'text-muted');
+                btn.style.cssText = 'transition:0.3s;background:#003049;color:#fff;';
+                icon.className = 'fa-solid fa-thumbs-up me-2';
+                text.innerText = 'ĐÃ THÍCH';
+            } else if (data.action === 'unliked') {
+                btn.classList.remove('active-like');
+                btn.classList.add('btn-light', 'text-muted');
+                btn.style.cssText = 'transition:0.3s;';
+                icon.className = 'fa-regular fa-thumbs-up me-2';
+                text.innerText = 'THÍCH';
+            }
+        } catch (e) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Không thể kết nối máy chủ',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } finally {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            isLikeProcessing = false;
+        }
     }
 
-    function handleSave() {
+    async function handleSave() {
         if (!isLoggedIn) {
             requireLogin();
             return;
         }
-
-        // Prevent double-click
         if (isSaveProcessing) return;
 
         isSaveProcessing = true;
@@ -331,81 +298,118 @@ $isLiked = $isLiked ?? false;
         btn.disabled = true;
         btn.style.opacity = '0.6';
 
-        let formData = new FormData();
-        formData.append('post_id', currentPostId);
-
-        fetch('index.php?page=api_save', {
+        try {
+            const response = await fetch('index.php?page=api_save', {
                 method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'unauthorized') {
-                    requireLogin();
-                    return;
-                }
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    post_id: currentPostId
+                })
+            });
+            const data = await response.json();
 
-                const icon = btn.querySelector('i');
-                const text = btn.querySelector('span');
+            if (data.status === 'unauthorized') {
+                requireLogin();
+                return;
+            }
 
-                if (data.status === 'saved') {
-                    // Saved state
-                    btn.className = 'btn border fw-bold px-4';
-                    btn.style.cssText = 'transition: 0.3s; background: #B90C17; color: #fff; opacity: 1;';
-                    icon.className = 'fa-solid fa-bookmark me-2';
-                    text.innerText = 'ĐÃ LƯU';
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span');
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else if (data.status === 'unsaved') {
-                    // Unsaved state
-                    btn.className = 'btn border fw-bold px-4 btn-light text-muted';
-                    btn.style.cssText = 'transition: 0.3s; opacity: 1;';
-                    icon.className = 'fa-regular fa-bookmark me-2';
-                    text.innerText = 'LƯU';
+            if (data.action === 'saved') {
+                btn.classList.add('active-save');
+                btn.classList.remove('btn-light', 'text-muted');
+                btn.style.cssText = 'transition:0.3s;background:#B90C17;color:#fff;';
+                icon.className = 'fa-solid fa-bookmark me-2';
+                text.innerText = 'ĐÃ LƯU';
 
-                    Swal.fire({
-                        icon: 'info',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    // Error case
-                    Swal.fire({
-                        icon: 'error',
-                        title: data.message || 'Có lỗi xảy ra',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-            })
-            .catch(() => {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Không thể kết nối máy chủ',
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1000,
+                    timerProgressBar: true,
+                    html: `
+                     <div style="display:flex;align-items:center;gap:12px;">
+                        <i class="fa-regular fa-bookmark" style="color:#003049;font-size:18px;flex-shrink:0;"></i>
+                        <div>
+                            <div style="font-weight:700;font-size:14px;color:#003049;letter-spacing:0.2px;">Đã lưu bài viết</div>
+                        </div>
+                    </div>`,
+                    background: '#ffffff',
+                    padding: '12px 16px',
+                    customClass: {
+                        popup: 'swal-save-toast'
+                    },
+                    showClass: {
+                        popup: 'swal-slide-in'
+                    },
+                    hideClass: {
+                        popup: 'swal-slide-out'
+                    }
                 });
-            })
-            .finally(() => {
-                // Re-enable button
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                isSaveProcessing = false;
+            } else if (data.action === 'unsaved') {
+                btn.classList.remove('active-save');
+                btn.classList.add('btn-light', 'text-muted');
+                btn.style.cssText = 'transition:0.3s;';
+                icon.className = 'fa-regular fa-bookmark me-2';
+                text.innerText = 'LƯU';
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1000,
+                    timerProgressBar: true,
+                    html: `
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <i class="fa-regular fa-bookmark" style="color:#003049;font-size:18px;flex-shrink:0;"></i>
+                        <div>
+                            <div style="font-weight:700;font-size:14px;color:#003049;letter-spacing:0.2px;">Đã bỏ lưu bài viết</div>
+                            <div style="font-size:12px;color:#5a7d9a;margin-top:2px;">Bài viết đã được xoá khỏi danh sách</div>
+                        </div>
+                    </div>`,
+                    background: '#fff',
+                    padding: '12px 16px',
+                    customClass: {
+                        popup: 'swal-unsave-toast'
+                    },
+                    showClass: {
+                        popup: 'swal-slide-in'
+                    },
+                    hideClass: {
+                        popup: 'swal-slide-out'
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                html: `
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#fff;font-size:18px;flex-shrink:0;"></i>
+                    <div>
+                        <div style="font-weight:700;font-size:14px;color:#fff;">Không thể kết nối</div>
+                        <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:2px;">Vui lòng kiểm tra mạng và thử lại</div>
+                    </div>
+                </div>`,
+                background: '#B90C17',
+                padding: '12px 16px',
+                customClass: {
+                    popup: 'swal-error-toast'
+                }
             });
+        } finally {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            isSaveProcessing = false;
+        }
     }
 
     function submitComment() {
@@ -418,48 +422,46 @@ $isLiked = $isLiked ?? false;
         const content = contentInput.value.trim();
 
         if (!content) {
+            Swal.fire('Cảnh báo', 'Vui lòng nhập nội dung bình luận trước khi bấm gửi!', 'warning');
+            return;
+        }
 
-            if (!content) {
-                Swal.fire('Cảnh báo', 'Vui lòng nhập nội dung bình luận trước khi bấm gửi!', 'warning');
-                return;
-            }
+        let formData = new FormData();
+        formData.append('post_id', currentPostId);
+        formData.append('content', content);
 
-            let formData = new FormData();
-            formData.append('post_id', currentPostId);
-            formData.append('content', content);
+        fetch('index.php?page=api_comment', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'unauthorized') {
+                    requireLogin();
+                    return;
+                }
 
-            fetch('index.php?page=api_comment', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'unauthorized') {
-                        requireLogin();
-                        return;
-                    }
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: 'Bình luận của bạn đã được đăng tải!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
 
-                    if (data.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Thành công',
-                            text: 'Bình luận của bạn đã được đăng tải!',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
+                    // 1. Dọn dẹp ô nhập liệu
+                    contentInput.value = '';
 
-                        // 1. Dọn dẹp ô nhập liệu
-                        contentInput.value = '';
+                    // 2. Chèn bình luận mới vào đầu danh sách (AJAX thuần không reload)
+                    const commentArea = document.querySelector('.comment-area');
 
-                        // 2. Chèn bình luận mới vào đầu danh sách (AJAX thuần không reload)
-                        const commentArea = document.querySelector('.comment-area');
+                    // Xóa dòng chữ "Chưa có bình luận nào" nếu có
+                    const noCommentMsg = commentArea.querySelector('p.text-muted');
+                    if (noCommentMsg) noCommentMsg.remove();
 
-                        // Xóa dòng chữ "Chưa có bình luận nào" nếu có
-                        const noCommentMsg = commentArea.querySelector('p.text-muted');
-                        if (noCommentMsg) noCommentMsg.remove();
-
-                        // Tạo cấu trúc HTML cho bình luận mới
-                        const newCommentHtml = `
+                    // Tạo cấu trúc HTML cho bình luận mới
+                    const newCommentHtml = `
                     <div class="d-flex mb-4 pb-4 border-bottom" style="animation: fadeIn 0.5s;">
                         <img src="${data.comment.avatar}" class="comment-avatar me-3" alt="Avatar">
                         <div class="w-100">
@@ -473,25 +475,25 @@ $isLiked = $isLiked ?? false;
                     </div>
                 `;
 
-                        // Chèn vào vị trí trên cùng
-                        commentArea.insertAdjacentHTML('afterbegin', newCommentHtml);
+                    // Chèn vào vị trí trên cùng
+                    commentArea.insertAdjacentHTML('afterbegin', newCommentHtml);
 
-                        // 3. Tăng bộ đếm bình luận lên 1
-                        const titleEl = document.getElementById('comment-count-title');
-                        let currentCount = parseInt(titleEl.getAttribute('data-count'));
-                        currentCount++;
-                        titleEl.setAttribute('data-count', currentCount);
-                        titleEl.innerText = `Bình luận (${currentCount})`;
+                    // 3. Tăng bộ đếm bình luận lên 1
+                    const titleEl = document.getElementById('comment-count-title');
+                    let currentCount = parseInt(titleEl.getAttribute('data-count'));
+                    currentCount++;
+                    titleEl.setAttribute('data-count', currentCount);
+                    titleEl.innerText = `Bình luận (${currentCount})`;
 
-                    } else {
-                        Swal.fire('Lỗi', data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Lỗi AJAX:', error);
-                    Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
-                });
-        }
+                } else {
+                    Swal.fire('Lỗi', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi AJAX:', error);
+                Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
+            });
+    }
 </script>
 <?php
 include __DIR__ . '/../../Partials/Client/Footer.php';

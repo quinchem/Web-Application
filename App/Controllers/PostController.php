@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Controllers;
+
 /**
  * PostController.php
  * Controller xử lý các yêu cầu liên quan đến bài viết (post)
@@ -60,7 +62,7 @@ class PostController
      * Hiển thị chi tiết một bài viết cụ thể
      * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
      */
-   
+
 
     public function hidePost()
     {
@@ -103,71 +105,66 @@ class PostController
     // CÁC HÀM XỬ LÝ AJAX (THÍCH, LƯU, BÌNH LUẬN)
     // ==========================================
 
-    private function getCurrentUserId() {
+    private function getCurrentUserId()
+    {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         return $_SESSION['user_id'] ?? null;
     }
 
-    public function apiToggleLike() {
+    // Thay thế hàm cũ bằng đoạn này trong PostController.php
+    public function api_like()
+    {
         $userId = $this->getCurrentUserId();
-        if (!$userId) { 
-            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
-            return; 
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized']);
+            return;
         }
 
         $postId = $_POST['post_id'] ?? null;
-        if($postId) {
-            echo json_encode($this->postRepository->toggleLike($postId, $userId));
+        if ($postId) {
+            $result = $this->postRepository->toggleLike($postId, $userId);
+            header('Content-Type: application/json');
+            echo json_encode($result);
         }
     }
 
-   public function apiToggleSave() {
-    $userId = $this->getCurrentUserId();
-
-    if (!$userId) { 
-        echo json_encode([
-            'status' => 'unauthorized', 
-            'message' => 'Vui lòng đăng nhập.'
-        ]);
-        return; // Phải có return để dừng thực thi
-    }
-
-    $postId = $_POST['post_id'] ?? null;
-
-    if (!$postId) {
-        echo json_encode([
-            'status' => 'error', 
-            'message' => 'Thiếu post_id'
-        ]);
-        return;
-    }
-
-    // Trả về kết quả đúng chuẩn JSON
-    echo json_encode(
-        $this->postRepository->toggleBookmark($postId, $userId)
-    );
-}
-
-
-    public function apiAddComment() {
+    public function api_save()
+    {
         $userId = $this->getCurrentUserId();
-        if (!$userId) { 
-            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
-            return; 
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized']);
+            return;
+        }
+
+        $postId = $_POST['post_id'] ?? null;
+        if ($postId) {
+            // Hàm toggleBookmark của bạn phải trả về mảng có key 'action' => 'saved' hoặc 'unsaved'
+            echo json_encode($this->postRepository->toggleBookmark($postId, $userId));
+        }
+    }
+
+
+
+    public function apiAddComment()
+    {
+        $userId = $this->getCurrentUserId();
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']);
+            return;
         }
 
         $postId = $_POST['post_id'] ?? null;
         $content = $_POST['content'] ?? null;
-        
-        if($postId && $content) {
-            if($this->postRepository->addComment($postId, $userId, $content)) {
+
+        if ($postId && $content) {
+            if ($this->postRepository->addComment($postId, $userId, $content)) {
                 // Trả về dữ liệu để AJAX tự động vẽ lên màn hình mà không cần reload
                 echo json_encode([
-                    'status' => 'success', 
+                    'status' => 'success',
                     'message' => 'Đã gửi bình luận',
                     'comment' => [
                         'full_name' => $_SESSION['full_name'] ?? $_SESSION['user_name'],
-                        'avatar' => $_SESSION['avatar'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+                        'avatar' => $_SESSION['avatar'] ?? $_SESSION['avatar_url'] ?? 'default-avatar.png',
                         'content' => nl2br(htmlspecialchars($content)),
                         'created_at' => date('d/m/Y H:i') // Lấy giờ hiện tại
                     ]
@@ -178,69 +175,69 @@ class PostController
         }
     }
     public function post()
-{
-    $postId = $_GET['id'] ?? null;
-    if (!$postId) {
-        $this->homepage();
-        return;
-    }
+    {
+        $postId = $_GET['id'] ?? null;
+        if (!$postId) {
+            $this->homepage();
+            return;
+        }
 
-    // Lấy user hiện tại
-    $userId = $this->getCurrentUserId();
+        // Lấy user hiện tại
+        $userId = $this->getCurrentUserId();
 
-    // 1. Khởi tạo biến mặc định để View không bị lỗi
-    $post = null; 
-    $tags = []; 
-    $recommendedPosts = []; 
-    $comments = [];
-    $totalComments = 0; 
-    $totalPages = 1;
-    $isSaved = false;
-    $isLiked = false;
+        // 1. Khởi tạo biến mặc định để View không bị lỗi
+        $post = null;
+        $tags = [];
+        $recommendedPosts = [];
+        $comments = [];
+        $totalComments = 0;
+        $totalPages = 1;
+        $isSaved = false;
+        $isLiked = false;
 
-    $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
-    $limit = 5; 
-    $offset = ($page - 1) * $limit;
+        $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
 
-    $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
-    $limit = 5; 
-    $offset = ($page - 1) * $limit;
-    // 2. Lấy thông tin bài viết
-    $post = $this->postRepository->getPostById($postId);
+        $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+        // 2. Lấy thông tin bài viết
+        $post = $this->postRepository->getPostById($postId);
 
-    if (!$post) {
-        echo "<div style='text-align:center; padding:50px; font-family:sans-serif;'>
+        if (!$post) {
+            echo "<div style='text-align:center; padding:50px; font-family:sans-serif;'>
                 <h2>Bài viết không tồn tại hoặc đã bị ẩn!</h2>
                 <a href='Index.php'>Về trang chủ</a>
               </div>";
-        exit;
+            exit;
+        }
+
+        // 3. Kiểm tra bài viết đã được user lưu chưa
+        if (isset($_SESSION['user_id'])) {
+
+            $userId = $_SESSION['user_id'];
+
+            $isLiked = $this->postRepository->isLiked($postId, $userId);
+
+            $isSaved = $this->postRepository->isBookmarked($postId, $userId);
+        }
+
+        // 4. Lấy dữ liệu bổ sung
+        $tags = $this->postRepository->getPostTags($postId);
+        $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
+
+        // 5. Tính toán và lấy bình luận
+        $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
+
+        if ($totalComments > 0) {
+            $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
+            $totalPages = ceil($totalComments / $limit);
+        }
+
+        // 6. Gọi View
+        require __DIR__ . '/../Views/Client/Post/Detail.php';
     }
-
-    // 3. Kiểm tra bài viết đã được user lưu chưa
-if (isset($_SESSION['user_id'])) {
-
-    $userId = $_SESSION['user_id'];
-
-    $isLiked = $this->postRepository->isLiked($postId, $userId);
-
-    $isSaved = $this->postRepository->isBookmarked($postId, $userId);
-}
-
-    // 4. Lấy dữ liệu bổ sung
-    $tags = $this->postRepository->getPostTags($postId);
-    $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
-    
-    // 5. Tính toán và lấy bình luận
-    $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
-
-    if ($totalComments > 0) {
-        $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
-        $totalPages = ceil($totalComments / $limit);
-    }
-
-    // 6. Gọi View
-    require __DIR__ . '/../Views/Client/Post/Detail.php';
-}
     /**
      * Admin quản lý bài viết người đọc
      */

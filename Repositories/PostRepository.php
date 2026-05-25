@@ -379,7 +379,7 @@ class PostRepository
             like_id,
             post_id,
             user_id,
-            liked_at
+            created_at
         )
         VALUES (
             UUID(),
