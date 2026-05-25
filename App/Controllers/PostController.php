@@ -248,6 +248,47 @@ public function unhidePost()
     // 6. Gọi View
     require __DIR__ . '/../Views/Client/Post/Detail.php';
 }
+
+public function savedPosts()
+{
+     if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    $userId = $_SESSION['user_id'] ?? null;
+
+    if (!$userId) {
+        echo "<div class='saved-empty'><p class='mb-0'>Vui lòng đăng nhập để xem bài viết đã lưu.</p></div>";
+        exit;
+    }
+
+    $savedLimit = 3;
+    $savedCurrentPage = isset($_GET['saved_page']) ? (int)$_GET['saved_page'] : 1;
+
+    if ($savedCurrentPage < 1) {
+        $savedCurrentPage = 1;
+    }
+
+    $savedOffset = ($savedCurrentPage - 1) * $savedLimit;
+
+    $savedTotalPosts = $this->postRepository->countSavedPostsByUser($userId);
+    $savedTotalPages = (int)ceil($savedTotalPosts / $savedLimit);
+
+    if ($savedTotalPages > 0 && $savedCurrentPage > $savedTotalPages) {
+        $savedCurrentPage = $savedTotalPages;
+        $savedOffset = ($savedCurrentPage - 1) * $savedLimit;
+    }
+
+    $savedPosts = $this->postRepository->getSavedPostsByUser(
+        $userId,
+        $savedLimit,
+        $savedOffset
+    );
+
+    include __DIR__ . '/../Views/Client/Post/saved.php';
+    exit;
+}
+
     /**
      * Admin quản lý bài viết người đọc
      */

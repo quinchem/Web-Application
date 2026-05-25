@@ -382,6 +382,70 @@ public function isBookmarked($postId, $userId)
     return $stmt->fetchColumn() !== false;
 }
 
+public function countSavedPostsByUser($userId)
+{
+    $sql = "
+        SELECT COUNT(*) AS total
+        FROM Bookmark
+        WHERE user_id = :user_id
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_STR);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return (int)($row['total'] ?? 0);
+}
+
+public function getSavedPostsByUser($userId, $limit, $offset)
+{
+    $sql = "
+        SELECT 
+            p.post_id,
+            p.title,
+            p.content,
+            p.summary,
+            p.thumbnail_URL,
+            p.category_id,
+            b.saved_at,
+
+            c.name AS category_name,
+            c.slug AS category_slug,
+
+            parent.name AS parent_category_name,
+            parent.slug AS parent_category_slug
+
+        FROM Bookmark b
+
+        INNER JOIN Post p 
+            ON b.post_id = p.post_id
+
+        LEFT JOIN Category c 
+            ON p.category_id = c.category_id
+
+        LEFT JOIN Category parent 
+            ON c.parent_id = parent.category_id
+
+        WHERE b.user_id = :user_id
+
+        ORDER BY b.saved_at DESC
+
+        LIMIT :limit OFFSET :offset
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    $stmt->bindValue(':user_id', $userId, \PDO::PARAM_STR);
+    $stmt->bindValue(':limit', (int)$limit, \PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, \PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+}
+
     public function addComment($postId, $userId, $content) {
         // Tự động sinh mã
         $newCommentId = $this->generateNewId('Comment', 'comment_id', 'CM');
