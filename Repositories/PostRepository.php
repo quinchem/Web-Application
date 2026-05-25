@@ -33,9 +33,7 @@ class PostRepository
     if (!empty($filters['status'])) {
         $sql .= " AND p.status = :status";
         $params['status'] = $filters['status'];
-    } else {
-        $sql .= " AND p.status != 'hidden'";
-    }
+    } 
 
     if (!empty($filters['keyword'])) {
         $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
@@ -133,9 +131,7 @@ public function countUserPostsFiltered($filters = [])
     if (!empty($filters['status'])) {
         $sql .= " AND p.status = :status";
         $params['status'] = $filters['status'];
-    } else {
-        $sql .= " AND p.status != 'hidden'";
-    }
+    } 
 
     if (!empty($filters['keyword'])) {
         $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
@@ -579,5 +575,67 @@ public function countTrendingAdminPosts()
             JOIN Role r ON u.role_id = r.role_id
             WHERE r.role_name = 'admin' AND p.is_trending = TRUE";
     return $this->conn->query($sql)->fetch()['total'];
+}
+public function unhidePost($postId)
+{
+    $sql = "UPDATE Post SET status = 'approved' WHERE post_id = :post_id";
+    $stmt = $this->conn->prepare($sql);
+    return $stmt->execute(['post_id' => $postId]);
+}
+public function createPost($data)
+{
+    // Sinh post_id mới
+    $stmt = $this->conn->query("SELECT post_id FROM Post ORDER BY post_id DESC LIMIT 1");
+    $last = $stmt->fetch(PDO::FETCH_ASSOC);
+    $newNum = $last ? (int)substr($last['post_id'], 2) + 1 : 1;
+    $postId = 'PS' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
+
+    $sql = "INSERT INTO Post 
+                (post_id, title, summary, content, category_id, user_id, 
+                 thumbnail_URL, status, published_at, created_at)
+            VALUES 
+                (:post_id, :title, :summary, :content, :category_id, :user_id,
+                 :thumbnail_url, :status, :published_at, NOW())";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([
+        ':post_id'       => $postId,
+        ':title'         => $data['title'],
+        ':summary'       => $data['summary'],
+        ':content'       => $data['content'],
+        ':category_id'   => $data['category_id'],
+        ':user_id'       => $data['author_id'],
+        ':thumbnail_url' => $data['thumbnail_url'],
+        ':status'        => $data['status'],
+        ':published_at'  => $data['publish_at'],
+    ]);
+
+    // Thêm tags nếu có
+    if (!empty($data['tags'])) {
+        foreach ($data['tags'] as $tagSlug) {
+            $tagSlug = trim($tagSlug);
+            if (!$tagSlug) continue;
+
+            // Tìm hoặc tạo tag
+            $tagStmt = $this->conn->prepare("SELECT tag_id FROM Tag WHERE slug = :slug LIMIT 1");
+            $tagStmt->execute([':slug' => $tagSlug]);
+            $tag = $tagStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$tag) {
+                $lastTag = $this->conn->query("SELECT tag_id FROM Tag ORDER BY tag_id DESC LIMIT 1")->fetch();
+                $newTagNum = $lastTag ? (int)substr($lastTag['tag_id'], 2) + 1 : 1;
+                $tagId = 'TG' . str_pad($newTagNum, 4, '0', STR_PAD_LEFT);
+                $this->conn->prepare("INSERT INTO Tag (tag_id, slug) VALUES (:id, :slug)")
+                    ->execute([':id' => $tagId, ':slug' => $tagSlug]);
+            } else {
+                $tagId = $tag['tag_id'];
+            }
+
+            $this->conn->prepare("INSERT IGNORE INTO Post_tag (post_id, tag_id) VALUES (:post_id, :tag_id)")
+                ->execute([':post_id' => $postId, ':tag_id' => $tagId]);
+        }
+    }
+
+    return $postId;
 }
 }

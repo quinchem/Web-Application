@@ -63,18 +63,37 @@ class PostController
    
 
     public function hidePost()
-    {
-        if (!isset($_GET['id'])) {
-            header('Location: Admin_index.php?page=admin_user_posts');
-            exit;
-        }
-
-        $postId = $_GET['id'];
-        $this->postRepository->hidePost($postId);
-
-        header('Location: Admin_index.php?page=admin_user_posts');
+{
+    if (!isset($_GET['id'])) {
+        $from = $_GET['from'] ?? 'admin_user_posts';
+        header('Location: Admin_index.php?page=' . $from);
         exit;
     }
+
+    $postId = $_GET['id'];
+    $from   = $_GET['from'] ?? 'admin_user_posts';
+
+    $this->postRepository->hidePost($postId);
+
+    header('Location: Admin_index.php?page=' . $from);
+    exit;
+}
+public function unhidePost()
+{
+    if (!isset($_GET['id'])) {
+        $from = $_GET['from'] ?? 'admin_user_posts';
+        header('Location: Admin_index.php?page=' . $from);
+        exit;
+    }
+
+    $postId = $_GET['id'];
+    $from   = $_GET['from'] ?? 'admin_user_posts';
+
+    $this->postRepository->unhidePost($postId);
+
+    header('Location: Admin_index.php?page=' . $from);
+    exit;
+}
 
     public function reviewPost()
     {
@@ -326,5 +345,58 @@ public function savedPosts()
     $totalPages    = (int)ceil($totalForPages / $perPage);
 
     require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
+}
+public function createPost()
+{
+    $categories = $this->postRepository->getCategoriesForFilter();
+    require_once __DIR__ . '/../Views/Admin/Post/Create.php';
+}
+
+public function storePost()
+{
+    $title      = trim($_POST['title'] ?? '');
+    $summary    = trim($_POST['summary'] ?? '');
+    $content    = $_POST['content'] ?? '';
+    $categoryId = $_POST['category_id'] ?? '';
+    $tags       = $_POST['tags'] ?? [];
+    $publishAt  = $_POST['publish_at'] ?? null;
+    $action     = $_POST['action'] ?? 'draft';
+
+    // ── FIX 2: dùng đúng key session như getCurrentUserId() ──
+    $authorId = $_SESSION['user_id'] ?? null;
+
+    // ── FIX 1: dùng đường dẫn tuyệt đối + tự tạo thư mục ──
+    $thumbnailUrl = null;
+    if (!empty($_FILES['thumbnail']['tmp_name'])) {
+        $ext        = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
+        $filename   = 'thumb_' . time() . '.' . $ext;
+        $uploadDir  = __DIR__ . '/../../../Public/Uploads/thumbnails/';
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $destPath = $uploadDir . $filename;
+        if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $destPath)) {
+            $thumbnailUrl = 'Public/Uploads/thumbnails/' . $filename;
+        }
+    }
+
+    $status = ($action === 'publish') ? 'approved' : 'draft';
+
+    $postId = $this->postRepository->createPost([
+        'title'         => $title,
+        'summary'       => $summary,
+        'content'       => $content,
+        'category_id'   => $categoryId,
+        'author_id'     => $authorId,
+        'thumbnail_url' => $thumbnailUrl,
+        'status'        => $status,
+        'publish_at'    => $publishAt ?: null,
+        'tags'          => $tags,
+    ]);
+
+    header('Location: Admin_index.php?page=admin_posts');
+    exit;
 }
 }
