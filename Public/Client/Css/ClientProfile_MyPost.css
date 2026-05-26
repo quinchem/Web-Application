@@ -1,0 +1,366 @@
+.my-post-page {
+    font-family: 'Montserrat', sans-serif;
+    color: #07324c;
+}
+
+.my-post-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.my-post-header h1 {
+    font-family: 'Barlow', sans-serif;
+    font-size: 38px;
+    line-height: 1;
+    font-weight: 800;
+    color: #07324c;
+    margin: 0;
+}
+
+.my-post-header p {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #8aa0aa;
+    margin: 8px 0 0;
+}
+
+.my-post-create-btn {
+    width: 158px;
+    height: 40px;
+    border-radius: 4px;
+    background: #d8242f;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    box-shadow: 0 6px 14px rgba(216, 36, 47, 0.25);
+}
+
+.my-post-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+    margin-bottom: 34px;
+}
+
+.my-post-stat-card {
+    height: 112px;
+    background: #fff;
+    border-radius: 7px;
+    padding: 18px 20px;
+    border-left: 4px solid #d8242f;
+    box-shadow: 0 8px 18px rgba(3, 39, 58, 0.05);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.my-post-stat-card i {
+    font-size: 16px;
+    margin-bottom: 14px;
+}
+
+.my-post-stat-card strong {
+    font-family: 'Barlow', sans-serif;
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 800;
+    color: #07324c;
+    margin-bottom: 7px;
+}
+
+.my-post-stat-card span {
+    font-family: 'Barlow', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #07324c;
+    letter-spacing: .8px;
+}
+
+.my-post-stat-card.is-published {
+    border-left-color: #ff7a1a;
+}
+
+.my-post-stat-card.is-pending {
+    border-left-color: #e24651;
+}
+
+.my-post-stat-card.is-draft {
+    border-left-color: #f0b34a;
+}
+
+.my-post-filter {
+    background: #d8ecf5;
+    border-radius: 8px;
+    padding: 24px 22px;
+    margin-bottom: 36px;
+
+    display: grid;
+    grid-template-columns: 1.9fr .8fr .8fr .8fr 44px;
+    gap: 20px;
+}
+
+.my-post-search {
+    height: 40px;
+    background: #fff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 11px;
+}
+
+.my-post-search i {
+    font-size: 13px;
+    color: #8ca4b1;
+}
+
+.my-post-search input,
+.my-post-filter select,
+.my-post-filter input[type="date"] {
+    width: 100%;
+    height: 40px;
+    border: none;
+    outline: none;
+    background: #fff;
+    border-radius: 4px;
+    padding: 0 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #07324c;
+}
+
+.my-post-search input {
+    padding: 0;
+}
+
+.my-post-filter-btn {
+    width: 44px;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    background: #d8242f;
+    color: #fff;
+    cursor: pointer;
+}
+
+.my-post-table-wrap {
+    background: #fff;
+}
+
+.my-post-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.my-post-table thead {
+    background: #dcebf1;
+}
+
+.my-post-table th {
+    height: 58px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: #07324c;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    text-align: left;
+    padding: 0 18px;
+}
+
+.my-post-table td {
+    padding: 19px 18px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f7;
+}
+
+.my-post-title {
+    display: block;
+    max-width: 330px;
+    font-family: 'Newsreader', serif;
+    font-size: 18px;
+    line-height: 1.18;
+    font-weight: 700;
+    color: #111;
+    text-decoration: none;
+    margin-bottom: 8px;
+}
+
+.my-post-title:hover {
+    color: #b90c17;
+}
+
+.my-post-title-cell p {
+    font-size: 10px;
+    color: #8a9aa4;
+    margin: 0;
+}
+
+.my-post-category-pill {
+    width: 78px;
+    min-height: 32px;
+    border-radius: 999px;
+    background: #e8f0f4;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.my-post-category-pill strong {
+    font-family: 'Barlow', sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    color: #07324c;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.my-post-category-pill span {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 6px;
+    font-weight: 700;
+    color: #8ba0aa;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+.my-post-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: #07324c;
+}
+
+.my-post-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 62px;
+    height: 20px;
+    border-radius: 999px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.my-post-status.is-approved {
+    background: #d8f7e4;
+    color: #138a4d;
+}
+
+.my-post-status.is-pending {
+    background: #fff1ca;
+    color: #9b6a00;
+}
+
+.my-post-status.is-rejected {
+    background: #ffe1e1;
+    color: #c62828;
+}
+
+.my-post-status.is-draft,
+.my-post-status.is-hidden {
+    background: #eef2f4;
+    color: #778893;
+}
+
+.my-post-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.my-post-actions a {
+    color: #7d929e;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.my-post-actions a:hover {
+    color: #b90c17;
+}
+
+.my-post-actions a:last-child {
+    color: #e34b55;
+}
+
+.my-post-empty {
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    color: #6f818b;
+    padding: 40px 0;
+}
+
+.my-post-pagination {
+    height: 68px;
+    background: #dcebf1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 36px;
+}
+
+.my-post-pagination a {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #07324c;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #07324c;
+    background: transparent;
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.my-post-pagination a.active {
+    background: #b90c17;
+    border-color: #b90c17;
+    color: #fff;
+}
+
+@media (max-width: 992px) {
+    .my-post-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .my-post-filter {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .my-post-filter-btn {
+        width: 100%;
+    }
+
+    .my-post-table-wrap {
+        overflow-x: auto;
+    }
+
+    .my-post-table {
+        min-width: 820px;
+    }
+}
