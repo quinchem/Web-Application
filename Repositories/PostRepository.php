@@ -370,34 +370,19 @@ class PostRepository
             ];
         }
 
-        // Nếu chưa like -> insert
-        $insertSql = "
-        INSERT INTO `Like` (
-            like_id,
-            post_id,
-            user_id,
-            created_at
-        )
-        VALUES (
-            UUID(),
-            :post_id,
-            :user_id,
-            NOW()
-        )
-    ";
+    // Nếu chưa like -> insert
+    $newLikeId = $this->generateNewId('Like', 'like_id', 'LK');
 
-        $insertStmt = $this->conn->prepare($insertSql);
-
-        $insertStmt->execute([
-            ':post_id' => $postId,
-            ':user_id' => $userId
-        ]);
-
-        return [
-            'success' => true,
-            'action' => 'liked'
-        ];
-    }
+    $insertSql = "INSERT INTO `Like` (like_id, post_id, user_id, created_at)
+                  VALUES (:like_id, :post_id, :user_id, NOW())";
+    $insertStmt = $this->conn->prepare($insertSql);
+    $insertStmt->execute([
+        ':like_id' => $newLikeId,
+        ':post_id' => $postId,
+        ':user_id' => $userId
+    ]);
+    return ['success' => true, 'action' => 'liked'];
+}
 
     public function toggleBookmark($postId, $userId)
     {
@@ -439,34 +424,20 @@ class PostRepository
             ];
         }
 
-        // Nếu chưa lưu -> insert
-        $insertSql = "
-        INSERT INTO Bookmark (
-            bookmark_id,
-            post_id,
-            user_id,
-            saved_at
-        )
-        VALUES (
-            UUID(),
-            :post_id,
-            :user_id,
-            NOW()
-        )
-    ";
+    // Nếu chưa lưu -> insert
+     $newBookmarkId = $this->generateNewId('Bookmark', 'bookmark_id', 'BM');
 
-        $insertStmt = $this->conn->prepare($insertSql);
+    $insertSql = "INSERT INTO Bookmark (bookmark_id, post_id, user_id, saved_at)
+                  VALUES (:bookmark_id, :post_id, :user_id, NOW())";
+    $insertStmt = $this->conn->prepare($insertSql);
+    $insertStmt->execute([
+        ':bookmark_id' => $newBookmarkId,
+        ':post_id'     => $postId,
+        ':user_id'     => $userId
+    ]);
 
-        $insertStmt->execute([
-            ':post_id' => $postId,
-            ':user_id' => $userId
-        ]);
-
-        return [
-            'success' => true,
-            'action' => 'saved'
-        ];
-    }
+    return ['success' => true, 'action' => 'saved'];
+}
 
     public function isBookmarked($postId, $userId)
     {
@@ -500,9 +471,16 @@ class PostRepository
         $stmt = $this->conn->prepare($sql);
     }
 
-    public function countSavedPostsByUser($userId)
-    {
-        $sql = "
+    $stmt->execute([
+        'post_id' => $postId,
+        'user_id' => $userId
+    ]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
+}
+public function countSavedPostsByUser($userId)
+{
+    $sql = "
         SELECT COUNT(*) AS total
         FROM Bookmark
         WHERE user_id = :user_id
