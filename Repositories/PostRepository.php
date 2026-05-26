@@ -371,32 +371,17 @@ class PostRepository
     }
 
     // Nếu chưa like -> insert
-    $insertSql = "
-        INSERT INTO `Like` (
-            like_id,
-            post_id,
-            user_id,
-            created_at
-        )
-        VALUES (
-            UUID(),
-            :post_id,
-            :user_id,
-            NOW()
-        )
-    ";
+    $newLikeId = $this->generateNewId('Like', 'like_id', 'LK');
 
+    $insertSql = "INSERT INTO `Like` (like_id, post_id, user_id, created_at)
+                  VALUES (:like_id, :post_id, :user_id, NOW())";
     $insertStmt = $this->conn->prepare($insertSql);
-
     $insertStmt->execute([
+        ':like_id' => $newLikeId,
         ':post_id' => $postId,
         ':user_id' => $userId
     ]);
-
-    return [
-        'success' => true,
-        'action' => 'liked'
-    ];
+    return ['success' => true, 'action' => 'liked'];
 }
 
     public function toggleBookmark($postId, $userId)
@@ -440,32 +425,18 @@ class PostRepository
     }
 
     // Nếu chưa lưu -> insert
-    $insertSql = "
-        INSERT INTO Bookmark (
-            bookmark_id,
-            post_id,
-            user_id,
-            saved_at
-        )
-        VALUES (
-            UUID(),
-            :post_id,
-            :user_id,
-            NOW()
-        )
-    ";
+     $newBookmarkId = $this->generateNewId('Bookmark', 'bookmark_id', 'BM');
 
+    $insertSql = "INSERT INTO Bookmark (bookmark_id, post_id, user_id, saved_at)
+                  VALUES (:bookmark_id, :post_id, :user_id, NOW())";
     $insertStmt = $this->conn->prepare($insertSql);
-
     $insertStmt->execute([
-        ':post_id' => $postId,
-        ':user_id' => $userId
+        ':bookmark_id' => $newBookmarkId,
+        ':post_id'     => $postId,
+        ':user_id'     => $userId
     ]);
 
-    return [
-        'success' => true,
-        'action' => 'saved'
-    ];
+    return ['success' => true, 'action' => 'saved'];
 }
 
     public function isBookmarked($postId, $userId)
