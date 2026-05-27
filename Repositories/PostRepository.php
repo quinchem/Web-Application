@@ -833,6 +833,23 @@ public function countMyPostsByUserAndStatus($userId, $status)
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute(['post_id' => $postId]);
     }
+    public function autoPublishDuePosts()
+{
+    $sql = "UPDATE Post 
+            SET status = 'approved', published_at = NOW()
+            WHERE status = 'draft' 
+            AND published_at IS NOT NULL 
+            AND published_at <= NOW()";
+    return $this->conn->exec($sql);
+}
+public function getAdminAuthors()
+{
+    // role_id = 'RL0001' là admin theo schema DB
+    $sql  = "SELECT user_id, full_name FROM user WHERE role_id = 'RL0001' ORDER BY full_name";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
     public function createPost($data)
     {
         // Sinh post_id mới
@@ -890,6 +907,24 @@ public function countMyPostsByUserAndStatus($userId, $status)
 
         return $postId;
     }
+    public function deletePost($postId)
+{
+    // Xóa tags liên quan trước (tránh foreign key lỗi)
+    $this->conn->prepare("DELETE FROM Post_tag WHERE post_id = :id")
+               ->execute([':id' => $postId]);
+
+    // Xóa likes, bookmarks, comments nếu có FK
+    $this->conn->prepare("DELETE FROM `Like` WHERE post_id = :id")
+               ->execute([':id' => $postId]);
+    $this->conn->prepare("DELETE FROM Bookmark WHERE post_id = :id")
+               ->execute([':id' => $postId]);
+    $this->conn->prepare("DELETE FROM Comment WHERE post_id = :id")
+               ->execute([':id' => $postId]);
+
+    // Xóa bài viết
+    $stmt = $this->conn->prepare("DELETE FROM Post WHERE post_id = :id");
+    return $stmt->execute([':id' => $postId]);
+}
     public function updatePost($id, $data)
 {
     $fields = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
