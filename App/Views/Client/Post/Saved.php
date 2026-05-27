@@ -5,7 +5,7 @@ $savedTotalPages = $savedTotalPages ?? 0;
 ?>
 <!-- savedCurrentPage = <?= $savedCurrentPage ?> | offset = <?= $savedOffset ?> -->
 
-<link rel="stylesheet" href="/../Web-Application/Public/Client/Css/ClientProfile.css">
+<link rel="stylesheet" href="/../Web-Application/Public/Client/Css/ClientProfile_SavedPost.css">
 
 <div class="card shadow-sm border-0 p-4 profile-saved-card">
     <div class="saved-posts-container">
@@ -61,7 +61,7 @@ $savedTotalPages = $savedTotalPages ?? 0;
                             </p>
 
                             <div class="saved-post-date">
-                                Đã lưu vào <?= date('d/m/Y', strtotime($post['saved_at'])) ?>
+                                Đã lưu lúc <?= date('H:i', strtotime($post['saved_at'])) ?> ngày <?= date('d/m/Y', strtotime($post['saved_at'])) ?>
                             </div>
 
                         </div>

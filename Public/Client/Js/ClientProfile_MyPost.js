@@ -1,4 +1,27 @@
 document.addEventListener('click', function (e) {
+    const categoryOption = e.target.closest('.my-post-category-option, .my-post-category-clear');
+
+    if (categoryOption) {
+        e.preventDefault();
+
+        const categoryValue = categoryOption.dataset.category || '';
+        const categoryLabel = categoryOption.dataset.label || 'Danh mục';
+
+        const input = document.querySelector('#myPostCategoryInput');
+        const label = document.querySelector('#myPostCategoryLabel');
+
+        if (input) {
+            input.value = categoryValue;
+        }
+
+        if (label) {
+            label.textContent = categoryLabel;
+        }
+
+        loadMyPostsPage(1);
+        return;
+    }
+
     const pageBtn = e.target.closest('.js-my-post-page');
 
     if (pageBtn) {
@@ -14,7 +37,6 @@ document.addEventListener('submit', function (e) {
 
     if (filterForm) {
         e.preventDefault();
-
         loadMyPostsPage(1);
     }
 });

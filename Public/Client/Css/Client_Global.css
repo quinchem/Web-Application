@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=Briem+Hand:wght@400..700&family=Montserrat:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,700;6..72,800&display=swap');
+
 :root {
   --navy: #003049;
   --red: #B90C17;
@@ -21,6 +23,9 @@ body {
   line-height: 1.6;
 }
 
+
+
+
 /* BỐ CỤC 2/3 NẰM GIỮA */
 .container {
   width: 1140px;
@@ -38,23 +43,29 @@ body {
 }
 
 .header-top {
+  position: relative;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 15px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
   width: 100%;
+  padding: 24px 0;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo-text {
-  font-family: 'Newsreader', serif;
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: white;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  font-family: 'Briem Hand', cursive !important;
+  font-size: 38px;
+  font-weight: 700;
+  color: #ffffff;
   text-decoration: none;
-  font-style: italic;
-  align-items: center;
-  justify-content: space-between;
+  line-height: 1;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .nav-bar {
@@ -68,7 +79,12 @@ body {
 .menu-items {
   list-style: none;
   display: flex;
-  gap: 35px;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 45px;
+  margin: 0;
+  padding: 0;
+  font-family: 'Barlow', sans-serif;
 }
 
 .menu-items a {
@@ -85,6 +101,49 @@ body {
 .menu-items a.active {
   color: white;
   border-bottom: 2px solid white;
+}
+
+.auth-links {
+  justify-self: end;
+  margin-left: auto;
+  white-space: nowrap;
+
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.auth-links a,
+.auth-links button,
+.auth-links .dropdown-toggle {
+  font-family: 'Barlow', sans-serif;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: 1px;
+}
+
+.logout {
+  color: white;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 8px;
+  transition: 0.3s;
+}
+
+.current-date {
+  justify-self: start;
+  white-space: nowrap;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 700;
+  font-size: 0.8 rem;
 }
 
 /* FOOTER - Bố cục từ file footer.html */
@@ -123,4 +182,14 @@ body {
 .footer-contact-item i {
   color: var(--red);
   width: 20px;
+}
+
+.footer-logo {
+  font-family: 'Briem Hand', cursive !important;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy);
+  text-decoration: none;
+  line-height: 1;
+  margin-bottom: 34px;
 }
