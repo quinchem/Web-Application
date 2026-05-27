@@ -2,6 +2,11 @@
 
 namespace App\Controllers;
 
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require_once __DIR__ . '/../../vendor/autoload.php';
 class AuthController
 {
     private $clientRepository;
@@ -38,7 +43,7 @@ class AuthController
                 $user &&
                 $user['account_status'] === 'active' &&
                 $user['role_id'] === 'RL0002' &&
-                $password === $user['password']
+                password_verify($password, $user['password'])
             ) {
 
                 // Lưu session
@@ -86,4 +91,461 @@ class AuthController
         header("Location: " . $referer);
         exit();
     }
+    //Quên mật khẩu
+        public function forgotPasswordForm()
+    {
+        require_once __DIR__ .
+        '/../Views/Client/Auth/Forgot_password.php';
+    }
+    // =====================================================
+    // HANDLE FORGOT PASSWORD
+    // =====================================================
+
+    public function forgotPasswordProcess()
+    {
+        header('Content-Type: application/json');
+
+        $email =
+        trim($_POST['email'] ?? '');
+
+
+        // =========================
+        // VALIDATE EMAIL
+        // =========================
+
+        if (empty($email)) {
+
+            echo json_encode([
+
+                'status'  => 'error',
+
+                'message' => 'Vui lòng nhập email'
+            ]);
+
+            exit();
+        }
+
+
+        // =========================
+        // FIND USER
+        // =========================
+
+        $user =
+        $this->clientRepository
+        ->findByEmail($email);
+
+
+        if (!$user) {
+
+            echo json_encode([
+
+                'status'  => 'error',
+
+                'message' => 'Email không tồn tại'
+            ]);
+
+            exit();
+        }
+
+
+        try {
+
+            // =========================
+            // CREATE TOKEN
+            // =========================
+
+            $token =
+            bin2hex(random_bytes(32));
+
+
+            // TOKEN HẾT HẠN SAU 15 PHÚT
+
+            $expiredAt =
+            date(
+                'Y-m-d H:i:s',
+                strtotime('+15 minutes')
+            );
+
+
+            // =========================
+            // RESET LINK
+            // =========================
+
+            $resetLink =
+
+            "http://localhost/Web-Application/index.php?page=reset-password&token="
+
+            .
+
+            $token;
+
+
+            // =========================
+            // SAVE TOKEN
+            // =========================
+
+            $saved =
+
+            $this->clientRepository
+            ->saveResetToken(
+
+                $user->user_id,
+
+                $token,
+
+                $expiredAt
+            );
+
+
+            if (!$saved) {
+
+                echo json_encode([
+
+                    'status'  => 'error',
+
+                    'message' => 'Không thể lưu token'
+                ]);
+
+                exit();
+            }
+
+
+            // =========================
+            // SEND MAIL
+            // =========================
+
+            $mail = new PHPMailer(true);
+
+            $mail->isSMTP();
+
+            $mail->Host =
+            $_ENV['MAIL_HOST'];
+
+            $mail->SMTPAuth = true;
+
+            $mail->Username =
+            $_ENV['MAIL_USERNAME'];
+
+            $mail->Password =
+            $_ENV['MAIL_PASSWORD'];
+
+            $mail->SMTPSecure =
+            PHPMailer::ENCRYPTION_STARTTLS;
+
+            $mail->Port =
+            $_ENV['MAIL_PORT'];
+
+            $mail->CharSet = 'UTF-8';
+
+
+            $mail->setFrom(
+
+                $_ENV['MAIL_FROM'],
+
+                $_ENV['MAIL_FROM_NAME']
+            );
+
+            $mail->addAddress($email);
+
+
+            $mail->isHTML(true);
+
+            $mail->Subject =
+            'Khôi phục mật khẩu';
+
+            $mail->Body = "
+
+                <h2>Khôi phục mật khẩu</h2>
+
+                <p>
+                    Link có hiệu lực trong
+                    <strong>15 phút</strong>
+                </p>
+
+                <a href='{$resetLink}'>
+                    Nhấn vào đây để đổi mật khẩu
+                </a>
+            ";
+
+
+            $mail->send();
+
+
+            echo json_encode([
+
+                'status'  => 'success',
+
+                'message' =>
+                'Đã gửi email khôi phục mật khẩu'
+            ]);
+
+        } catch (Exception $e) {
+
+            echo json_encode([
+
+                'status'  => 'error',
+
+                'message' =>
+                'Lỗi gửi mail: ' .
+                $e->getMessage()
+            ]);
+        }
+
+        exit();
+    }
+
+    //Đặt lại mật khẩu
+        public function resetPasswordForm()
+    {
+        require_once __DIR__ .
+        '/../Views/Client/Auth/Reset_password.php';
+    }
+
+    public function resetPasswordProcess()
+    {
+        header('Content-Type: application/json');
+
+        $token =
+            $_POST['token'] ?? '';
+
+        $password =
+            $_POST['password'] ?? '';
+
+        $confirmPassword =
+            $_POST['confirmPassword'] ?? '';
+
+
+        // =========================
+        // EMPTY
+        // =========================
+
+        if (
+
+            empty($token)
+
+            ||
+
+            empty($password)
+
+            ||
+
+            empty($confirmPassword)
+
+        ) {
+
+            echo json_encode([
+
+                'status' => 'error',
+
+                'message' =>
+                    'Vui lòng nhập đầy đủ thông tin'
+            ]);
+
+            exit();
+        }
+
+
+        // =========================
+        // PASSWORD NOT MATCH
+        // =========================
+
+        if ($password !== $confirmPassword) {
+
+            echo json_encode([
+
+                'status' => 'error',
+
+                'message' =>
+                    'Mật khẩu xác nhận không khớp'
+            ]);
+
+            exit();
+        }
+
+
+        // =========================
+        // CHECK TOKEN
+        // =========================
+
+        $user =
+            $this->clientRepository
+                ->findByResetToken($token);
+
+
+        if (!$user) {
+
+            echo json_encode([
+
+                'status' => 'error',
+
+                'message' =>
+                    'Token không hợp lệ hoặc đã hết hạn'
+            ]);
+
+            exit();
+        }
+
+
+        // =========================
+        // HASH PASSWORD
+        // =========================
+
+        $hashedPassword =
+
+            password_hash(
+
+                $password,
+
+                PASSWORD_DEFAULT
+            );
+
+
+        // =========================
+        // UPDATE PASSWORD
+        // =========================
+
+        $success =
+
+            $this->clientRepository
+                ->updatePasswordByToken(
+
+                    $token,
+
+                    $hashedPassword
+                );
+
+
+        if ($success) {
+
+            echo json_encode([
+
+                'status' => 'success',
+
+                'message' =>
+                    'Đổi mật khẩu thành công'
+            ]);
+
+        } else {
+
+            echo json_encode([
+
+                'status' => 'error',
+
+                'message' =>
+                    'Không thể cập nhật mật khẩu'
+            ]);
+        }
+
+        exit();
+    }
+
+    // Đăng ký tài khoản
+    public function registerForm()
+    {
+        require_once __DIR__ .
+        '/../Views/Client/Auth/Register.php';
+    }
+
+        public function registerProcess()
+{
+    header('Content-Type: application/json');
+
+    $fullName =
+        trim($_POST['full_name'] ?? '');
+
+    $userName =
+        trim($_POST['user_name'] ?? '');
+
+    $email =
+        trim($_POST['email'] ?? '');
+
+    $password =
+        $_POST['password'] ?? '';
+
+    $confirmPassword =
+        $_POST['confirmPassword'] ?? '';
+
+
+    // =========================
+    // EMPTY
+    // =========================
+
+    if (
+        empty($fullName) ||
+        empty($userName) ||
+        empty($email) ||
+        empty($password) ||
+        empty($confirmPassword)
+    ) {
+
+        echo json_encode([
+
+            'status' => 'error',
+
+            'message' =>
+                'Vui lòng nhập đầy đủ thông tin'
+        ]);
+
+        exit();
+    }
+
+
+    // =========================
+    // PASSWORD NOT MATCH
+    // =========================
+
+    if ($password !== $confirmPassword) {
+
+        echo json_encode([
+
+            'status' => 'error',
+
+            'message' =>
+                'Mật khẩu xác nhận không khớp'
+        ]);
+
+        exit();
+    }
+
+
+    // =========================
+    // REGISTER
+    // =========================
+
+    $result =
+        $this->clientRepository->register(
+
+            $fullName,
+
+            $userName,
+
+            $email,
+
+            $password
+        );
+
+
+    if ($result['status']) {
+
+        echo json_encode([
+
+            'status' => 'success',
+
+            'message' =>
+                $result['message']
+        ]);
+
+    } else {
+
+        echo json_encode([
+
+            'status' => 'error',
+
+            'message' =>
+                $result['message']
+        ]);
+    }
+
+    exit();
+}
 }

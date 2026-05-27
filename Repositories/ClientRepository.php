@@ -134,6 +134,198 @@ class ClientRepository
         }
     }
 
+    // =========================
+    // REGISTER
+    // =========================
+
+        public function register(
+            $fullName,
+            $userName,
+            $email,
+            $password
+        ) {
+
+            try {
+
+                // =========================
+                // CHECK EMAIL
+                // =========================
+
+                $checkEmailSql = "
+
+                    SELECT email
+
+                    FROM User
+
+                    WHERE email = ?
+
+                    LIMIT 1
+
+                ";
+
+                $stmt =
+                    $this->conn->prepare($checkEmailSql);
+
+                $stmt->execute([$email]);
+
+                if ($stmt->fetch()) {
+
+                    return [
+                        'status' => false,
+                        'message' => 'Email đã tồn tại'
+                    ];
+                }
+
+
+                // =========================
+                // CHECK USERNAME
+                // =========================
+
+                $checkUsernameSql = "
+
+                    SELECT user_name
+
+                    FROM User
+
+                    WHERE user_name = ?
+
+                    LIMIT 1
+
+                ";
+
+                $stmt =
+                    $this->conn->prepare($checkUsernameSql);
+
+                $stmt->execute([$userName]);
+
+                if ($stmt->fetch()) {
+
+                    return [
+                        'status' => false,
+                        'message' => 'Tên đăng nhập đã tồn tại'
+                    ];
+                }
+
+
+                // =========================
+                // GENERATE USER ID
+                // =========================
+
+                $getLastIdSql = "
+
+                    SELECT user_id
+
+                    FROM User
+
+                    ORDER BY user_id DESC
+
+                    LIMIT 1
+
+                ";
+
+                $stmt =
+                    $this->conn->prepare($getLastIdSql);
+
+                $stmt->execute();
+
+                $lastUser =
+                    $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($lastUser) {
+
+                    $number =
+                        (int) substr($lastUser['user_id'], 2);
+
+                    $number++;
+
+                } else {
+
+                    $number = 1;
+                }
+
+                $newUserId =
+                    'US' . str_pad($number, 4, '0', STR_PAD_LEFT);
+
+
+                // =========================
+                // HASH PASSWORD
+                // =========================
+
+                $hashedPassword =
+                    password_hash(
+                        $password,
+                        PASSWORD_DEFAULT
+                    );
+
+
+                // =========================
+                // INSERT USER
+                // =========================
+
+                $sql = "
+
+                    INSERT INTO User
+                    (
+                        user_id,
+                        role_id,
+                        user_name,
+                        email,
+                        password,
+                        full_name
+                    )
+
+                    VALUES
+                    (
+                        :user_id,
+                        :role_id,
+                        :user_name,
+                        :email,
+                        :password,
+                        :full_name
+                    )
+
+                ";
+
+                $stmt =
+                    $this->conn->prepare($sql);
+
+                $success = $stmt->execute([
+
+                    'user_id' => $newUserId,
+
+                    'role_id' => 'RL0002',
+
+                    'user_name' => $userName,
+
+                    'email' => $email,
+
+                    'password' => $hashedPassword,
+
+                    'full_name' => $fullName
+                ]);
+
+
+                if ($success) {
+
+                    return [
+                        'status' => true,
+                        'message' => 'Đăng ký thành công'
+                    ];
+                }
+
+                return [
+                    'status' => false,
+                    'message' => 'Đăng ký thất bại'
+                ];
+
+            } catch (PDOException $e) {
+
+                return [
+                    'status' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
     public function saveRememberToken(
     $userId,
     $token)

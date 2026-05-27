@@ -1,4 +1,6 @@
 <?php
+
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 // 1. Hàm tự viết để đọc file .env
 function loadEnv($filePath) {
     if (!file_exists($filePath)) {
@@ -25,6 +27,11 @@ function loadEnv($filePath) {
 
 // 2. Kích hoạt hàm và trỏ tới file .env đang nằm cùng thư mục gốc
 loadEnv(__DIR__ . '/.env');
+
+
+
+require_once __DIR__ . '/vendor/autoload.php';
+
 
 // Index.php (Thư mục gốc)
 
