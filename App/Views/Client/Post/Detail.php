@@ -64,6 +64,7 @@ $isLiked = $isLiked ?? false;
                         </span>
                     </div>
                 </div>
+
             </div>
 
             <div class="sapo-box mb-4">
@@ -84,30 +85,31 @@ $isLiked = $isLiked ?? false;
                 </div>
             <?php endif; ?>
 
-            <div class="d-flex mt-5 mb-4 pb-4 border-bottom border-top pt-4">
-                <button
-                    id="btn-like"
-                    class="btn border fw-bold me-3 px-4 <?= $isLiked ? 'active-like' : 'btn-light text-muted' ?>"
-                    onclick="handleLike()"
-                    style="transition: 0.3s; <?= $isLiked ? 'background:#003049;color:#fff;' : '' ?>">
-                    <i class="fa-thumbs-up me-2 <?= $isLiked ? 'fa-solid' : 'fa-regular' ?>"></i>
+            <div class="d-flex mt-5 mb-4 pb-4 border-bottom border-top pt-4 align-items-center justify-content-between">
 
-                    <span>
-                        <?= $isLiked ? 'ĐÃ THÍCH' : 'THÍCH' ?>
-                    </span>
-                </button>
+                <div class="d-flex">
+                    <button
+                        id="btn-like"
+                        class="btn border fw-bold me-3 px-4 <?= $isLiked ? 'active-like' : 'btn-light text-muted' ?>"
+                        onclick="handleLike()"
+                        style="transition: 0.3s; <?= $isLiked ? 'background:#003049;color:#fff;' : '' ?>">
+                        <i class="fa-thumbs-up me-2 <?= $isLiked ? 'fa-solid' : 'fa-regular' ?>"></i>
+                        <span><?= $isLiked ? 'ĐÃ THÍCH' : 'THÍCH' ?></span>
+                    </button>
 
-                <button
-                    id="btn-save"
-                    class="btn border fw-bold px-4 <?= $isSaved ? 'active-save' : 'btn-light text-muted' ?>"
-                    onclick="handleSave()"
-                    style="transition: 0.3s; <?= $isSaved ? 'background:#B90C17;color:#fff;' : '' ?>">
-                    <i class="fa-bookmark me-2 <?= $isSaved ? 'fa-solid' : 'fa-regular' ?>"></i>
+                    <button
+                        id="btn-save"
+                        class="btn border fw-bold px-4 <?= $isSaved ? 'active-save' : 'btn-light text-muted' ?>"
+                        onclick="handleSave()"
+                        style="transition: 0.3s; <?= $isSaved ? 'background:#B90C17;color:#fff;' : '' ?>">
+                        <i class="fa-bookmark me-2 <?= $isSaved ? 'fa-solid' : 'fa-regular' ?>"></i>
+                        <span><?= $isSaved ? 'ĐÃ LƯU' : 'LƯU' ?></span>
+                    </button>
+                </div>
 
-                    <span>
-                        <?= $isSaved ? 'ĐÃ LƯU' : 'LƯU' ?>
-                    </span>
-                </button>
+                <div class="text-muted">
+                    <i class="fa-regular fa-eye me-1"></i> <?= $post['view_count'] ?> lượt xem
+                </div>
             </div>
 
             <div class="comments-section mt-5" id="comment-section">
@@ -176,21 +178,57 @@ $isLiked = $isLiked ?? false;
         </div>
 
         <div class="col-lg-4 mt-5 mt-lg-0">
-            <h3 class="sidebar-title text-uppercase">BÀI VIẾT ĐỀ XUẤT</h3>
+            <h3 class="sidebar-title text-uppercase mb-4" style="font-family: 'Barlow', sans-serif; border-bottom: 2px solid var(--navy); padding-bottom: 10px; color: var(--navy);">
+                Cùng chuyên mục
+            </h3>
 
-            <div class="mt-4">
-                <?php foreach ($recommendedPosts as $rec): ?>
-                    <div class="d-flex mb-4" style="cursor: pointer;" onclick="window.location.href='index.php?page=post&id=<?= $rec['post_id'] ?>'">
-                        <img src="<?= htmlspecialchars($rec['thumbnail_URL']) ?>" class="sidebar-thumb rounded me-3" alt="Thumb">
-                        <div>
-                            <div class="fw-bold mb-1"
-                                style="color: #111; font-size: 0.95rem; line-height: 1.3; font-family: 'Newsreader', serif; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                <?= htmlspecialchars($rec['title']) ?>
+            <div class="recommended-list mb-5">
+                <?php if (empty($recommendedPosts)): ?>
+                    <p class="text-muted small">Chưa có bài viết liên quan.</p>
+                <?php else: ?>
+                    <?php foreach ($recommendedPosts as $rec): ?>
+                        <div class="d-flex mb-4" style="cursor: pointer;" onclick="window.location.href='index.php?page=post&id=<?= $rec['post_id'] ?>'">
+                            <img src="<?= htmlspecialchars($rec['thumbnail_URL']) ?>" class="rounded me-3" alt="Thumb" style="width: 100px; height: 70px; object-fit: cover; border: 1px solid #eee;">
+                            <div>
+                                <div class="fw-bold mb-1" style="color: #111; font-size: 0.95rem; line-height: 1.3; font-family: 'Newsreader', serif; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    <?= htmlspecialchars($rec['title']) ?>
+                                </div>
+                                <div class="text-muted" style="font-size: 0.75rem;">
+                                    <i class="fa-regular fa-eye me-1"></i> <?= number_format($rec['view_count'] ?? 0) ?> lượt xem
+                                </div>
                             </div>
-                            <div class="summary-clamp"><?= htmlspecialchars($rec['summary']) ?></div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <h3 class="sidebar-title text-uppercase mb-4" style="font-family: 'Barlow', sans-serif; border-bottom: 2px solid var(--red); padding-bottom: 10px; color: var(--red);">
+                <i class="fa-solid fa-fire-flame-curved me-2"></i> Xu hướng
+            </h3>
+
+            <div class="trending-sidebar-list">
+                <?php if (empty($trendingGlobal)): ?>
+                    <p class="text-muted small">Đang cập nhật...</p>
+                <?php else: ?>
+                    <?php foreach ($trendingGlobal as $index => $t): ?>
+                        <div class="d-flex mb-4 align-items-start" style="cursor: pointer;" onclick="window.location.href='index.php?page=post&id=<?= $t['post_id'] ?>'">
+                            <span class="fw-bold me-3" style="font-size: 1.6rem; font-family: 'Barlow'; color: <?= $index < 3 ? 'var(--red)' : '#ccc' ?>; line-height: 1;">
+                                0<?= $index + 1 ?>
+                            </span>
+                            <div class="border-bottom pb-3 w-100" style="border-color: #f1f1f1 !important;">
+                                <div class="fw-bold mb-1" style="color: var(--navy); font-size: 0.95rem; line-height: 1.4; font-family: 'Newsreader', serif; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    <?= htmlspecialchars($t['title']) ?>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span class="text-uppercase fw-bold" style="font-size: 0.65rem; color: #b90c17;"><?= htmlspecialchars($t['category_name']) ?></span>
+                                    <span class="text-muted" style="font-size: 0.75rem;">
+                                        <i class="fa-regular fa-eye me-1"></i> <?= number_format($t['view_count'] ?? 0) ?> lượt xem
+
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -200,9 +238,9 @@ $isLiked = $isLiked ?? false;
     const currentPostId = '<?= $post['post_id'] ?>';
     const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
 
-    // Flags để prevent double-click và track loading state
-    let isLikeProcessing = false;
+    // Flags để prevent do isLikeProcessing = false;
     let isSaveProcessing = false;
+    let isLikeProcessing = false;
 
     function requireLogin() {
         Swal.fire({
