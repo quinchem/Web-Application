@@ -179,5 +179,6 @@ $(document).ready(function () {
             $('#childCatSelect').prop('disabled', true).css('opacity', '0.5');
         }
     });
+    
 
 }); // end document.ready
