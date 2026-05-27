@@ -82,9 +82,6 @@
 </head>
 
 <?php
-/**
- * Home.php - Trang chủ (Bản Bootstrap 5)
- */
 include __DIR__ . '/../Partials/Client/Header.php';
 ?>
 
