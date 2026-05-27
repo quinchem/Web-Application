@@ -14,8 +14,8 @@ class PostRepository
     }
 
     public function getUserPostsForAdmin($filters = [], $limit = 10, $offset = 0)
-    {
-        $sql = "
+{
+    $sql = "
         SELECT 
             p.post_id, p.title, p.status, p.view_count, p.created_at, p.is_trending,
             u.user_id, u.full_name AS author_name,
@@ -28,54 +28,59 @@ class PostRepository
         WHERE r.role_name = 'client'
     ";
 
-        $params = [];
+    $params = [];
 
-        if (!empty($filters['keyword'])) {
-            $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
-            $params['keyword'] = '%' . $filters['keyword'] . '%';
-        }
-
-        if (!empty($filters['category_id'])) {
-            $sql .= " AND (c.category_id = :category_id OR c.parent_id = :category_id)";
-            $params['category_id'] = $filters['category_id'];
-        }
-
-        if (!empty($filters['author_id'])) {
-            $sql .= " AND u.user_id = :author_id";
-            $params['author_id'] = $filters['author_id'];
-        }
-
-        if (!empty($filters['date'])) {
-            $sql .= " AND DATE(p.created_at) = :date";
-            $params['date'] = $filters['date'];
-        }
-
-        $sql .= " ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset";
-
-        $stmt = $this->conn->prepare($sql);
-
-        foreach ($params as $key => $value) {
-            $stmt->bindValue(':' . $key, $value);
-        }
-
-        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
-
-        $stmt->execute();
-
-        $posts = [];
-        foreach ($stmt->fetchAll() as $row) {
-            $posts[] = new Post($row);
-        }
-        return $posts;
+    if (!empty($filters['status'])) {          // ← THÊM ĐOẠN NÀY
+        $sql .= " AND p.status = :status";
+        $params['status'] = $filters['status'];
     }
+
+    if (!empty($filters['keyword'])) {
+        $sql .= " AND (p.title LIKE :keyword OR u.full_name LIKE :keyword)";
+        $params['keyword'] = '%' . $filters['keyword'] . '%';
+    }
+
+    if (!empty($filters['category_id'])) {
+        $sql .= " AND (c.category_id = :category_id OR c.parent_id = :category_id)";
+        $params['category_id'] = $filters['category_id'];
+    }
+
+    if (!empty($filters['author_id'])) {
+        $sql .= " AND u.user_id = :author_id";
+        $params['author_id'] = $filters['author_id'];
+    }
+
+    if (!empty($filters['date'])) {
+        $sql .= " AND DATE(p.created_at) = :date";
+        $params['date'] = $filters['date'];
+    }
+
+    $sql .= " ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset";
+
+    $stmt = $this->conn->prepare($sql);
+
+    foreach ($params as $key => $value) {
+        $stmt->bindValue(':' . $key, $value);
+    }
+
+    $stmt->bindValue(':limit',  (int)$limit,  PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    $posts = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $posts[] = new Post($row);
+    }
+    return $posts;
+}
     public function getCategoriesForFilter()
-    {
-        $sql = "SELECT category_id, name FROM Category ORDER BY name ASC";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+{
+    $sql = "SELECT category_id, name, parent_id FROM Category ORDER BY name ASC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public function getAuthorsForFilter()
     {
@@ -469,7 +474,7 @@ class PostRepository
     ";
 
         $stmt = $this->conn->prepare($sql);
-    }
+    
 
     $stmt->execute([
         'post_id' => $postId,
@@ -478,6 +483,9 @@ class PostRepository
 
     return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
 }
+
+
+
 public function countSavedPostsByUser($userId)
 {
     $sql = "
@@ -882,4 +890,44 @@ public function countMyPostsByUserAndStatus($userId, $status)
 
         return $postId;
     }
+    public function updatePost($id, $data)
+{
+    $fields = implode(', ', array_map(fn($k) => "$k = :$k", array_keys($data)));
+    $data['id'] = $id;
+    $stmt = $this->conn->prepare("UPDATE Post SET $fields WHERE post_id = :id");
+    $stmt->execute($data);
+}
+
+public function syncTags($postId, $tagNames)
+{
+    // Xóa tag cũ
+    $this->conn->prepare("DELETE FROM Post_tag WHERE post_id = ?")
+               ->execute([$postId]);
+
+    foreach ($tagNames as $name) {
+        $name = trim($name);
+        if (!$name) continue;
+
+        // Tìm tag theo slug
+        $stmt = $this->conn->prepare("SELECT tag_id FROM Tag WHERE slug = ? LIMIT 1");
+        $stmt->execute([$name]);
+        $tag = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$tag) {
+            // Sinh tag_id mới theo pattern TG0001
+            $last = $this->conn->query("SELECT tag_id FROM Tag ORDER BY tag_id DESC LIMIT 1")
+                               ->fetch(PDO::FETCH_ASSOC);
+            $newNum = $last ? (int)substr($last['tag_id'], 2) + 1 : 1;
+            $tagId  = 'TG' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
+
+            $this->conn->prepare("INSERT INTO Tag (tag_id, slug) VALUES (?, ?)")
+                       ->execute([$tagId, $name]);
+        } else {
+            $tagId = $tag['tag_id'];
+        }
+
+        $this->conn->prepare("INSERT IGNORE INTO Post_tag (post_id, tag_id) VALUES (?, ?)")
+                   ->execute([$postId, $tagId]);
+    }
+}
 }
