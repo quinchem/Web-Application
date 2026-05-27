@@ -371,33 +371,33 @@ class PostController
      * Admin quản lý bài viết người đọc
      */
     public function adminUserPosts()
-    {
-        $filters = [
-            'keyword' => $_GET['keyword'] ?? '',
-            'category_id' => $_GET['category_id'] ?? '',
-            'author_id' => $_GET['author_id'] ?? '',
-            'status' => $_GET['status'] ?? '',
-            'date' => $_GET['date'] ?? ''
-        ];
+{
+    $filters = [
+        'keyword'     => $_GET['keyword'] ?? '',
+        'category_id' => $_GET['category_id'] ?? '',
+        'author_id'   => $_GET['author_id'] ?? '',
+        'status'      => $_GET['status'] ?? '',
+        'date'        => $_GET['date'] ?? ''
+    ];
 
-        $perPage = 10;
-        $currentPage = max(1, (int) ($_GET['p'] ?? 1));
-        $offset = ($currentPage - 1) * $perPage;
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['p'] ?? 1));
+    $offset      = ($currentPage - 1) * $perPage;
 
-        $posts = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
-        $categories = $this->categoryController->getCategories();
-        $authors = $this->postRepository->getAuthorsForFilter();
+    $posts         = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
+    $categories    = $this->postRepository->getCategoriesForFilter(); // ← THÊM
+    $authors       = $this->postRepository->getAuthorsForFilter();
 
-        $totalPosts = $this->postRepository->countUserPosts();              // stat card: tất cả
-        $totalForPages = $this->postRepository->countUserPostsFiltered($filters); // pagination: theo filter
-        $pendingPosts = $this->postRepository->countUserPostsByStatus('pending');
-        $hiddenPosts = $this->postRepository->countUserPostsByStatus('hidden');
-        $trendingPosts = $this->postRepository->countTrendingUserPosts();
+    $totalPosts    = $this->postRepository->countUserPosts();
+    $totalForPages = $this->postRepository->countUserPostsFiltered($filters);
+    $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
+    $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
+    $trendingPosts = $this->postRepository->countTrendingUserPosts();
 
-        $totalPages = (int) ceil($totalForPages / $perPage);
+    $totalPages = (int)ceil($totalForPages / $perPage);
 
-        require_once __DIR__ . '/../Views/Admin/Post/Index.php';
-    }
+    require_once __DIR__ . '/../Views/Admin/Post/Index.php';
+}
     public function apiGetComments()
     {
         $postId = $_GET['post_id'] ?? null;
@@ -478,27 +478,28 @@ class PostController
      * Quản lý bài viết cho admin 
      */
     public function adminPosts()
-    {
-        $filters = [
-            'keyword' => $_GET['keyword'] ?? '',
-            'category_id' => $_GET['category_id'] ?? '',
-            'status' => $_GET['status'] ?? '',
-            'date' => $_GET['date'] ?? ''
-        ];
+{
+    $filters = [
+        'keyword'     => $_GET['keyword'] ?? '',
+        'category_id' => $_GET['category_id'] ?? '',
+        'status'      => $_GET['status'] ?? '',
+        'date'        => $_GET['date'] ?? ''
+    ];
 
-        $perPage = 10;
-        $currentPage = max(1, (int) ($_GET['p'] ?? 1));
-        $offset = ($currentPage - 1) * $perPage;
+    $perPage     = 10;
+    $currentPage = max(1, (int)($_GET['p'] ?? 1));
+    $offset      = ($currentPage - 1) * $perPage;
 
-        $posts = $this->postRepository->getAdminPosts($filters, $perPage, $offset);
-        $totalPosts = $this->postRepository->countAdminPosts();
-        $totalForPages = $this->postRepository->countAdminPostsFiltered($filters);
-        $hiddenPosts = $this->postRepository->countAdminPostsByStatus('hidden');
-        $trendingPosts = $this->postRepository->countTrendingAdminPosts();
-        $totalPages = (int) ceil($totalForPages / $perPage);
+    $posts         = $this->postRepository->getAdminPosts($filters, $perPage, $offset);
+    $totalPosts    = $this->postRepository->countAdminPosts();
+    $totalForPages = $this->postRepository->countAdminPostsFiltered($filters);
+    $hiddenPosts   = $this->postRepository->countAdminPostsByStatus('hidden');
+    $trendingPosts = $this->postRepository->countTrendingAdminPosts();
+    $totalPages    = (int)ceil($totalForPages / $perPage);
+    $categories    = $this->postRepository->getCategoriesForFilter(); // ← THÊM DÒNG NÀY
 
-        require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
-    }
+    require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
+}
     public function createPost()
     {
         $categories = $this->postRepository->getCategoriesForFilter();
@@ -507,6 +508,9 @@ class PostController
 
     public function storePost()
     {
+        // DEBUG TẠM — xóa sau khi fix
+    
+
         $title = trim($_POST['title'] ?? '');
         $summary = trim($_POST['summary'] ?? '');
         $content = $_POST['content'] ?? '';
@@ -516,7 +520,7 @@ class PostController
         $action = $_POST['action'] ?? 'draft';
 
         // ── FIX 2: dùng đúng key session như getCurrentUserId() ──
-        $authorId = $_SESSION['user_id'] ?? null;
+        $authorId = $_SESSION['user']->user_id ?? null;
 
         // ── FIX 1: dùng đường dẫn tuyệt đối + tự tạo thư mục ──
         $thumbnailUrl = null;
@@ -552,4 +556,79 @@ class PostController
         header('Location: Admin_index.php?page=admin_posts');
         exit;
     }
+    /*Chỉnh sửa bài viết admin*/
+public function editPost()
+{
+    $id = $_GET['id'] ?? ''; // ✅ KHÔNG có (int)
+    
+    if (!$id) {
+        header('Location: Admin_index.php?page=admin_posts');
+        exit;
+    }
+
+    $post       = $this->postRepository->getPostById($id);
+    $categories = $this->postRepository->getCategoriesForFilter();
+    $tags       = $this->postRepository->getPostTags($id);
+
+    if (!$post) {
+        header('Location: Admin_index.php?page=admin_posts');
+        exit;
+    }
+
+    $allParents  = array_filter($categories, fn($c) => empty($c['parent_id']));
+    $allChildren = array_filter($categories, fn($c) => !empty($c['parent_id']));
+
+    require_once __DIR__ . '/../Views/Admin/Post/EditPost.php';
+}
+
+public function updatePost()
+{
+    $id = $_POST['post_id'] ?? ''; // ✅ KHÔNG có (int)
+    
+    if (!$id) {
+        header('Location: Admin_index.php?page=admin_posts');
+        exit;
+    }
+
+    $title     = trim($_POST['title']          ?? '');
+    $summary   = trim($_POST['summary']        ?? '');
+    $content   = $_POST['content']             ?? '';
+    $catId     = (int)($_POST['category_id']   ?? 0);
+    $subCatId  = (int)($_POST['sub_category_id'] ?? 0);
+    $publishAt = $_POST['published_at']         ?? null;
+    $tags      = $_POST['tags']                 ?? [];
+    $action    = $_POST['action']               ?? 'save';
+
+    $finalCatId = $subCatId ?: $catId;
+
+    $data = [
+        'title'        => $title,
+        'summary'      => $summary,
+        'content'      => $content,
+        'category_id'  => $finalCatId,
+        'published_at' => $publishAt ?: null,
+        'status'       => $action === 'publish' ? 'approved' : 'draft',
+    ];
+
+    // Xử lý thumbnail mới nếu có upload
+    if (!empty($_FILES['thumbnail']['tmp_name'])) {
+        $ext      = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
+        $filename = 'thumb_' . time() . '.' . $ext;
+        $uploadDir = __DIR__ . '/../../../Public/Uploads/thumbnails/';
+
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $uploadDir . $filename)) {
+            $data['thumbnail_URL'] = 'Public/Uploads/thumbnails/' . $filename;
+        }
+    }
+
+    $this->postRepository->updatePost($id, $data);
+    $this->postRepository->syncTags($id, $tags);
+
+    header('Location: Admin_index.php?page=edit_post&id=' . $id . '&success=1');
+    exit;
+}
 }

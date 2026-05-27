@@ -16,6 +16,8 @@ $router->get('admin_posts',      [PostController::class, 'adminPosts']);
 $router->get('unhide_post', [PostController::class, 'unhidePost']);
 $router->get('create_post',  [PostController::class, 'createPost']);
 $router->post('store_post',  [PostController::class, 'storePost']);
+$router->get('edit_post',        [PostController::class, 'editPost']);
+$router->post('update_post',     [PostController::class, 'updatePost']);
 
 // ── Profile Admin ───────────────────────────────────────────────────────────
 $router->post('update-profile',  [ProfileController::class, 'updateProfile']);

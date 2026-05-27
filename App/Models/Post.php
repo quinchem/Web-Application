@@ -52,4 +52,5 @@ class Post
         $this->user_id = $data['user_id'] ?? null;
         $this->category_id = $data['category_id'] ?? null;
     }
+    
 }
