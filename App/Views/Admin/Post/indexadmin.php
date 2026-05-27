@@ -29,23 +29,23 @@
     <?php require_once __DIR__ . '/../../Partials/Admin/Sidebar.php'; ?>
 
     <main class="main-content">
-      <div class="topbar">
-    <div class="breadcrumb">
-        <a href="#">QUẢN LÝ BÀI VIẾT</a>
-        <span>></span>
-        <span class="active">BÀI VIẾT QUẢN TRỊ VIÊN</span>
-    </div>
-</div>
+        <div class="topbar">
+            <div class="breadcrumb">
+                <a href="#">QUẢN LÝ BÀI VIẾT</a>
+                <span>></span>
+                <span class="active">BÀI VIẾT QUẢN TRỊ VIÊN</span>
+            </div>
+        </div>
 
         <section class="content-inner">
-    <div class="page-header">
-        <h1>QUẢN LÝ BÀI VIẾT</h1>
-        <a href="Admin_index.php?page=create_post" class="btn-compose">
-            <i class="fa-solid fa-plus"></i> SOẠN THẢO BÀI VIẾT
-        </a>
-    </div>
+            <div class="page-header">
+                <h1>QUẢN LÝ BÀI VIẾT</h1>
+                <a href="Admin_index.php?page=create_post" class="btn-compose">
+                    <i class="fa-solid fa-plus"></i> SOẠN THẢO BÀI VIẾT
+                </a>
+            </div>
 
-    <div class="stat-grid">
+            <div class="stat-grid">
                 <div class="stat-card red">
                     <div class="stat-top">
                         <span><i class="fa-regular fa-newspaper"></i></span>
@@ -78,54 +78,78 @@
                         value="<?= htmlspecialchars($filters['keyword'] ?? '') ?>">
                 </div>
 
-                <!-- Category dropdown -->
+                <!-- ── Category dropdown — load động từ $categories ── -->
+                <?php
+                $parents  = [];
+                $children = [];
+                foreach (($categories ?? []) as $cat) {
+                    if (empty($cat['parent_id']))  {
+                        $parents[$cat['category_id']] = $cat;
+                    } else {
+                        $children[$cat['parent_id']][] = $cat;
+                    }
+                }
+
+                $selectedCatId = $filters['category_id'] ?? '';
+                $selectedLabel = 'Danh mục';
+                foreach (($categories ?? []) as $cat) {
+                    if ((string)$cat['category_id'] === (string)$selectedCatId) {
+                        // Nếu là danh mục con thì hiện "Cha › Con"
+                        if (!is_null($cat['parent_id']) && isset($parents[$cat['parent_id']])) {
+                            $selectedLabel = $parents[$cat['parent_id']]['name'] . ' › ' . $cat['name'];
+                        } else {
+                            $selectedLabel = $cat['name'];
+                        }
+                        break;
+                    }
+                }
+                ?>
                 <div class="category-dropdown" id="categoryDropdown">
                     <button type="button" class="category-trigger" id="categoryTrigger">
-                        <span id="categoryLabel">Danh mục</span>
+                        <span id="categoryLabel"><?= htmlspecialchars($selectedLabel) ?></span>
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
+
                     <div class="category-menu" id="categoryMenu" style="display:none">
-                        <div class="cat-parent" data-id="1">
-                            <div class="cat-parent-label"><span>Thời sự</span><i class="fa-solid fa-chevron-right"></i></div>
-                            <div class="cat-children" style="display:none">
-                                <div class="cat-child" data-value="11" data-label="Thời sự › Chính trị">Chính trị</div>
-                                <div class="cat-child" data-value="12" data-label="Thời sự › Xã hội">Xã hội</div>
-                                <div class="cat-child" data-value="13" data-label="Thời sự › Quân sự">Quân sự</div>
+                        <?php foreach ($parents as $parentId => $parent): ?>
+                        <div class="cat-parent" data-id="<?= htmlspecialchars($parentId) ?>">
+                            <div class="cat-parent-label">
+                                <span><?= htmlspecialchars($parent['name']) ?></span>
+                                <?php if (!empty($children[$parentId])): ?>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                <?php endif; ?>
                             </div>
-                        </div>
-                        <div class="cat-parent" data-id="2">
-                            <div class="cat-parent-label"><span>Kinh tế</span><i class="fa-solid fa-chevron-right"></i></div>
+                            <?php if (!empty($children[$parentId])): ?>
                             <div class="cat-children" style="display:none">
-                                <div class="cat-child" data-value="21" data-label="Kinh tế › Thị trường">Thị trường</div>
-                                <div class="cat-child" data-value="22" data-label="Kinh tế › Ngân hàng">Ngân hàng</div>
-                                <div class="cat-child" data-value="23" data-label="Kinh tế › Chứng khoán">Chứng khoán</div>
-                                <div class="cat-child" data-value="24" data-label="Kinh tế › Doanh nghiệp">Doanh nghiệp</div>
+                                <?php foreach ($children[$parentId] as $child): ?>
+                                <div class="cat-child"
+                                     data-value="<?= htmlspecialchars($child['category_id']) ?>"
+                                     data-label="<?= htmlspecialchars($parent['name']) ?> › <?= htmlspecialchars($child['name']) ?>">
+                                    <?= htmlspecialchars($child['name']) ?>
+                                </div>
+                                <?php endforeach; ?>
                             </div>
+                            <?php endif; ?>
                         </div>
-                        <div class="cat-parent" data-id="3">
-                            <div class="cat-parent-label"><span>Tiện ích</span><i class="fa-solid fa-chevron-right"></i></div>
-                            <div class="cat-children" style="display:none">
-                                <div class="cat-child" data-value="31" data-label="Tiện ích › Giá vàng">Giá vàng</div>
-                                <div class="cat-child" data-value="32" data-label="Tiện ích › Giá xăng">Giá xăng</div>
-                                <div class="cat-child" data-value="33" data-label="Tiện ích › Tỷ giá">Tỷ giá</div>
-                            </div>
-                        </div>
+                        <?php endforeach; ?>
+
                         <div class="cat-reset" id="catReset">Tất cả danh mục</div>
                     </div>
+
                     <input type="hidden" name="category_id" id="categoryValue"
-                        value="<?= htmlspecialchars($filters['category_id'] ?? '') ?>">
+                        value="<?= htmlspecialchars($selectedCatId) ?>">
                 </div>
 
                 <select name="status" class="filter-select">
                     <option value="">Trạng thái</option>
-                    <option value="approved"  <?= ($filters['status'] ?? '') === 'approved'  ? 'selected' : '' ?>>Đã xuất bản</option>
-                    <option value="hidden"    <?= ($filters['status'] ?? '') === 'hidden'    ? 'selected' : '' ?>>Đã ẩn</option>
-                    <option value="draft"     <?= ($filters['status'] ?? '') === 'draft'     ? 'selected' : '' ?>>Bản nháp</option>
+                    <option value="approved" <?= ($filters['status'] ?? '') === 'approved' ? 'selected' : '' ?>>Đã xuất bản</option>
+                    <option value="hidden"   <?= ($filters['status'] ?? '') === 'hidden'   ? 'selected' : '' ?>>Đã ẩn</option>
+                    <option value="draft"    <?= ($filters['status'] ?? '') === 'draft'    ? 'selected' : '' ?>>Bản nháp</option>
                 </select>
 
                 <div class="date-input-wrapper filter-select" style="display:flex;align-items:center;gap:8px;padding:0 14px;">
                     <i class="fa-regular fa-calendar" style="color:#9fb0bc;font-size:13px;"></i>
-                    <input type="date" name="date" placeholder="Thời gian"
+                    <input type="date" name="date"
                         style="border:none;outline:none;background:transparent;font-size:13px;font-weight:800;color:#07344a;font-family:'Barlow',sans-serif;width:100%;"
                         value="<?= htmlspecialchars($filters['date'] ?? '') ?>">
                 </div>
@@ -165,9 +189,9 @@
                             <td>
                                 <?php
                                 $statusMap = [
-                                    'approved' => ['label' => 'ĐÃ XUẤT BẢN', 'icon' => 'fa-bolt',    'class' => 'published'],
-                                    'hidden'   => ['label' => 'ĐÃ ẨN',       'icon' => 'fa-eye-slash','class' => 'hidden'],
-                                    'draft'    => ['label' => 'BẢN NHÁP',    'icon' => '',            'class' => 'draft'],
+                                    'approved' => ['label' => 'ĐÃ XUẤT BẢN', 'icon' => 'fa-bolt',     'class' => 'published'],
+                                    'hidden'   => ['label' => 'ĐÃ ẨN',        'icon' => 'fa-eye-slash', 'class' => 'hidden'],
+                                    'draft'    => ['label' => 'BẢN NHÁP',     'icon' => '',             'class' => 'draft'],
                                 ];
                                 $s = $statusMap[$post->status] ?? ['label' => 'KHÔNG RÕ', 'icon' => '', 'class' => 'draft'];
                                 ?>
@@ -185,30 +209,31 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-    <div class="actions">
-        <?php if ($post->status !== 'hidden'): ?>
-            <a href="Admin_index.php?page=hide_post&id=<?= $post->post_id ?>&from=admin_posts"
-               class="action-btn view-btn" title="Ẩn bài"
-               onclick="return confirm('Bạn muốn ẩn bài viết này?')">
-                <i class="fa-regular fa-eye"></i>
-            </a>
-        <?php else: ?>
-            <a href="Admin_index.php?page=unhide_post&id=<?= $post->post_id ?>&from=admin_posts"
-               class="action-btn" style="color:#aaa;" title="Bỏ ẩn"
-               onclick="return confirm('Bạn muốn hiện lại bài viết này?')">
-                <i class="fa-regular fa-eye-slash"></i>
-            </a>
-        <?php endif; ?>
+                                <div class="actions">
+                                    <?php if ($post->status !== 'hidden'): ?>
+                                        <a href="Admin_index.php?page=hide_post&id=<?= $post->post_id ?>&from=admin_posts"
+                                           class="action-btn view-btn" title="Ẩn bài"
+                                           onclick="return confirm('Bạn muốn ẩn bài viết này?')">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="Admin_index.php?page=unhide_post&id=<?= $post->post_id ?>&from=admin_posts"
+                                           class="action-btn" style="color:#aaa;" title="Bỏ ẩn"
+                                           onclick="return confirm('Bạn muốn hiện lại bài viết này?')">
+                                            <i class="fa-regular fa-eye-slash"></i>
+                                        </a>
+                                    <?php endif; ?>
 
-        <a href="Admin_index.php?page=edit_post&id=<?= $post->post_id ?>" class="action-btn edit-btn" title="Sửa">
-            <i class="fa-regular fa-pen-to-square"></i>
-        </a>
-        <button class="action-btn delete-btn" type="button"
-            onclick="confirmDelete('<?= $post->post_id ?>')" title="Xóa">
-            <i class="fa-regular fa-trash-can"></i>
-        </button>
-    </div>
-</td>
+                                    <a href="Admin_index.php?page=edit_post&id=<?= $post->post_id ?>"
+                                       class="action-btn edit-btn" title="Sửa">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    </a>
+                                    <button class="action-btn delete-btn" type="button"
+                                        onclick="confirmDelete('<?= $post->post_id ?>')" title="Xóa">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -231,23 +256,28 @@
                     </span>
                     <div class="d-flex align-items-center gap-2">
                         <button type="button" onclick="goToPage(<?= $currentPage-1 ?>)"
-                            <?= $currentPage<=1 ? 'disabled' : '' ?>>‹</button>
+                            <?= $currentPage <= 1 ? 'disabled' : '' ?>>‹</button>
 
-                        <button type="button" class="<?= $currentPage==1 ? 'current' : '' ?>" onclick="goToPage(1)">1</button>
+                        <button type="button" class="<?= $currentPage == 1 ? 'current' : '' ?>"
+                            onclick="goToPage(1)">1</button>
 
                         <?php if ($totalPages > 1): ?>
-                            <?php if ($currentPage > 3): ?><button type="button" disabled>...</button><?php endif; ?>
-                            <?php for ($i = max(2,$currentPage-1); $i <= min($totalPages-1,$currentPage+1); $i++): ?>
-                                <button type="button" class="<?= $currentPage==$i ? 'current' : '' ?>"
+                            <?php if ($currentPage > 3): ?>
+                                <button type="button" disabled>...</button>
+                            <?php endif; ?>
+                            <?php for ($i = max(2, $currentPage-1); $i <= min($totalPages-1, $currentPage+1); $i++): ?>
+                                <button type="button" class="<?= $currentPage == $i ? 'current' : '' ?>"
                                     onclick="goToPage(<?= $i ?>)"><?= $i ?></button>
                             <?php endfor; ?>
-                            <?php if ($currentPage < $totalPages-2): ?><button type="button" disabled>...</button><?php endif; ?>
-                            <button type="button" class="<?= $currentPage==$totalPages ? 'current' : '' ?>"
+                            <?php if ($currentPage < $totalPages - 2): ?>
+                                <button type="button" disabled>...</button>
+                            <?php endif; ?>
+                            <button type="button" class="<?= $currentPage == $totalPages ? 'current' : '' ?>"
                                 onclick="goToPage(<?= $totalPages ?>)"><?= $totalPages ?></button>
                         <?php endif; ?>
 
                         <button type="button" onclick="goToPage(<?= $currentPage+1 ?>)"
-                            <?= $currentPage>=$totalPages ? 'disabled' : '' ?>>›</button>
+                            <?= $currentPage >= $totalPages ? 'disabled' : '' ?>>›</button>
                     </div>
                 </div>
             </div>
