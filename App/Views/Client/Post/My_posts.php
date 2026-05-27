@@ -14,6 +14,19 @@ $myPostTotalPending = $myPostTotalPending ?? 0;
 $myPostTotalDraft = $myPostTotalDraft ?? 0;
 
 $myPostCategories = $myPostCategories ?? [];
+$selectedCategoryLabel = 'Danh mục';
+
+if (!empty($myPostCategory) && !empty($myPostCategories)) {
+    foreach ($myPostCategories as $category) {
+        $parentName = $category['parent_name'] ?? '';
+        $childName = $category['child_name'] ?? '';
+
+        if ($childName === $myPostCategory) {
+            $selectedCategoryLabel = $parentName . ' / ' . $childName;
+            break;
+        }
+    }
+}
 
 function myPostStatusText($status)
 {
@@ -52,7 +65,7 @@ function myPostStatusClass($status)
 
         <a href="index.php?page=create_post" class="my-post-create-btn">
             <i class="fa-solid fa-plus"></i>
-            Đăng bài
+            Đăng bài mới
         </a>
     </div>
 
@@ -88,43 +101,60 @@ function myPostStatusClass($status)
 
         <div class="my-post-search">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input
-                type="text"
-                name="keyword"
-                value="<?= htmlspecialchars($myPostKeyword) ?>"
-                placeholder="Tìm kiếm tiêu đề, tác giả..."
-            >
+            <input type="text" name="keyword" value="<?= htmlspecialchars($myPostKeyword) ?>"
+                placeholder="Tìm kiếm">
         </div>
 
-        <select name="category">
-    <option value="">Danh mục</option>
+        <div class="my-post-category-dropdown">
+            <input type="hidden" name="category" value="<?= htmlspecialchars($myPostCategory) ?>"
+                id="myPostCategoryInput">
 
-    <?php
-    $groupedCategories = [];
+            <button type="button" class="my-post-category-btn">
+                <span id="myPostCategoryLabel">
+                    <?= htmlspecialchars($selectedCategoryLabel) ?>
+                </span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
 
-    foreach ($myPostCategories as $category) {
-        $parentName = $category['parent_name'] ?? '';
-        $childName = $category['child_name'] ?? '';
+            <div class="my-post-category-menu">
+                <button type="button" class="my-post-category-clear" data-category="" data-label="Danh mục">
+                    Danh mục
+                </button>
 
-        if ($parentName !== '' && $childName !== '') {
-            $groupedCategories[$parentName][] = $childName;
-        }
-    }
-    ?>
+                <?php
+                $groupedCategories = [];
 
-    <?php foreach ($groupedCategories as $parentName => $children): ?>
-        <optgroup label="<?= htmlspecialchars($parentName) ?>">
-            <?php foreach ($children as $childName): ?>
-                <option
-                    value="<?= htmlspecialchars($childName) ?>"
-                    <?= $myPostCategory === $childName ? 'selected' : '' ?>
-                >
-                    <?= htmlspecialchars($childName) ?>
-                </option>
-            <?php endforeach; ?>
-        </optgroup>
-    <?php endforeach; ?>
-</select>
+                foreach ($myPostCategories as $category) {
+                    $parentName = $category['parent_name'] ?? '';
+                    $childName = $category['child_name'] ?? '';
+
+                    if ($parentName !== '' && $childName !== '') {
+                        $groupedCategories[$parentName][] = $childName;
+                    }
+                }
+                ?>
+
+                <?php foreach ($groupedCategories as $parentName => $children): ?>
+                    <div class="my-post-category-parent">
+                        <button type="button" class="my-post-parent-btn">
+                            <?= htmlspecialchars($parentName) ?>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+
+                        <div class="my-post-category-submenu">
+                            <?php foreach ($children as $childName): ?>
+                                <button type="button"
+                                    class="my-post-category-option <?= $myPostCategory === $childName ? 'active' : '' ?>"
+                                    data-category="<?= htmlspecialchars($childName) ?>"
+                                    data-label="<?= htmlspecialchars($parentName . ' / ' . $childName) ?>">
+                                    <?= htmlspecialchars($childName) ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
 
         <select name="status">
             <option value="">Trạng thái</option>
@@ -135,11 +165,7 @@ function myPostStatusClass($status)
             <option value="hidden" <?= $myPostStatus === 'hidden' ? 'selected' : '' ?>>Ẩn</option>
         </select>
 
-        <input
-            type="date"
-            name="date"
-            value="<?= htmlspecialchars($myPostDate) ?>"
-        >
+        <input type="date" name="date" value="<?= htmlspecialchars($myPostDate) ?>">
 
         <button type="submit" class="my-post-filter-btn">
             <i class="fa-solid fa-filter"></i>
@@ -212,11 +238,8 @@ function myPostStatusClass($status)
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
 
-                                    <a
-                                        href="index.php?page=delete_post&id=<?= urlencode($postId) ?>"
-                                        title="Xóa"
-                                        onclick="return confirm('Bạn có chắc muốn xóa bài viết này không?')"
-                                    >
+                                    <a href="index.php?page=delete_post&id=<?= urlencode($postId) ?>" title="Xóa"
+                                        onclick="return confirm('Bạn có chắc muốn xóa bài viết này không?')">
                                         <i class="fa-regular fa-trash-can"></i>
                                     </a>
                                 </div>
@@ -237,31 +260,20 @@ function myPostStatusClass($status)
             <div class="my-post-pagination">
 
                 <?php if ($myPostCurrentPage > 1): ?>
-                    <button
-                        type="button"
-                        class="js-my-post-page"
-                        data-page="<?= $myPostCurrentPage - 1 ?>"
-                    >
+                    <button type="button" class="js-my-post-page" data-page="<?= $myPostCurrentPage - 1 ?>">
                         ‹
                     </button>
                 <?php endif; ?>
 
                 <?php for ($i = 1; $i <= $myPostTotalPages; $i++): ?>
-                    <button
-                        type="button"
-                        class="js-my-post-page <?= $i == $myPostCurrentPage ? 'active' : '' ?>"
-                        data-page="<?= $i ?>"
-                    >
+                    <button type="button" class="js-my-post-page <?= $i == $myPostCurrentPage ? 'active' : '' ?>"
+                        data-page="<?= $i ?>">
                         <?= $i ?>
                     </button>
                 <?php endfor; ?>
 
                 <?php if ($myPostCurrentPage < $myPostTotalPages): ?>
-                    <button
-                        type="button"
-                        class="js-my-post-page"
-                        data-page="<?= $myPostCurrentPage + 1 ?>"
-                    >
+                    <button type="button" class="js-my-post-page" data-page="<?= $myPostCurrentPage + 1 ?>">
                         ›
                     </button>
                 <?php endif; ?>

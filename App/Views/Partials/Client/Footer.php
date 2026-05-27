@@ -2,21 +2,17 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/../Web-Application/Public/Client/Css/Style.css">
+    <link rel="stylesheet" href="/../Web-Application/Public/Client/Css/Client_Global.css">
     <title>Trạm Tin Việt</title>
-    <style>
-        body { font-family: 'Montserrat', sans-serif; }
-        .font-serif { font-family: 'Newsreader', serif; }
-    </style>
+
 </head>
 <body>
 <footer class="custom-footer">
     <div class="container">
         <div class="footer-row">
             <div>
-                <a class="footer-logo" href="#" style="color: var(--navy); text-decoration: none;">Trạm Tin Việt</a>
+                <a class="footer-logo" href="#">Trạm Tin Việt</a>
                 <p style="margin-top: 15px; font-size: 0.9rem;">Kênh thông tin uy tín, chuyên sâu về Kinh tế, Chính trị và Xã hội.</p>
                 <div style="margin-top: 20px; display: flex; gap: 15px;">
                     <a href="#" style="color: var(--navy); font-size: 1.2rem;"><i class="fab fa-facebook"></i></a>
