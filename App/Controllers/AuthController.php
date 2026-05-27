@@ -25,56 +25,54 @@ class AuthController
         exit();
     }
 
-    // Xử lý đăng nhập
+    // Xử lý đăng nhập người dùng
     public function loginProcess()
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+{
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $username = trim($_POST['user_name']);
-            $password = $_POST['password'];
+        $username = trim($_POST['user_name']);
+        $password = $_POST['password'];
+        $remember = isset($_POST['remember']); // Lấy trạng thái checkbox
 
-            $user = $this->clientRepository->getUserByUsername($username);
+        $user = $this->clientRepository->verifyLogin($username, $password);
+        $referer = $_SERVER['HTTP_REFERER'] ?? 'index.php?page=homepage';
 
-            // Trang trước đó
-            $referer = $_SERVER['HTTP_REFERER'] ?? 'index.php?page=homepage';
+        if ($user && $user['account_status'] === 'active' && $user['role_id'] === 'RL0002') {
 
-            // Kiểm tra tài khoản
-            if (
-                $user &&
-                $user['account_status'] === 'active' &&
-                $user['role_id'] === 'RL0002' &&
-                password_verify($password, $user['password'])
-            ) {
+            // 1. Lưu Session như bình thường
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['role_id'] = $user['role_id'];
+            $_SESSION['user_name'] = $user['user_name'];
+            $_SESSION['full_name'] = $user['full_name'];
+            $_SESSION['avatar'] = $user['avatar'];
 
-                // Lưu session
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['role_id'] = $user['role_id'];
-                $_SESSION['user_name'] = $user['user_name'];
-                $_SESSION['full_name'] = $user['full_name'];
-                $_SESSION['avatar'] = $user['avatar'];
-
-                $_SESSION['success_msg'] = "Đăng nhập thành công!";
-
-                // Lưu trang cần redirect
-                $_SESSION['redirect_url'] =
-                    (strpos($referer, 'page=login') !== false)
-                    ? 'index.php?page=homepage'
-                    : $referer;
-
-                // Quay lại login để show SweetAlert
-                header('Location: index.php?page=login');
-                exit();
-
-            } else {
-
-                $_SESSION['error'] =
-                    'Thông tin đăng nhập không chính xác hoặc tài khoản không hợp lệ.';
-
-                header('Location: ' . $referer);
-                exit();
+            // 2. Xử lý Ghi nhớ đăng nhập (Remember Me)
+            if ($remember) {
+                // Tạo token ngẫu nhiên
+                $token = bin2hex(random_bytes(32));
+                
+                // Lưu token vào Database (Bạn cần hàm này trong ClientRepository)
+                $this->clientRepository->saveRememberToken($user['user_id'], $token);
+                
+                // Lưu token vào Cookie (thời hạn 30 ngày)
+                setcookie('remember_token', $token, time() + (86400 * 30), "/", "", false, true);
             }
+
+            $_SESSION['success_msg'] = "Đăng nhập thành công!";
+            $_SESSION['redirect_url'] = (strpos($referer, 'page=login') !== false)
+                ? 'index.php?page=homepage'
+                : $referer;
+
+            header('Location: index.php?page=login');
+            exit();
+
+        } else {
+            $_SESSION['error'] = 'Thông tin đăng nhập không chính xác hoặc tài khoản không hợp lệ.';
+            header('Location: ' . $referer);
+            exit();
         }
     }
+}
 
     // Đăng xuất
     public function logout()
