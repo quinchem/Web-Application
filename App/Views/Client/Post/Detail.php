@@ -6,13 +6,13 @@ $usernameSession = $_SESSION['user_name'] ?? '';
 $avatar = $_SESSION['avatar'] ?? $defaultAvatar;
 
 $isSaved = $isSaved ?? false;
+$isLiked = $isLiked ?? false;
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Montserrat:ital,wght@0,400;0,500;0,700;1,400&family=Newsreader:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="Public/Client/Css/PostDetail.css">
-<script src="Public/Client/Js/PostDetail.js"></script>
 
 
 <main id="page-article" class="container my-5">
@@ -85,22 +85,37 @@ $isSaved = $isSaved ?? false;
             <?php endif; ?>
 
             <div class="d-flex mt-5 mb-4 pb-4 border-bottom border-top pt-4">
-                <button id="btn-like" class="btn btn-light border fw-bold me-3 text-muted px-4" onclick="handleLike()"
-                    style="transition: 0.3s;">
-                    <i class="fa-regular fa-thumbs-up me-2"></i><span>THÍCH</span>
+                <button
+                    id="btn-like"
+                    class="btn border fw-bold me-3 px-4 <?= $isLiked ? 'active-like' : 'btn-light text-muted' ?>"
+                    onclick="handleLike()"
+                    style="transition: 0.3s; <?= $isLiked ? 'background:#003049;color:#fff;' : '' ?>">
+                    <i class="fa-thumbs-up me-2 <?= $isLiked ? 'fa-solid' : 'fa-regular' ?>"></i>
+
+                    <span>
+                        <?= $isLiked ? 'ĐÃ THÍCH' : 'THÍCH' ?>
+                    </span>
                 </button>
-                <button id="btn-save" class="btn border fw-bold px-4 <?= $isSaved ? '' : 'btn-light text-muted' ?>"
+
+                <button
+                    id="btn-save"
+                    class="btn border fw-bold px-4 <?= $isSaved ? 'active-save' : 'btn-light text-muted' ?>"
                     onclick="handleSave()"
-                    style="transition: 0.3s; <?= $isSaved ? 'background:#B90C17; color:#fff;' : '' ?>">
-                    <i class="<?= $isSaved ? 'fa-solid' : 'fa-regular' ?> fa-bookmark me-2"></i>
-                    <span><?= $isSaved ? 'ĐÃ LƯU' : 'LƯU' ?></span>
+                    style="transition: 0.3s; <?= $isSaved ? 'background:#B90C17;color:#fff;' : '' ?>">
+                    <i class="fa-bookmark me-2 <?= $isSaved ? 'fa-solid' : 'fa-regular' ?>"></i>
+
+                    <span>
+                        <?= $isSaved ? 'ĐÃ LƯU' : 'LƯU' ?>
+                    </span>
                 </button>
             </div>
 
             <div class="comments-section mt-5" id="comment-section">
                 <h3 id="comment-count-title" class="fw-bold mb-4" style="color: var(--navy); font-family: 'Newsreader', serif;" data-count="<?= $totalComments ?>">Bình luận (<?= $totalComments ?>)</h3>
                 <div class="comment-input-box p-4 mb-5">
-                    <textarea id="comment-content" class="form-control border-0 bg-white" rows="3"
+                    <textarea id="comment-content"
+
+                        class="form-control border-0 bg-white" rows="3"
                         placeholder="Chia sẻ ý kiến của bạn..." style="resize: none;"></textarea>
                     <div class="text-end mt-3">
                         <button class="btn btn-send px-4 fw-bold py-2 rounded" onclick="submitComment()">Gửi bình
@@ -183,14 +198,13 @@ $isSaved = $isSaved ?? false;
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const currentPostId = '<?= $post['post_id'] ?>';
-
-
-    // Kiểm tra xem session có tồn tại user_id không để JS biết trạng thái
     const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
 
+    // Flags để prevent double-click và track loading state
+    let isLikeProcessing = false;
+    let isSaveProcessing = false;
 
     function requireLogin() {
-        // Gọi SweetAlert2 hiện thông báo chặn người dùng
         Swal.fire({
             title: '<div style="font-family: \'Barlow\', sans-serif; font-weight: 700; color: #003049; font-size: 1.8rem;">Yêu cầu đăng nhập</div>',
             html: '<div style="font-family: \'Montserrat\', sans-serif; font-size: 1rem; color: #5a7d9a; line-height: 1.6;">Bạn cần đăng nhập tài khoản để tương tác với bài viết</div>',
@@ -207,150 +221,195 @@ $isSaved = $isSaved ?? false;
                 cancelButton: 'text-dark border fw-bold px-4 py-2 rounded-pill shadow-none'
             }
         }).then((result) => {
-            // Chỉ khi nào họ bấm "Đăng nhập ngay" (Confirm) thì mới đẩy qua trang kia
             if (result.isConfirmed) {
                 window.location.href = 'index.php?page=login';
             }
         });
     }
 
-    function handleLike() {
+    async function handleLike() {
         if (!isLoggedIn) {
             requireLogin();
             return;
         }
+        if (isLikeProcessing) return;
 
-        let formData = new FormData();
-        formData.append('post_id', currentPostId);
-        fetch('index.php?page=api_like', {
+        isLikeProcessing = true;
+        const btn = document.getElementById('btn-like');
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+
+        try {
+            const formData = new FormData();
+            formData.append('post_id', currentPostId);
+
+            const res = await fetch('index.php?page=api_like', {
                 method: 'POST',
                 body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'unauthorized') {
-                    requireLogin();
-                    return;
-                }
-
-                const btn = document.getElementById('btn-like');
-                if (data.status === 'liked') {
-                    btn.style.background = '#003049';
-                    btn.style.color = '#fff';
-                    btn.classList.remove('btn-light', 'text-muted');
-                    btn.querySelector('span').innerText = 'ĐÃ THÍCH';
-                    Swal.fire({
-                        icon: 'success',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    btn.style.background = '';
-                    btn.style.color = '';
-                    btn.classList.add('btn-light', 'text-muted');
-                    btn.querySelector('span').innerText = 'THÍCH';
-                    Swal.fire({
-                        icon: 'info',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
             });
+            const data = await res.json();
+
+            if (data.status === 'unauthorized') {
+                requireLogin();
+                return;
+            }
+
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span');
+
+            if (data.action === 'liked') {
+                btn.classList.add('active-like');
+                btn.classList.remove('btn-light', 'text-muted');
+                btn.style.cssText = 'transition:0.3s;background:#003049;color:#fff;';
+                icon.className = 'fa-solid fa-thumbs-up me-2';
+                text.innerText = 'ĐÃ THÍCH';
+            } else if (data.action === 'unliked') {
+                btn.classList.remove('active-like');
+                btn.classList.add('btn-light', 'text-muted');
+                btn.style.cssText = 'transition:0.3s;';
+                icon.className = 'fa-regular fa-thumbs-up me-2';
+                text.innerText = 'THÍCH';
+            }
+        } catch (e) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Không thể kết nối máy chủ',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } finally {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            isLikeProcessing = false;
+        }
     }
 
-    function handleSave() {
+    async function handleSave() {
         if (!isLoggedIn) {
             requireLogin();
             return;
         }
+        if (isSaveProcessing) return;
 
-        let formData = new FormData();
-        formData.append('post_id', currentPostId);
+        isSaveProcessing = true;
+        const btn = document.getElementById('btn-save');
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
 
-        fetch('index.php?page=api_save', {
-               
-            method: 'POST',
-               
-            body: formData
-           
-        })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'unauthorized') {
-                   
-                    requireLogin();
-                   
-                    return;
-               
-                }
+        try {
+            const response = await fetch('index.php?page=api_save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    post_id: currentPostId
+                })
+            });
+            const data = await response.json();
 
-                const btn = document.getElementById('btn-save');
-                const icon = btn.querySelector('i');
-                const text = btn.querySelector('span');
+            if (data.status === 'unauthorized') {
+                requireLogin();
+                return;
+            }
 
-                if (data.status === 'saved') {
-                    btn.style.background = '#B90C17';
-                    btn.style.color = '#fff';
-                    btn.classList.remove('btn-light', 'text-muted');
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span');
 
-                    icon.classList.remove('fa-regular');
-                    icon.classList.add('fa-solid');
+            if (data.action === 'saved') {
+                btn.classList.add('active-save');
+                btn.classList.remove('btn-light', 'text-muted');
+                btn.style.cssText = 'transition:0.3s;background:#B90C17;color:#fff;';
+                icon.className = 'fa-solid fa-bookmark me-2';
+                text.innerText = 'ĐÃ LƯU';
 
-                    text.innerText = 'ĐÃ LƯU';
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else if (data.status === 'unsaved') {
-                    btn.style.background = '';
-                    btn.style.color = '';
-                    btn.classList.add('btn-light', 'text-muted');
-
-                    icon.classList.remove('fa-solid');
-                    icon.classList.add('fa-regular');
-
-                    text.innerText = 'LƯU';
-
-                    Swal.fire({
-                        icon: 'info',
-                        title: data.message,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: data.message || 'Có lỗi xảy ra',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-            })
-            .catch(() => {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Không thể kết nối máy chủ',
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1000,
+                    timerProgressBar: true,
+                    html: `
+                     <div style="display:flex;align-items:center;gap:12px;">
+                        <i class="fa-regular fa-bookmark" style="color:#003049;font-size:18px;flex-shrink:0;"></i>
+                        <div>
+                            <div style="font-weight:700;font-size:14px;color:#003049;letter-spacing:0.2px;">Đã lưu bài viết</div>
+                        </div>
+                    </div>`,
+                    background: '#ffffff',
+                    padding: '12px 16px',
+                    customClass: {
+                        popup: 'swal-save-toast'
+                    },
+                    showClass: {
+                        popup: 'swal-slide-in'
+                    },
+                    hideClass: {
+                        popup: 'swal-slide-out'
+                    }
                 });
+            } else if (data.action === 'unsaved') {
+                btn.classList.remove('active-save');
+                btn.classList.add('btn-light', 'text-muted');
+                btn.style.cssText = 'transition:0.3s;';
+                icon.className = 'fa-regular fa-bookmark me-2';
+                text.innerText = 'LƯU';
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1000,
+                    timerProgressBar: true,
+                    html: `
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <i class="fa-regular fa-bookmark" style="color:#003049;font-size:18px;flex-shrink:0;"></i>
+                        <div>
+                            <div style="font-weight:700;font-size:14px;color:#003049;letter-spacing:0.2px;">Đã bỏ lưu bài viết</div>
+                            <div style="font-size:12px;color:#5a7d9a;margin-top:2px;">Bài viết đã được xoá khỏi danh sách</div>
+                        </div>
+                    </div>`,
+                    background: '#fff',
+                    padding: '12px 16px',
+                    customClass: {
+                        popup: 'swal-unsave-toast'
+                    },
+                    showClass: {
+                        popup: 'swal-slide-in'
+                    },
+                    hideClass: {
+                        popup: 'swal-slide-out'
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                html: `
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#fff;font-size:18px;flex-shrink:0;"></i>
+                    <div>
+                        <div style="font-weight:700;font-size:14px;color:#fff;">Không thể kết nối</div>
+                        <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:2px;">Vui lòng kiểm tra mạng và thử lại</div>
+                    </div>
+                </div>`,
+                background: '#B90C17',
+                padding: '12px 16px',
+                customClass: {
+                    popup: 'swal-error-toast'
+                }
             });
+        } finally {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            isSaveProcessing = false;
+        }
     }
 
     function submitComment() {
@@ -361,8 +420,6 @@ $isSaved = $isSaved ?? false;
 
         const contentInput = document.getElementById('comment-content');
         const content = contentInput.value.trim();
-
-        if (!content) {
 
         if (!content) {
             Swal.fire('Cảnh báo', 'Vui lòng nhập nội dung bình luận trước khi bấm gửi!', 'warning');
@@ -435,6 +492,31 @@ $isSaved = $isSaved ?? false;
             .catch(error => {
                 console.error('Lỗi AJAX:', error);
                 Swal.fire('Lỗi', 'Đã có lỗi xảy ra trong quá trình xử lý.', 'error');
+            });
+    }
+
+    function loadComments(page) {
+        fetch(`index.php?page=api_get_comments&post_id=${currentPostId}&cpage=${page}`)
+            .then(res => res.json())
+            .then(data => {
+                // Cập nhật danh sách comment
+                document.querySelector('.comment-area').innerHTML = data.html;
+
+                // Cập nhật pagination
+                document.querySelector('#comment-pagination-wrapper').innerHTML = data.pagination;
+
+                // Cập nhật số lượng comment
+                const titleEl = document.getElementById('comment-count-title');
+                titleEl.setAttribute('data-count', data.total);
+                titleEl.innerText = `Bình luận (${data.total})`;
+
+                // Scroll lên đầu phần comment
+                document.getElementById('comment-section').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            })
+            .catch(err => {
+                console.error('Lỗi loadComments:', err);
             });
     }
 </script>

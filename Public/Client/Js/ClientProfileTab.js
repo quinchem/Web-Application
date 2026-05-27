@@ -46,6 +46,23 @@ if (targetPage === 'saved') {
 
     fetchUrl = `index.php?page=client_saved_posts_page&saved_page=${savedPage}`;
 }
+if (targetPage === 'my_posts') {
+    const currentParams = new URLSearchParams(window.location.search);
+
+    const myPostPage = currentParams.get('my_post_page') || 1;
+    const keyword = currentParams.get('keyword') || '';
+    const category = currentParams.get('category') || '';
+    const status = currentParams.get('status') || '';
+    const date = currentParams.get('date') || '';
+
+    fetchUrl =
+        `index.php?page=client_my_posts_page` +
+        `&my_post_page=${encodeURIComponent(myPostPage)}` +
+        `&keyword=${encodeURIComponent(keyword)}` +
+        `&category=${encodeURIComponent(category)}` +
+        `&status=${encodeURIComponent(status)}` +
+        `&date=${encodeURIComponent(date)}`;
+}
 
 fetch(fetchUrl)
     .then(response => {

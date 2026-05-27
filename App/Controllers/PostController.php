@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Controllers;
+
 /**
  * PostController.php
  * Controller xử lý các yêu cầu liên quan đến bài viết (post)
@@ -8,6 +10,7 @@ namespace App\Controllers;
 
 require_once __DIR__ . '/../../Repositories/PostRepository.php';
 require_once __DIR__ . '/../../Repositories/CategoryRepository.php';
+require_once __DIR__ . '/CategoryController.php';
 
 
 /**
@@ -16,7 +19,8 @@ require_once __DIR__ . '/../../Repositories/CategoryRepository.php';
  */
 class PostController
 {
-    private $postRepository;        // Repository để lấy dữ liệu bài viết
+    private $postRepository;
+    private $categoryController;        // Repository để lấy dữ liệu bài viết
 
     /**
      * Constructor - Khởi tạo các repository
@@ -24,6 +28,7 @@ class PostController
     public function __construct()
     {
         $this->postRepository = new \PostRepository();
+        $this->categoryController = new CategoryController();
     }
 
     /**
@@ -60,40 +65,40 @@ class PostController
      * Hiển thị chi tiết một bài viết cụ thể
      * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
      */
-   
+
 
     public function hidePost()
-{
-    if (!isset($_GET['id'])) {
+    {
+        if (!isset($_GET['id'])) {
+            $from = $_GET['from'] ?? 'admin_user_posts';
+            header('Location: Admin_index.php?page=' . $from);
+            exit;
+        }
+
+        $postId = $_GET['id'];
         $from = $_GET['from'] ?? 'admin_user_posts';
+
+        $this->postRepository->hidePost($postId);
+
         header('Location: Admin_index.php?page=' . $from);
         exit;
     }
+    public function unhidePost()
+    {
+        if (!isset($_GET['id'])) {
+            $from = $_GET['from'] ?? 'admin_user_posts';
+            header('Location: Admin_index.php?page=' . $from);
+            exit;
+        }
 
-    $postId = $_GET['id'];
-    $from   = $_GET['from'] ?? 'admin_user_posts';
-
-    $this->postRepository->hidePost($postId);
-
-    header('Location: Admin_index.php?page=' . $from);
-    exit;
-}
-public function unhidePost()
-{
-    if (!isset($_GET['id'])) {
+        $postId = $_GET['id'];
         $from = $_GET['from'] ?? 'admin_user_posts';
+
+        $this->postRepository->unhidePost($postId);
+
         header('Location: Admin_index.php?page=' . $from);
         exit;
     }
-
-    $postId = $_GET['id'];
-    $from   = $_GET['from'] ?? 'admin_user_posts';
-
-    $this->postRepository->unhidePost($postId);
-
-    header('Location: Admin_index.php?page=' . $from);
-    exit;
-}
 
     public function reviewPost()
     {
@@ -102,9 +107,9 @@ public function unhidePost()
             exit;
         }
 
-        $postId   = $_GET['id'];
+        $postId = $_GET['id'];
         $decision = $_GET['decision'] ?? 'approved';
-        $reason   = urldecode($_GET['reason'] ?? '');
+        $reason = urldecode($_GET['reason'] ?? '');
 
         // Chỉ cho phép 2 giá trị hợp lệ
         if (!in_array($decision, ['approved', 'rejected'])) {
@@ -122,68 +127,66 @@ public function unhidePost()
     // CÁC HÀM XỬ LÝ AJAX (THÍCH, LƯU, BÌNH LUẬN)
     // ==========================================
 
-    private function getCurrentUserId() {
+    private function getCurrentUserId()
+    {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         return $_SESSION['user_id'] ?? null;
     }
 
-    public function apiToggleLike() {
+    // Thay thế hàm cũ bằng đoạn này trong PostController.php
+    public function api_like()
+    {
         $userId = $this->getCurrentUserId();
-        if (!$userId) { 
-            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
-            return; 
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized']);
+            return;
         }
 
         $postId = $_POST['post_id'] ?? null;
-        if($postId) {
-            echo json_encode($this->postRepository->toggleLike($postId, $userId));
+        if ($postId) {
+            $result = $this->postRepository->toggleLike($postId, $userId);
+            header('Content-Type: application/json');
+            echo json_encode($result);
         }
     }
 
-    public function apiToggleSave() {
-    $userId = $this->getCurrentUserId();
-
-    if (!$userId) { 
-        $this->jsonResponse([
-            'status' => 'unauthorized', 
-            'message' => 'Vui lòng đăng nhập.'
-        ]);
-    }
-
-    $postId = $_POST['post_id'] ?? null;
-
-    if (!$postId) {
-        $this->jsonResponse([
-            'status' => 'error', 
-            'message' => 'Thiếu post_id'
-        ]);
-    }
-
-    $this->jsonResponse(
-        $this->postRepository->toggleBookmark($postId, $userId)
-    );
-}
-
-
-    public function apiAddComment() {
+    public function api_save()
+    {
         $userId = $this->getCurrentUserId();
-        if (!$userId) { 
-            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']); 
-            return; 
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized']);
+            return;
+        }
+
+        $postId = $_POST['post_id'] ?? null;
+        if ($postId) {
+            // Hàm toggleBookmark của bạn phải trả về mảng có key 'action' => 'saved' hoặc 'unsaved'
+            echo json_encode($this->postRepository->toggleBookmark($postId, $userId));
+        }
+    }
+
+
+
+    public function apiAddComment()
+    {
+        $userId = $this->getCurrentUserId();
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']);
+            return;
         }
 
         $postId = $_POST['post_id'] ?? null;
         $content = $_POST['content'] ?? null;
-        
-        if($postId && $content) {
-            if($this->postRepository->addComment($postId, $userId, $content)) {
+
+        if ($postId && $content) {
+            if ($this->postRepository->addComment($postId, $userId, $content)) {
                 // Trả về dữ liệu để AJAX tự động vẽ lên màn hình mà không cần reload
                 echo json_encode([
-                    'status' => 'success', 
+                    'status' => 'success',
                     'message' => 'Đã gửi bình luận',
                     'comment' => [
                         'full_name' => $_SESSION['full_name'] ?? $_SESSION['user_name'],
-                        'avatar' => $_SESSION['avatar'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+                        'avatar' => $_SESSION['avatar'] ?? $_SESSION['avatar_url'] ?? 'default-avatar.png',
                         'content' => nl2br(htmlspecialchars($content)),
                         'created_at' => date('d/m/Y H:i') // Lấy giờ hiện tại
                     ]
@@ -194,98 +197,173 @@ public function unhidePost()
         }
     }
     public function post()
-{
-    $postId = $_GET['id'] ?? null;
-    if (!$postId) {
-        $this->homepage();
-        return;
-    }
+    {
+        $postId = $_GET['id'] ?? null;
+        if (!$postId) {
+            $this->homepage();
+            return;
+        }
 
-    // Lấy user hiện tại
-    $userId = $this->getCurrentUserId();
+        // Lấy user hiện tại
+        $userId = $this->getCurrentUserId();
 
-    // 1. Khởi tạo biến mặc định để View không bị lỗi
-    $post = null; 
-    $tags = []; 
-    $recommendedPosts = []; 
-    $comments = [];
-    $totalComments = 0; 
-    $totalPages = 1;
-    $isSaved = false;
+        // 1. Khởi tạo biến mặc định để View không bị lỗi
+        $post = null;
+        $tags = [];
+        $recommendedPosts = [];
+        $comments = [];
+        $totalComments = 0;
+        $totalPages = 1;
+        $isSaved = false;
+        $isLiked = false;
 
-    $page = isset($_GET['cpage']) ? max(1, (int)$_GET['cpage']) : 1;
-    $limit = 5; 
-    $offset = ($page - 1) * $limit;
+        $page = isset($_GET['cpage']) ? max(1, (int) $_GET['cpage']) : 1;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
 
-    // 2. Lấy thông tin bài viết
-    $post = $this->postRepository->getPostById($postId);
+        $page = isset($_GET['cpage']) ? max(1, (int) $_GET['cpage']) : 1;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+        // 2. Lấy thông tin bài viết
+        $post = $this->postRepository->getPostById($postId);
 
-    if (!$post) {
-        echo "<div style='text-align:center; padding:50px; font-family:sans-serif;'>
+        if (!$post) {
+            echo "<div style='text-align:center; padding:50px; font-family:sans-serif;'>
                 <h2>Bài viết không tồn tại hoặc đã bị ẩn!</h2>
                 <a href='Index.php'>Về trang chủ</a>
               </div>";
+            exit;
+        }
+
+        // 3. Kiểm tra bài viết đã được user lưu chưa
+        if (isset($_SESSION['user_id'])) {
+
+            $userId = $_SESSION['user_id'];
+
+            $isLiked = $this->postRepository->isLiked($postId, $userId);
+
+            $isSaved = $this->postRepository->isBookmarked($postId, $userId);
+        }
+
+        // 4. Lấy dữ liệu bổ sung
+        $tags = $this->postRepository->getPostTags($postId);
+        $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
+
+        // 5. Tính toán và lấy bình luận
+        $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
+
+        if ($totalComments > 0) {
+            $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
+            $totalPages = ceil($totalComments / $limit);
+        }
+
+        // 6. Gọi View
+        require __DIR__ . '/../Views/Client/Post/Detail.php';
+    }
+
+    public function savedPosts()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if (!$userId) {
+            echo "<div class='saved-empty'><p class='mb-0'>Vui lòng đăng nhập để xem bài viết đã lưu.</p></div>";
+            exit;
+        }
+
+        $savedLimit = 3;
+        $savedCurrentPage = isset($_GET['saved_page']) ? (int) $_GET['saved_page'] : 1;
+
+        if ($savedCurrentPage < 1) {
+            $savedCurrentPage = 1;
+        }
+
+        $savedOffset = ($savedCurrentPage - 1) * $savedLimit;
+
+        $savedTotalPosts = $this->postRepository->countSavedPostsByUser($userId);
+        $savedTotalPages = (int) ceil($savedTotalPosts / $savedLimit);
+
+        if ($savedTotalPages > 0 && $savedCurrentPage > $savedTotalPages) {
+            $savedCurrentPage = $savedTotalPages;
+            $savedOffset = ($savedCurrentPage - 1) * $savedLimit;
+        }
+
+        $savedPosts = $this->postRepository->getSavedPostsByUser(
+            $userId,
+            $savedLimit,
+            $savedOffset
+        );
+
+        include __DIR__ . '/../Views/Client/Post/saved.php';
         exit;
     }
 
-    // 3. Kiểm tra bài viết đã được user lưu chưa
-    if ($userId) {
-        $isSaved = $this->postRepository->isBookmarked($postId, $userId);
-    }
-
-    // 4. Lấy dữ liệu bổ sung
-    $tags = $this->postRepository->getPostTags($postId);
-    $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
-    
-    // 5. Tính toán và lấy bình luận
-    $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
-
-    if ($totalComments > 0) {
-        $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
-        $totalPages = ceil($totalComments / $limit);
-    }
-
-    // 6. Gọi View
-    require __DIR__ . '/../Views/Client/Post/Detail.php';
-}
-
-public function savedPosts()
+    public function myPostsPage()
 {
-     if (session_status() === PHP_SESSION_NONE) {
+    if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
 
     $userId = $_SESSION['user_id'] ?? null;
 
     if (!$userId) {
-        echo "<div class='saved-empty'><p class='mb-0'>Vui lòng đăng nhập để xem bài viết đã lưu.</p></div>";
+        echo "<div class='alert alert-warning m-0'>Vui lòng đăng nhập để xem bài viết của bạn.</div>";
         exit;
     }
 
-    $savedLimit = 3;
-    $savedCurrentPage = isset($_GET['saved_page']) ? (int)$_GET['saved_page'] : 1;
+    $myPostLimit = 4;
 
-    if ($savedCurrentPage < 1) {
-        $savedCurrentPage = 1;
+    $myPostCurrentPage = isset($_GET['my_post_page'])
+        ? (int)$_GET['my_post_page']
+        : 1;
+
+    if ($myPostCurrentPage < 1) {
+        $myPostCurrentPage = 1;
     }
 
-    $savedOffset = ($savedCurrentPage - 1) * $savedLimit;
+    $myPostKeyword = trim($_GET['keyword'] ?? '');
+    $myPostCategory = trim($_GET['category'] ?? '');
+    $myPostStatus = trim($_GET['status'] ?? '');
+    $myPostDate = trim($_GET['date'] ?? '');
 
-    $savedTotalPosts = $this->postRepository->countSavedPostsByUser($userId);
-    $savedTotalPages = (int)ceil($savedTotalPosts / $savedLimit);
+    $myPostOffset = ($myPostCurrentPage - 1) * $myPostLimit;
 
-    if ($savedTotalPages > 0 && $savedCurrentPage > $savedTotalPages) {
-        $savedCurrentPage = $savedTotalPages;
-        $savedOffset = ($savedCurrentPage - 1) * $savedLimit;
-    }
-
-    $savedPosts = $this->postRepository->getSavedPostsByUser(
+    $myPostTotalPosts = $this->postRepository->countMyPostsByUser(
         $userId,
-        $savedLimit,
-        $savedOffset
+        $myPostKeyword,
+        $myPostCategory,
+        $myPostStatus,
+        $myPostDate
     );
 
-    include __DIR__ . '/../Views/Client/Post/saved.php';
+    $myPostTotalPages = (int)ceil($myPostTotalPosts / $myPostLimit);
+
+    if ($myPostTotalPages > 0 && $myPostCurrentPage > $myPostTotalPages) {
+        $myPostCurrentPage = $myPostTotalPages;
+        $myPostOffset = ($myPostCurrentPage - 1) * $myPostLimit;
+    }
+
+    $myPosts = $this->postRepository->getMyPostsByUser(
+        $userId,
+        $myPostLimit,
+        $myPostOffset,
+        $myPostKeyword,
+        $myPostCategory,
+        $myPostStatus,
+        $myPostDate
+    );
+
+    $myPostTotalAll = $this->postRepository->countMyPostsByUser($userId);
+    $myPostTotalApproved = $this->postRepository->countMyPostsByUserAndStatus($userId, 'approved');
+    $myPostTotalPending = $this->postRepository->countMyPostsByUserAndStatus($userId, 'pending');
+    $myPostTotalDraft = $this->postRepository->countMyPostsByUserAndStatus($userId, 'draft');
+
+    $myPostCategories = $this->categoryController->getCategories();
+
+    include __DIR__ . '/../Views/Client/Post/my_posts.php';
     exit;
 }
 
@@ -295,108 +373,183 @@ public function savedPosts()
     public function adminUserPosts()
     {
         $filters = [
-            'keyword'     => $_GET['keyword'] ?? '',
+            'keyword' => $_GET['keyword'] ?? '',
             'category_id' => $_GET['category_id'] ?? '',
-            'author_id'   => $_GET['author_id'] ?? '',
-            'status'      => $_GET['status'] ?? '',
-            'date'        => $_GET['date'] ?? ''
+            'author_id' => $_GET['author_id'] ?? '',
+            'status' => $_GET['status'] ?? '',
+            'date' => $_GET['date'] ?? ''
         ];
 
-        $perPage     = 10;
-        $currentPage = max(1, (int)($_GET['p'] ?? 1));
-        $offset      = ($currentPage - 1) * $perPage;
+        $perPage = 10;
+        $currentPage = max(1, (int) ($_GET['p'] ?? 1));
+        $offset = ($currentPage - 1) * $perPage;
 
-        $posts      = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
-        $categories = $this->postRepository->getCategoriesForFilter();
-        $authors    = $this->postRepository->getAuthorsForFilter();
+        $posts = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
+        $categories = $this->categoryController->getCategories();
+        $authors = $this->postRepository->getAuthorsForFilter();
 
         $totalPosts = $this->postRepository->countUserPosts();              // stat card: tất cả
         $totalForPages = $this->postRepository->countUserPostsFiltered($filters); // pagination: theo filter
-        $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
-        $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
+        $pendingPosts = $this->postRepository->countUserPostsByStatus('pending');
+        $hiddenPosts = $this->postRepository->countUserPostsByStatus('hidden');
         $trendingPosts = $this->postRepository->countTrendingUserPosts();
 
-        $totalPages = (int)ceil($totalForPages / $perPage);
+        $totalPages = (int) ceil($totalForPages / $perPage);
 
         require_once __DIR__ . '/../Views/Admin/Post/Index.php';
     }
+    public function apiGetComments()
+    {
+        $postId = $_GET['post_id'] ?? null;
+        $page = isset($_GET['cpage']) ? max(1, (int) $_GET['cpage']) : 1;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+
+        if (!$postId) {
+            echo json_encode(['html' => '', 'pagination' => '']);
+            return;
+        }
+
+        $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
+        $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
+        $totalPages = ceil($totalComments / $limit);
+
+        $defaultAvatar = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
+        // Build HTML comment
+        ob_start();
+        if (empty($comments)): ?>
+            <p class="text-muted text-center py-4 bg-light rounded">Chưa có bình luận nào.</p>
+        <?php else:
+            foreach ($comments as $cmt): ?>
+                <div class="d-flex mb-4 pb-4 border-bottom">
+                    <img src="<?= $defaultAvatar ?>" class="comment-avatar me-3" alt="Avatar">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="fw-bold" style="color: var(--navy);">
+                                <?= htmlspecialchars($cmt['full_name']) ?>
+                            </div>
+                            <div class="small text-muted">
+                                <?= date('d/m/Y H:i', strtotime($cmt['created_at'])) ?>
+                            </div>
+                        </div>
+                        <div class="text-dark" style="font-size:0.95rem; line-height:1.6;">
+                            <?= nl2br(htmlspecialchars($cmt['content'])) ?>
+                        </div>
+                        <a href="#" class="text-danger fw-bold text-decoration-none mt-2 d-inline-block"
+                            style="font-size:0.8rem; color:var(--red) !important;">TRẢ LỜI</a>
+                    </div>
+                </div>
+            <?php endforeach;
+        endif;
+        $html = ob_get_clean();
+
+        // Build HTML pagination
+        ob_start();
+        if ($totalPages > 1): ?>
+            <div class="d-flex justify-content-center align-items-center mt-4 gap-3">
+                <?php if ($page > 1): ?>
+                    <button onclick="loadComments(<?= $page - 1 ?>)" class="btn btn-pagination-arrow">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                <?php endif; ?>
+
+                <span class="comment-pagination-text">Trang <?= $page ?> / <?= $totalPages ?></span>
+
+                <?php if ($page < $totalPages): ?>
+                    <button onclick="loadComments(<?= $page + 1 ?>)" class="btn btn-pagination-arrow">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                <?php endif; ?>
+            </div>
+        <?php endif;
+        $pagination = ob_get_clean();
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'html' => $html,
+            'pagination' => $pagination,
+            'total' => $totalComments
+        ]);
+    }
+
 
     /**
      * Quản lý bài viết cho admin 
      */
     public function adminPosts()
-{
-    $filters = [
-        'keyword'     => $_GET['keyword'] ?? '',
-        'category_id' => $_GET['category_id'] ?? '',
-        'status'      => $_GET['status'] ?? '',
-        'date'        => $_GET['date'] ?? ''
-    ];
+    {
+        $filters = [
+            'keyword' => $_GET['keyword'] ?? '',
+            'category_id' => $_GET['category_id'] ?? '',
+            'status' => $_GET['status'] ?? '',
+            'date' => $_GET['date'] ?? ''
+        ];
 
-    $perPage     = 10;
-    $currentPage = max(1, (int)($_GET['p'] ?? 1));
-    $offset      = ($currentPage - 1) * $perPage;
+        $perPage = 10;
+        $currentPage = max(1, (int) ($_GET['p'] ?? 1));
+        $offset = ($currentPage - 1) * $perPage;
 
-    $posts         = $this->postRepository->getAdminPosts($filters, $perPage, $offset);
-    $totalPosts    = $this->postRepository->countAdminPosts();
-    $totalForPages = $this->postRepository->countAdminPostsFiltered($filters);
-    $hiddenPosts   = $this->postRepository->countAdminPostsByStatus('hidden');
-    $trendingPosts = $this->postRepository->countTrendingAdminPosts();
-    $totalPages    = (int)ceil($totalForPages / $perPage);
+        $posts = $this->postRepository->getAdminPosts($filters, $perPage, $offset);
+        $totalPosts = $this->postRepository->countAdminPosts();
+        $totalForPages = $this->postRepository->countAdminPostsFiltered($filters);
+        $hiddenPosts = $this->postRepository->countAdminPostsByStatus('hidden');
+        $trendingPosts = $this->postRepository->countTrendingAdminPosts();
+        $totalPages = (int) ceil($totalForPages / $perPage);
 
-    require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
-}
-public function createPost()
-{
-    $categories = $this->postRepository->getCategoriesForFilter();
-    require_once __DIR__ . '/../Views/Admin/Post/Create.php';
-}
-
-public function storePost()
-{
-    $title      = trim($_POST['title'] ?? '');
-    $summary    = trim($_POST['summary'] ?? '');
-    $content    = $_POST['content'] ?? '';
-    $categoryId = $_POST['category_id'] ?? '';
-    $tags       = $_POST['tags'] ?? [];
-    $publishAt  = $_POST['publish_at'] ?? null;
-    $action     = $_POST['action'] ?? 'draft';
-
-    // ── FIX 2: dùng đúng key session như getCurrentUserId() ──
-    $authorId = $_SESSION['user_id'] ?? null;
-
-    // ── FIX 1: dùng đường dẫn tuyệt đối + tự tạo thư mục ──
-    $thumbnailUrl = null;
-    if (!empty($_FILES['thumbnail']['tmp_name'])) {
-        $ext        = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
-        $filename   = 'thumb_' . time() . '.' . $ext;
-        $uploadDir  = __DIR__ . '/../../../Public/Uploads/thumbnails/';
-
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
-        $destPath = $uploadDir . $filename;
-        if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $destPath)) {
-            $thumbnailUrl = 'Public/Uploads/thumbnails/' . $filename;
-        }
+        require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
+    }
+    public function createPost()
+    {
+        $categories = $this->postRepository->getCategoriesForFilter();
+        require_once __DIR__ . '/../Views/Admin/Post/Create.php';
     }
 
-    $status = ($action === 'publish') ? 'approved' : 'draft';
+    public function storePost()
+    {
+        $title = trim($_POST['title'] ?? '');
+        $summary = trim($_POST['summary'] ?? '');
+        $content = $_POST['content'] ?? '';
+        $categoryId = $_POST['category_id'] ?? '';
+        $tags = $_POST['tags'] ?? [];
+        $publishAt = $_POST['publish_at'] ?? null;
+        $action = $_POST['action'] ?? 'draft';
 
-    $postId = $this->postRepository->createPost([
-        'title'         => $title,
-        'summary'       => $summary,
-        'content'       => $content,
-        'category_id'   => $categoryId,
-        'author_id'     => $authorId,
-        'thumbnail_url' => $thumbnailUrl,
-        'status'        => $status,
-        'publish_at'    => $publishAt ?: null,
-        'tags'          => $tags,
-    ]);
+        // ── FIX 2: dùng đúng key session như getCurrentUserId() ──
+        $authorId = $_SESSION['user_id'] ?? null;
 
-    header('Location: Admin_index.php?page=admin_posts');
-    exit;
-}
+        // ── FIX 1: dùng đường dẫn tuyệt đối + tự tạo thư mục ──
+        $thumbnailUrl = null;
+        if (!empty($_FILES['thumbnail']['tmp_name'])) {
+            $ext = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
+            $filename = 'thumb_' . time() . '.' . $ext;
+            $uploadDir = __DIR__ . '/../../../Public/Uploads/thumbnails/';
+
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $destPath = $uploadDir . $filename;
+            if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $destPath)) {
+                $thumbnailUrl = 'Public/Uploads/thumbnails/' . $filename;
+            }
+        }
+
+        $status = ($action === 'publish') ? 'approved' : 'draft';
+
+        $postId = $this->postRepository->createPost([
+            'title' => $title,
+            'summary' => $summary,
+            'content' => $content,
+            'category_id' => $categoryId,
+            'author_id' => $authorId,
+            'thumbnail_url' => $thumbnailUrl,
+            'status' => $status,
+            'publish_at' => $publishAt ?: null,
+            'tags' => $tags,
+        ]);
+
+        header('Location: Admin_index.php?page=admin_posts');
+        exit;
+    }
 }
