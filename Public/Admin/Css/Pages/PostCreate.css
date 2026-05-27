@@ -33,13 +33,26 @@ body { background:#eef8ff; color:#07344a; }
 h1 { font-size:36px; font-weight:900; color:#07344a; margin-bottom:28px; letter-spacing:-1px; }
 
 /* ── EDITOR CARD ── */
+/* ── EDITOR CARD ── */
 .editor-card {
     background:#fff;
     border-radius:14px;
     padding:0;
     margin-bottom:20px;
-    overflow:hidden;
+    /* overflow:hidden; ← XÓA DÒNG NÀY */
     box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid rgba(208, 232, 242, 0.6);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Giữ bo góc cho các con bên trong thay vì dùng overflow:hidden trên card */
+.editor-card > *:first-child { border-radius:14px 14px 0 0; }
+.editor-card > *:last-child  { border-radius:0 0 14px 14px; }
+
+/* ── Focus highlight khi click vào card ── */
+.editor-card:focus-within {
+    border-color: #07344a !important;
+    box-shadow: 0 0 0 4px rgba(7, 52, 74, 0.07) !important;
 }
 
 .field-label {

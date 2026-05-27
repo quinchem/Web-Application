@@ -19,6 +19,10 @@
         .profile-info strong { font-size: 14px; margin-bottom: 6px; }
         .profile-info p { font-size: 11px; gap: 7px; }
         .profile-info i { font-size: 13px; }
+
+        /* Cột Quản trị viên — khớp với cột Tác giả */
+        td strong { font-size: 16px; font-weight: 900; display: block; color: #07344a; }
+        td small  { display: block; font-size: 13px; color: #86a0ad; margin-top: 5px; line-height: 1.4; }
     </style>
     <script src="Public/Admin/Js/Pages/PostAdmin.js?v=<?= time() ?>" defer></script>
     <script src="Public/Admin/Js/Pages/Profile.js?v=<?= time() ?>" defer></script>
@@ -78,23 +82,20 @@
                         value="<?= htmlspecialchars($filters['keyword'] ?? '') ?>">
                 </div>
 
-                <!-- ── Category dropdown — load động từ $categories ── -->
                 <?php
                 $parents  = [];
                 $children = [];
                 foreach (($categories ?? []) as $cat) {
-                    if (empty($cat['parent_id']))  {
+                    if (empty($cat['parent_id'])) {
                         $parents[$cat['category_id']] = $cat;
                     } else {
                         $children[$cat['parent_id']][] = $cat;
                     }
                 }
-
                 $selectedCatId = $filters['category_id'] ?? '';
                 $selectedLabel = 'Danh mục';
                 foreach (($categories ?? []) as $cat) {
                     if ((string)$cat['category_id'] === (string)$selectedCatId) {
-                        // Nếu là danh mục con thì hiện "Cha › Con"
                         if (!is_null($cat['parent_id']) && isset($parents[$cat['parent_id']])) {
                             $selectedLabel = $parents[$cat['parent_id']]['name'] . ' › ' . $cat['name'];
                         } else {
@@ -109,7 +110,6 @@
                         <span id="categoryLabel"><?= htmlspecialchars($selectedLabel) ?></span>
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
-
                     <div class="category-menu" id="categoryMenu" style="display:none">
                         <?php foreach ($parents as $parentId => $parent): ?>
                         <div class="cat-parent" data-id="<?= htmlspecialchars($parentId) ?>">
@@ -132,13 +132,24 @@
                             <?php endif; ?>
                         </div>
                         <?php endforeach; ?>
-
                         <div class="cat-reset" id="catReset">Tất cả danh mục</div>
                     </div>
-
                     <input type="hidden" name="category_id" id="categoryValue"
                         value="<?= htmlspecialchars($selectedCatId) ?>">
                 </div>
+
+                
+                <select name="author_id" class="filter-select">
+                    <option value="">Quản trị viên</option>
+                    <?php foreach (($adminAuthors ?? []) as $admin): ?>
+                        <option
+                            value="<?= htmlspecialchars($admin['user_id']) ?>"
+                            <?= ($filters['author_id'] ?? '') == $admin['user_id'] ? 'selected' : '' ?>
+                        >
+                            <?= htmlspecialchars($admin['full_name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
 
                 <select name="status" class="filter-select">
                     <option value="">Trạng thái</option>
@@ -147,8 +158,8 @@
                     <option value="draft"    <?= ($filters['status'] ?? '') === 'draft'    ? 'selected' : '' ?>>Bản nháp</option>
                 </select>
 
-                <div class="date-input-wrapper filter-select" style="display:flex;align-items:center;gap:8px;padding:0 14px;">
-                    <i class="fa-regular fa-calendar" style="color:#9fb0bc;font-size:13px;"></i>
+                <div class="date-input-wrapper" style="height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;gap:8px;padding:0 14px;flex:1;min-width:0;">
+                    <i class="fa-regular fa-calendar" style="color:#9fb0bc;font-size:13px;flex-shrink:0;"></i>
                     <input type="date" name="date"
                         style="border:none;outline:none;background:transparent;font-size:13px;font-weight:800;color:#07344a;font-family:'Barlow',sans-serif;width:100%;"
                         value="<?= htmlspecialchars($filters['date'] ?? '') ?>">
@@ -182,10 +193,16 @@
                                     <small><?= htmlspecialchars($post->category_name) ?></small>
                                 </div>
                             </td>
+
+                            
                             <td>
-                                <strong>Ban Biên tập Trạm Tin Việt</strong>
-                                <small><?= date('d/m/Y', strtotime($post->created_at)) ?><br><?= date('H:i', strtotime($post->created_at)) ?></small>
+                                <strong><?= htmlspecialchars($post->author_name ?? 'Ban Biên tập') ?></strong>
+                                <small>
+                                    <?= date('d/m/Y', strtotime($post->created_at)) ?><br>
+                                    <?= date('H:i', strtotime($post->created_at)) ?>
+                                </small>
                             </td>
+
                             <td>
                                 <?php
                                 $statusMap = [
@@ -223,7 +240,6 @@
                                             <i class="fa-regular fa-eye-slash"></i>
                                         </a>
                                     <?php endif; ?>
-
                                     <a href="Admin_index.php?page=edit_post&id=<?= $post->post_id ?>"
                                        class="action-btn edit-btn" title="Sửa">
                                         <i class="fa-regular fa-pen-to-square"></i>
@@ -257,10 +273,8 @@
                     <div class="d-flex align-items-center gap-2">
                         <button type="button" onclick="goToPage(<?= $currentPage-1 ?>)"
                             <?= $currentPage <= 1 ? 'disabled' : '' ?>>‹</button>
-
                         <button type="button" class="<?= $currentPage == 1 ? 'current' : '' ?>"
                             onclick="goToPage(1)">1</button>
-
                         <?php if ($totalPages > 1): ?>
                             <?php if ($currentPage > 3): ?>
                                 <button type="button" disabled>...</button>
@@ -275,7 +289,6 @@
                             <button type="button" class="<?= $currentPage == $totalPages ? 'current' : '' ?>"
                                 onclick="goToPage(<?= $totalPages ?>)"><?= $totalPages ?></button>
                         <?php endif; ?>
-
                         <button type="button" onclick="goToPage(<?= $currentPage+1 ?>)"
                             <?= $currentPage >= $totalPages ? 'disabled' : '' ?>>›</button>
                     </div>

@@ -35,51 +35,21 @@ body { background:#eef8ff; color:#07344a; }
 h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-spacing:-1px; }
 
 /* PAGE HEADER */
-.page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 28px;
-}
-.page-header h1 { margin-bottom: 0; }
+.page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+.page-header h1 { margin-bottom:0; }
 
 /* BTN COMPOSE */
-.btn-compose {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #e52328;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 22px;
-    font-size: 13px;
-    font-weight: 800;
-    text-decoration: none;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-}
-.btn-compose:hover { background: #c81d22; color: #fff; }
+.btn-compose { display:inline-flex; align-items:center; gap:8px; background:#e52328; color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:13px; font-weight:800; text-decoration:none; cursor:pointer; letter-spacing:0.5px; white-space:nowrap; }
+.btn-compose:hover { background:#c81d22; color:#fff; }
 
-/* =========================================================================
-   FIX MODAL PROFILE BỊ CHE BỞI FILTER-BOX
-   Selector rộng để cover mọi tên class modal có thể dùng trong Profile.css
-   ========================================================================= */
-.modal-overlay,
-.modal-backdrop,
-.profile-modal-overlay,
-.profile-modal,
-#profileModal,
-#passwordModal,
-[id$="Modal"],
-[class*="modal-overlay"],
-[class*="modal-backdrop"],
-[class*="-modal"] {
+/* MODAL Z-INDEX FIX */
+.modal-overlay, .modal-backdrop, .profile-modal-overlay, .profile-modal,
+#profileModal, #passwordModal, [id$="Modal"],
+[class*="modal-overlay"], [class*="modal-backdrop"], [class*="-modal"] {
     z-index: 999999 !important;
 }
 
-/* STAT CARDS — 3 cột */
+/* STAT CARDS */
 .stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:26px; margin-bottom:45px; }
 .stat-card { background:#fff; border-radius:10px; padding:28px; box-shadow:0 2px 8px rgba(0,0,0,0.04); min-height:140px; display:flex; flex-direction:column; justify-content:flex-end; }
 .stat-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:auto; }
@@ -91,32 +61,91 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
 .darkred { border-left:4px solid #c5454f; }
 .yellow  { border-left:4px solid #ffc233; }
 
-/* FILTER BOX — z-index thấp để không che modal */
+/* =========================================================================
+   FILTER BOX
+   6 items: search | category-dropdown | author-select | status-select | date | btn
+   ========================================================================= */
 .filter-box {
     width: 100%;
     background: #dff0f6;
     border-radius: 14px;
     padding: 20px 24px;
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.2fr 48px;
-    gap: 14px;
+    display: flex;        /* ← ĐỔI SANG FLEX thay vì grid để tránh bug */
+    flex-wrap: nowrap;
     align-items: center;
+    gap: 14px;
     margin-bottom: 46px;
     overflow: visible;
-    
 }
-.search-input { height:42px; background:#fff; border-radius:9px; padding:0 18px; display:flex; align-items:center; }
-.search-input i { font-size:14px; color:#9fb0bc; margin-right:12px; }
+
+/* Search chiếm không gian còn lại */
+.search-input {
+    flex: 2;
+    min-width: 0;
+    height: 42px;
+    background: #fff;
+    border-radius: 9px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+}
+.search-input i { font-size:14px; color:#9fb0bc; margin-right:12px; flex-shrink:0; }
 .search-input input { border:none; outline:none; background:transparent; width:100%; font-size:13px; font-weight:500; color:#07344a; font-family:'Barlow',sans-serif; }
 .search-input input::placeholder { color:#9fb0bc; }
-.filter-select { height:42px; border:none; background:#fff; border-radius:9px; padding:0 14px; font-size:13px; font-weight:800; color:#07344a; outline:none; font-family:'Barlow',sans-serif; width:100%; }
-.filter-box button { height:42px; border:none; background:#fff; border-radius:9px; cursor:pointer; font-family:'Barlow',sans-serif; }
-.filter-btn { min-width:48px !important; width:48px !important; height:48px !important; padding:0 !important; border-radius:10px !important; background:#e52328 !important; color:#fff !important; font-size:15px !important; display:flex !important; align-items:center !important; justify-content:center !important; box-shadow:0 10px 20px rgba(229,35,40,0.25); }
 
-/* CATEGORY DROPDOWN */
-.category-dropdown { position:relative; height:42px; z-index:100; }
-button.category-trigger { width:100% !important; height:42px !important; min-width:unset !important; padding:0 14px !important; background:#fff !important; border-radius:9px !important; font-size:13px !important; font-weight:800 !important; color:#07344a !important; display:flex !important; align-items:center !important; justify-content:space-between !important; gap:8px !important; cursor:pointer !important; border:none !important; white-space:nowrap; }
-.category-trigger i { font-size:10px; color:#9fb0bc; transition:transform 0.2s; }
+/* Category dropdown — flex item */
+.category-dropdown {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    position: relative;
+    z-index: 100;
+}
+
+/* Select và date wrapper — flex item đều nhau */
+.filter-select {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    border: none;
+    background: #fff;
+    border-radius: 9px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #07344a;
+    outline: none;
+    font-family: 'Barlow', sans-serif;
+}
+
+/* Date wrapper cùng flex như select */
+.date-input-wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Filter button — kích thước cố định */
+.filter-btn {
+    flex-shrink: 0;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    padding: 0 !important;
+    border-radius: 10px !important;
+    background: #e52328 !important;
+    color: #fff !important;
+    font-size: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 10px 20px rgba(229,35,40,0.25);
+}
+
+/* CATEGORY DROPDOWN INNER */
+button.category-trigger { width:100% !important; height:42px !important; min-width:unset !important; padding:0 14px !important; background:#fff !important; border-radius:9px !important; font-size:13px !important; font-weight:800 !important; color:#07344a !important; display:flex !important; align-items:center !important; justify-content:space-between !important; gap:8px !important; cursor:pointer !important; border:none !important; white-space:nowrap; overflow:hidden; }
+.category-trigger i { font-size:10px; color:#9fb0bc; transition:transform 0.2s; flex-shrink:0; }
 .category-dropdown .category-menu { position:absolute; top:calc(100% + 6px); left:0; min-width:200px; background:#fff; border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.12); z-index:9999; padding:6px 0; }
 .cat-parent { position:relative; }
 .cat-parent-label { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; font-size:13px; font-weight:800; color:#07344a; cursor:pointer; gap:24px; }
@@ -138,8 +167,8 @@ td { padding:28px 16px; border-bottom:1px solid #eef1f3; vertical-align:middle; 
 .post-title { width:260px; text-align:left; font-family:'Newsreader',serif; font-size:15px; font-weight:700; line-height:1.55; color:#07344a; }
 .category-pill { display:inline-flex; flex-direction:column; justify-content:center; align-items:center; background:#e9eef3; border-radius:999px; width:130px; height:56px; text-align:center; font-size:12px; font-weight:900; line-height:1.2; }
 .category-pill small { display:block; font-size:11px; font-weight:700; margin-top:3px; color:#5f7280; }
-td strong { font-size:15px; font-weight:900; }
-td small { display:block; font-size:12px; color:#86a0ad; margin-top:4px; line-height:1.4; }
+td strong { font-size:16px; font-weight:900; display:block; color:#07344a; }
+td small { display:block; font-size:13px; color:#86a0ad; margin-top:5px; line-height:1.4; }
 
 /* STATUS BADGES */
 .status-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:999px; font-size:11px; font-weight:800; letter-spacing:0.2px; }
@@ -169,8 +198,10 @@ td small { display:block; font-size:12px; color:#86a0ad; margin-top:4px; line-he
 /* RESPONSIVE */
 @media (max-width:1400px) {
     .stat-grid { grid-template-columns:repeat(2,1fr); }
-    .filter-box { grid-template-columns:1fr 1fr 1fr; }
+    .filter-box { flex-wrap:wrap; }
+    .search-input { flex:1 1 100%; }
 }
 @media (max-width:768px) {
-    .filter-box { grid-template-columns:1fr; }
+    .filter-box { flex-direction:column; }
+    .filter-select, .category-dropdown, .date-input-wrapper { width:100%; flex:unset; }
 }
