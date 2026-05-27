@@ -70,49 +70,50 @@ $currentPage = $_GET['page'] ?? '';
     </div>
 
 
-    <!-- PROFILE / LOGOUT -->
+<!-- PROFILE / LOGOUT -->
 
-    <div class="profile-wrapper" id="profileWrapper">
+<div class="profile-wrapper" id="profileWrapper">
 
-        <?php
-        require_once __DIR__ .
-        '/../../Admin/Profile/Index.php';
-        ?>
+    <?php
+    require_once __DIR__ .
+    '/../../Admin/Profile/Index.php';
+    ?>
 
-        <a href="Admin_index.php?page=logout"
-           class="admin-profile"
-           onclick="return confirm('Bạn có chắc muốn đăng xuất không?');"
-           style="
-                cursor: pointer;
-                text-decoration: none;
-                color: inherit;
-           ">
+    <div class="admin-profile" id="adminProfile">
 
-            <img
-                src="/Web-Application/Public/Admin/Images/admin-avatar.png"
-                alt="Admin"
-            >
+        <img
+            src="/Web-Application/Public/Admin/Images/admin-avatar.png"
+            alt="Admin"
+        >
 
-            <div class="profile-info">
+        <div class="profile-info">
 
-                <strong>
+            <strong>
+                <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?>
+            </strong>
 
-                    <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?>
+            <p>
 
-                </strong>
+                <span class="logout-btn"
+                      onclick="
+                          event.stopPropagation();
 
-                <p>
+                          if(confirm('Bạn có chắc muốn đăng xuất không?')){
+                              window.location.href='Admin_index.php?page=logout';
+                          }
+                      ">
 
                     ĐĂNG XUẤT
 
                     <i class="fa-solid fa-right-from-bracket"></i>
 
-                </p>
+                </span>
 
-            </div>
+            </p>
 
-        </a>
+        </div>
 
     </div>
 
+</div>
 </div>
