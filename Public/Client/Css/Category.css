@@ -1,0 +1,193 @@
+/* ============================================================
+   category.css
+   Đặt tại: Public/Client/Css/category.css
+   Dùng cho: Views/Client/Category/Detail.php
+   ============================================================ */
+
+/* ── Layout chính ────────────────────────────────────────── */
+.category-main {
+    width: 1140px;
+    min-height: 100vh;
+    padding: 24px 40px 60px;
+}
+
+/* ── Breadcrumb ──────────────────────────────────────────── */
+.breadcrumb-nav {
+    font-size: .78rem;
+    color: #6b7280;
+    margin-bottom: 20px;
+}
+.breadcrumb-nav a {
+    color: #6b7280;
+    text-decoration: none;
+    transition: color .2s;
+}
+.breadcrumb-nav a:hover { color: #b90c17; }
+
+/* ── Category hero ───────────────────────────────────────── */
+.cat-hero {
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.cat-title {
+    font-family: 'Newsreader', serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #003049;
+    margin-bottom: 10px;
+}
+.cat-desc {
+    font-size: .92rem;
+    color: #6b7280;
+    line-height: 1.65;
+    max-width: 680px;
+    margin: 0;
+}
+
+/* ── Sub-category section ────────────────────────────────── */
+.sub-cat-section {
+    margin-bottom: 52px;
+    padding-bottom: 52px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.sub-cat-section:last-of-type {
+    border-bottom: none;
+}
+
+/* ── Section header ──────────────────────────────────────── */
+.section-title-border { border-bottom: 2px solid #003049; }
+
+.section-heading {
+    color: #003049;
+    font-family: 'Barlow', sans-serif;
+}
+
+.view-more-link {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #b90c17;
+    transition: opacity .2s;
+}
+.view-more-link:hover { opacity: .65; }
+
+/* ── Featured post ───────────────────────────────────────── */
+.featured-img-wrap {
+    overflow: hidden;
+    border-radius: 1rem;
+    margin-bottom: 12px;
+}
+.post-main-img {
+    height: 360px;
+    object-fit: cover;
+    border-radius: 1rem;
+    display: block;
+    transition: transform .6s ease, opacity .3s;
+}
+.featured-img-wrap:hover .post-main-img {
+    transform: scale(1.04);
+    opacity: .92;
+}
+
+/* ── Category label ──────────────────────────────────────── */
+.cat-label {
+    font-size: .68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #b90c17;
+    font-family: 'Barlow', sans-serif;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* ── Post titles ─────────────────────────────────────────── */
+.post-title-featured {
+    font-family: 'Newsreader', serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #003049;
+    margin: 8px 0 12px;
+    transition: color .2s;
+}
+a:hover .post-title-featured { color: #b90c17; }
+
+.post-title-small {
+    font-family: 'Newsreader', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #003049;
+    margin: 6px 0 8px;
+    transition: color .2s;
+}
+a:hover .post-title-small { color: #b90c17; }
+
+/* ── Post summary ────────────────────────────────────────── */
+.post-summary {
+    font-size: .88rem;
+    color: #6b7280;
+    line-height: 1.65;
+    font-weight: 400;
+    text-align: justify;
+    margin-bottom: 12px;
+}
+.post-summary-small {
+    font-size: .82rem;
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+/* ── Post meta ───────────────────────────────────────────── */
+.post-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #9ca3af;
+    letter-spacing: .3px;
+    margin-top: 8px;
+}
+.meta-dot {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+/* ── Side post cards ─────────────────────────────────────── */
+.side-post-card {
+    padding: 18px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+.side-post-card:first-child { padding-top: 0; }
+.side-post-card:last-child  { border-bottom: none; }
+
+/* ── Text clamp ──────────────────────────────────────────── */
+.clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.empty-state i { color: #e5e7eb; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 992px) {
+    .category-main { width: 100%; padding: 20px 16px 48px; }
+    .post-main-img { height: 240px; }
+    .cat-title     { font-size: 2rem; }
+}

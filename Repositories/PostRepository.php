@@ -930,4 +930,69 @@ public function syncTags($postId, $tagNames)
                    ->execute([$postId, $tagId]);
     }
 }
+
+public function getPostsByParentCategoryGrouped(string $parentCategoryName, int $limitPerSub = 4): array
+{
+    // Bước 1: Lấy id danh mục cha theo tên
+    $stmtParent = $this->conn->prepare("
+        SELECT category_id
+        FROM Category
+        WHERE name = :name
+          AND parent_id IS NULL
+        LIMIT 1
+    ");
+    $stmtParent->execute([':name' => $parentCategoryName]);
+    $parent = $stmtParent->fetch(PDO::FETCH_ASSOC);
+
+    if (!$parent) return [];
+
+    $parentId = $parent['category_id'];
+
+    // Bước 2: Lấy tất cả sub-category thuộc danh mục cha
+    $stmtSubs = $this->conn->prepare("
+        SELECT category_id, name
+        FROM Category
+        WHERE parent_id = :parent_id
+        ORDER BY `order` ASC
+    ");
+    $stmtSubs->execute([':parent_id' => $parentId]);
+    $subs = $stmtSubs->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($subs)) return [];
+
+    // Bước 3: Với mỗi sub-category, lấy $limitPerSub bài viết mới nhất
+    $result = [];
+
+    foreach ($subs as $sub) {
+        $stmtPosts = $this->conn->prepare("
+            SELECT
+                p.post_id,
+                p.title,
+                p.summary,
+                p.thumbnail_URL  AS thumbnail_url,
+                p.published_at,
+                c.name           AS category_name,
+                u.full_name      AS author_name
+            FROM Post p
+            JOIN Category c ON p.category_id = c.category_id
+            JOIN User     u ON p.user_id      = u.user_id
+            WHERE p.category_id = :cat_id
+              AND p.status       = 'approved'
+              AND p.deleted_at   IS NULL
+            ORDER BY p.published_at DESC
+            LIMIT :lim
+        ");
+        $stmtPosts->bindValue(':cat_id', $sub['category_id']);
+        $stmtPosts->bindValue(':lim',    $limitPerSub, PDO::PARAM_INT);
+        $stmtPosts->execute();
+
+        $posts = $stmtPosts->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!empty($posts)) {
+            $result[$sub['name']] = $posts;
+        }
+    }
+
+    return $result;
+}
 }

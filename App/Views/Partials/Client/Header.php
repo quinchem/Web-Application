@@ -86,13 +86,13 @@ $currentPage = !empty($_GET['page']) ? $_GET['page'] : 'homepage';
                     </li>
                     
                     <li>
-                        <a href="index.php?page=category&name=Thời sự" class="<?= ($currentPage === 'category' && $currentCategory === 'Thời sự') ? 'active' : ''; ?>">Thời Sự</a>
+                        <a href="index.php?page=category_detail&name=Thời sự" class="<?= ($currentPage === 'category' && $currentCategory === 'Thời sự') ? 'active' : ''; ?>">Thời Sự</a>
                     </li>
                     <li>
-                        <a href="index.php?page=category&name=Kinh tế" class="<?= ($currentPage === 'category' && $currentCategory === 'Kinh tế') ? 'active' : ''; ?>">Kinh Tế</a>
+                        <a href="index.php?page=category_detail&name=Kinh tế" class="<?= ($currentPage === 'category' && $currentCategory === 'Kinh tế') ? 'active' : ''; ?>">Kinh Tế</a>
                     </li>
                     <li>
-                        <a href="index.php?page=category&name=Tiện ích" class="<?= ($currentPage === 'category' && $currentCategory === 'Tiện ích') ? 'active' : ''; ?>">Tiện Ích</a>
+                        <a href="index.php?page=category_detail&name=Tiện ích" class="<?= ($currentPage === 'category' && $currentCategory === 'Tiện ích') ? 'active' : ''; ?>">Tiện Ích</a>
                     </li>
                 </ul>
                 <div class="search-box" style="position: relative;">

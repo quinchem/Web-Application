@@ -124,7 +124,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
     <section class="mb-5 pb-4">
         <div class="d-flex justify-content-between align-items-end section-title-border mb-4 pb-2">
             <h2 class="h3 fw-bold m-0" style="color: #003049; font-family: 'Barlow', sans-serif;">Thời sự</h2>
-            <a href="index.php?page=category&name=Thời sự" class="text-uppercase fw-bold text-decoration-none tracking-widest text-danger small" style="color: #b90c17 !important; transition: opacity 0.2s;">
+            <a href="index.php?page=category_detail&name=Thời sự" class="text-uppercase fw-bold text-decoration-none tracking-widest text-danger small" style="color: #b90c17 !important; transition: opacity 0.2s;">
                 Xem thêm
             </a>
         </div>
@@ -181,7 +181,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
     <section class="mb-5 pb-4">
         <div class="d-flex justify-content-between align-items-end section-title-border mb-4 pb-2">
             <h2 class="h3 fw-bold m-0" style="color: #003049; font-family: 'Barlow', sans-serif;">Kinh tế</h2>
-            <a href="index.php?page=category&name=Kinh tế" class="text-uppercase fw-bold text-decoration-none tracking-widest text-danger small" style="color: #b90c17 !important; transition: opacity 0.2s;">
+            <a href="index.php?page=category_detail&name=Kinh tế" class="text-uppercase fw-bold text-decoration-none tracking-widest text-danger small" style="color: #b90c17 !important; transition: opacity 0.2s;">
                 Xem thêm
             </a>
         </div>

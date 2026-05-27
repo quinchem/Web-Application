@@ -631,4 +631,25 @@ public function updatePost()
     header('Location: Admin_index.php?page=edit_post&id=' . $id . '&success=1');
     exit;
 }
+
+public function categoryDetail()
+{
+    $categoryName = $_GET['name'] ?? null;
+
+    if (!$categoryName) {
+        $this->homepage();
+        return;
+    }
+
+    $posts = $this->postRepository->getPostsByParentCategoryGrouped($categoryName);
+
+    $categoryDescriptions = [
+        'Thời sự'  => 'Cập nhật những diễn biến quan trọng nhất về chính trị, xã hội và an ninh quốc phòng trong và ngoài nước qua lăng kính phân tích sâu sắc.',
+        'Kinh tế'  => 'Phân tích và cập nhật các xu hướng kinh tế, tài chính, thị trường trong nước và quốc tế.',
+        'Tiện ích' => 'Thông tin hữu ích về đời sống, công nghệ, sức khỏe và giải trí dành cho bạn đọc.',
+    ];
+    $categoryDesc = $categoryDescriptions[$categoryName] ?? '';
+
+    require __DIR__ . '/../Views/Client/Category/Detail.php';
+}
 }
