@@ -145,3 +145,24 @@ togglePasswordIcons.forEach(function (icon) {
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const adminProfile = document.getElementById('adminProfile');
+
+    if (adminProfile) {
+
+        adminProfile.addEventListener('click', function (e) {
+
+            // Nếu click logout thì bỏ qua
+            if (e.target.closest('.logout-btn')) {
+                return;
+            }
+
+            toggleProfileMenu();
+
+        });
+
+    }
+
+})

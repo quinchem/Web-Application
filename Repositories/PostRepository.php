@@ -469,7 +469,7 @@ class PostRepository
     ";
 
         $stmt = $this->conn->prepare($sql);
-    }
+    
 
     $stmt->execute([
         'post_id' => $postId,

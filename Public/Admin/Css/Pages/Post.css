@@ -100,6 +100,7 @@ body {
     display: flex;
     align-items: center;
     gap: 18px;
+    
 }
 
 .admin-profile img {
@@ -128,6 +129,19 @@ body {
 }
 
 .profile-info i { font-size: 16px; }
+
+.logout-btn{
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.logout-btn:hover{
+    opacity: 0.8;
+}
 
 /* =========================================================================
    MAIN CONTENT
