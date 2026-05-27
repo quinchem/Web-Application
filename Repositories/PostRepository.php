@@ -473,7 +473,7 @@ class PostRepository
         LIMIT 1
     ";
 
-        $stmt = $this->conn->prepare($sql);
+    $stmt = $this->conn->prepare($sql);
     
 
     $stmt->execute([
