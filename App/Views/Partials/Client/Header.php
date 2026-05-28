@@ -64,18 +64,18 @@ $currentCategory = !empty($_GET['name']) ? $_GET['name'] : '';
                     </li>
 
                     <li>
-                        <a href="index.php?page=category&name=Thời sự"
-                            class="<?= ($currentPage === 'category' && $currentCategory === 'Thời sự') ? 'active' : ''; ?>">Thời
+                        <a href="index.php?page=category_detail&slug=thoi-su"
+                            class="<?= ($currentPage === 'category_detail' && ($_GET['slug'] ?? '') === 'thoi-su') ? 'active' : ''; ?>">Thời
                             Sự</a>
                     </li>
                     <li>
-                        <a href="index.php?page=category&name=Kinh tế"
-                            class="<?= ($currentPage === 'category' && $currentCategory === 'Kinh tế') ? 'active' : ''; ?>">Kinh
+                        <a href="index.php?page=category_detail&slug=kinh-te"
+                            class="<?= ($currentPage === 'category_detail' && ($_GET['slug'] ?? '') === 'kinh-te') ? 'active' : ''; ?>">Kinh
                             Tế</a>
                     </li>
                     <li>
-                        <a href="index.php?page=category&name=Tiện ích"
-                            class="<?= ($currentPage === 'category' && $currentCategory === 'Tiện ích') ? 'active' : ''; ?>">Tiện
+                        <a href="index.php?page=category_detail&slug=tien-ich"
+                            class="<?= ($currentPage === 'category_detail' && ($_GET['slug'] ?? '') === 'tien-ich') ? 'active' : ''; ?>">Tiện
                             Ích</a>
                     </li>
                 </ul>
