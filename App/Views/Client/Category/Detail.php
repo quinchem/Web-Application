@@ -67,11 +67,11 @@
                 if (empty($subPosts)) continue;
                 $subPosts = array_values($subPosts);
                 $first = array_shift($subPosts);
- 
+
                 // Tác giả bài featured
-                $firstAuthorLabel = (($first['author_role'] ?? '') === 'admin')
-                    ? 'Biên tập viên: ' . ($first['author_name'] ?? '')
-                    : ucwords($first['author_name'] ?? '');
+               $firstAuthorLabel = (($first['author_role'] ?? '') === 'admin')
+            ? 'Biên tập viên: ' . ucwords(mb_strtolower($first['author_name'] ?? '', 'UTF-8'))
+            : ucwords(mb_strtolower($first['author_name'] ?? '', 'UTF-8'));
             ?>
             <section class="news-section">
 
@@ -122,7 +122,7 @@
 
                             <span class="dot">·</span>
 
-                            <?= htmlspecialchars($first['author_name'] ?? '') ?>
+                            <?= htmlspecialchars($firstAuthorLabel) ?>
 
                         </div>
 
@@ -134,6 +134,12 @@
                         <div class="side-wrapper">
 
                             <?php foreach ($subPosts as $p): ?>
+
+                                <?php
+                                   $sideAuthorLabel = (($p['author_role'] ?? '') === 'admin')
+                                    ? 'Biên tập viên: ' . ucwords(mb_strtolower($p['author_name'] ?? '', 'UTF-8'))
+                                    : ucwords(mb_strtolower($p['author_name'] ?? '', 'UTF-8'));
+                                ?>
 
                                 <div class="side-post">
 
@@ -162,7 +168,7 @@
 
                                         <span class="dot">·</span>
 
-                                        <?= htmlspecialchars($p['author_name'] ?? '') ?>
+                                        <?= htmlspecialchars($sideAuthorLabel) ?>
 
                                     </div>
 

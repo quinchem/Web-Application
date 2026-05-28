@@ -1346,7 +1346,7 @@ public function getRelatedPosts($categoryId, $currentPostId, $limit = 3)
             p.post_id,
             p.title,
             p.summary,
-            p.thumbnail_URL,
+            p.thumbnail_URL AS thumbnail_url,
             p.published_at,
 
             c.name AS category_name,
@@ -1397,44 +1397,65 @@ public function getCategoryBySlug($slug)
     return $stmt->fetch(\PDO::FETCH_ASSOC);
 }
 
-public function getPostsByCategorySlug(string $slug): array
+public function getPostsByCategorySlug(
+    $slug,
+    $featuredId,
+    $limit,
+    $offset
+)
 {
-    $stmt = $this->conn->prepare("
-        SELECT
-            p.post_id,
-            p.title,
-            p.summary,
-            p.content,
+    $sql = "
+        SELECT 
+            p.*,
             p.thumbnail_URL AS thumbnail_url,
-            p.published_at,
-            p.view_count,
 
-            c.name  AS category_name,
-            c.slug  AS category_slug,
+            c.name AS category_name,
+            c.slug AS category_slug,
 
-            parent.name AS parent_category_name,
-            parent.slug AS parent_category_slug,   -- THÊM
+            pc.name AS parent_category_name,
+            pc.slug AS parent_category_slug,
 
             u.full_name AS author_name,
-            r.role_name AS author_role             -- THÊM
+
+            r.role_name AS author_role
 
         FROM Post p
-        JOIN Category c   ON p.category_id = c.category_id
-        JOIN `User` u     ON p.user_id = u.user_id
-        JOIN Role r       ON u.role_id = r.role_id
-        LEFT JOIN Category parent ON c.parent_id = parent.category_id
 
-        WHERE c.slug = :slug
-          AND p.status = 'approved'
-          AND p.deleted_at IS NULL
+        INNER JOIN Category c
+            ON p.category_id = c.category_id
+
+        LEFT JOIN Category pc
+            ON c.parent_id = pc.category_id
+
+        LEFT JOIN User u
+            ON p.user_id = u.user_id
+
+        LEFT JOIN Role r
+            ON u.role_id = r.role_id
+
+        WHERE c.slug = ?
+        AND p.status = 'approved'
+        AND p.post_id != ?
 
         ORDER BY p.published_at DESC
-    ");
 
-    $stmt->execute([':slug' => $slug]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        LIMIT ? OFFSET ?
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    $stmt->bindValue(1, $slug, \PDO::PARAM_STR);
+
+    $stmt->bindValue(2, $featuredId, \PDO::PARAM_STR);
+
+    $stmt->bindValue(3, $limit, \PDO::PARAM_INT);
+
+    $stmt->bindValue(4, $offset, \PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
 }
-
 public function getCategoryByName(string $name): ?array
 {
     $stmt = $this->conn->prepare("
@@ -1444,5 +1465,73 @@ public function getCategoryByName(string $name): ?array
     ");
     $stmt->execute([':name' => $name]);
     return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+public function getFeaturedPostByCategory($slug)
+{
+    $sql = "
+        SELECT 
+            p.*,
+            p.thumbnail_URL AS thumbnail_url,
+
+            c.name AS category_name,
+            c.slug AS category_slug,
+
+            pc.name AS parent_category_name,
+            pc.slug AS parent_category_slug,
+
+            u.full_name AS author_name,
+
+            r.role_name AS author_role
+
+        FROM Post p
+
+        INNER JOIN Category c
+            ON p.category_id = c.category_id
+
+        LEFT JOIN Category pc
+            ON c.parent_id = pc.category_id
+
+        LEFT JOIN User u
+            ON p.user_id = u.user_id
+
+        LEFT JOIN Role r
+            ON u.role_id = r.role_id
+
+        WHERE c.slug = ?
+        AND p.status = 'approved'
+
+        ORDER BY p.view_count DESC
+
+        LIMIT 1
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    $stmt->execute([$slug]);
+
+    return $stmt->fetch(\PDO::FETCH_ASSOC);
+}
+public function countPostsByCategorySlug($slug)
+{
+    $sql = "
+        SELECT COUNT(*) as total
+
+        FROM Post p
+
+        INNER JOIN Category c
+            ON p.category_id = c.category_id
+
+        WHERE c.slug = ?
+        AND p.status = 'approved'
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    $stmt->execute([$slug]);
+
+    $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+    return $result['total'] ?? 0;
 }
 }

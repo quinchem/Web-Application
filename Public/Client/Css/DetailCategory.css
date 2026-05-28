@@ -22,20 +22,24 @@ body{
 
 /* SPACING */
 .page-spacing{
-    margin-top: 120px;
+    margin-top: 180px;
 }
 
 /* BREADCRUMB */
-.breadcrumb-custom {
+.breadcrumb-custom{
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    gap: 10px;
+
     margin-bottom: 12px;
+
     font-size: 0.8rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: .5px;
     color: #6c757d;
+    padding-top: 50px;
 }
 
 .breadcrumb-link {
@@ -50,36 +54,26 @@ body{
 
 /* Danh mục cha cấp 1 — đỏ, in hoa, KHÔNG gạch chân */
 .breadcrumb-parent {
-    color: #b90c17;
+    color:  #6c757d;
     font-weight: 700;
     text-decoration: none;
+    transition: .2s;
 }
 
 .breadcrumb-parent:hover {
     text-decoration: none;
-    color: #8f0a12;
+    color: #b90c17;
 }
 
 /* Danh mục con cấp 2 — badge đỏ, KHÔNG gạch chân */
 .breadcrumb-current-tag {
-    display: inline-block;
-    padding: 2px 10px;
-    background: #b90c17;
-    color: #fff !important;
-    font-size: 11px;
+    color: #b90c17;
     font-weight: 700;
-    font-family: 'Barlow', sans-serif;
+    text-decoration: none;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    text-decoration: none !important;
-    border-radius: 3px;
-    transition: background .2s;
 }
 
-.breadcrumb-current-tag:hover {
-    background: #8f0a12;
-    text-decoration: none !important;
-}
+
 
 .category-hero{
     margin-top: 10px;
@@ -155,14 +149,18 @@ body{
 
 /* RELATED */
 .related-section{
-    padding-top: 46px;
+    padding-top: 8px;
 }
 
 .related-item{
     display: flex;
-    gap: 22px;
-    padding-bottom: 34px;
-    margin-bottom: 34px;
+    align-items: flex-start;
+
+    gap: 26px;
+
+    padding-bottom: 28px;
+    margin-bottom: 28px;
+
     border-bottom: 1px solid #e5e7eb;
 }
 
@@ -174,17 +172,28 @@ body{
 .related-image-wrap{
     width: 330px;
     flex-shrink: 0;
+
+    display: block;
+    overflow: hidden;
+    border-radius: 8px;
+
+    line-height: 0;
 }
 
 .related-image{
     width: 100%;
     height: 190px;
+
     object-fit: cover;
-    border-radius: 6px;
+
+    border-radius: 8px;
+
+    display: block;
 }
 
 .related-content{
     flex: 1;
+    padding-top: 2px;
 }
 
 .related-title{
@@ -263,4 +272,54 @@ body{
     .related-title{
         font-size: 24px;
     }
+
+    .featured-image{
+    height: 260px;
+}
+
+.featured-title{
+    font-size: 34px;
+}
+
+.featured-summary{
+    font-size: 16px;
+}
+}
+
+/* FEATURED POST */
+.featured-post{
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+}
+
+
+.featured-image-link{
+    display: block;
+}
+
+.featured-image{
+    width: 100%;
+    height: 560px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 24px;
+}
+
+.featured-title{
+    font-family: 'Newsreader', serif;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.18;
+    color: #1b1f24;
+    margin-bottom: 18px;
+    text-align: justify;
+}
+
+.featured-summary{
+    font-size: 15px;
+    line-height: 1.8;
+    color: #5f6773;
+    margin-bottom: 18px;
+    text-align: justify;
 }
