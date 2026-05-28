@@ -691,4 +691,54 @@ class PostController
         echo json_encode(['success' => (bool)$result]);
         exit;
     }
+
+public function categoryDetail()
+{
+    $categorySlug = $_GET['slug'] ?? null;
+    $categoryName = $_GET['name'] ?? null;
+
+    if ($categorySlug && !$categoryName) {
+        $cat = $this->postRepository->getCategoryBySlug($categorySlug);
+        $categoryName = $cat['name'] ?? null;
+        $categoryDesc = $cat['description'] ?? null;
+    }
+
+    if ($categoryName && !$categorySlug) {
+        $cat = $this->postRepository->getCategoryByName($categoryName);
+        $categorySlug = $cat['slug'] ?? '';
+        $categoryDesc = $cat['description'] ?? null;
+    }
+
+    if (!$categoryName) {
+        $this->homepage();
+        return;
+    }
+
+    // ✅ Dùng đúng hàm grouped để khớp với view Detail.php
+    $posts = $this->postRepository->getPostsByParentCategoryGrouped($categoryName, 4);
+
+    require __DIR__ . '/../Views/Client/Category/Detail.php';
+}
+
+public function subCategoryDetail()
+{
+    $slug = $_GET['slug'] ?? null;
+
+    if (!$slug) {
+        $this->homepage();
+        return;
+    }
+
+    $posts = $this->postRepository->getPostsByCategorySlug($slug);
+
+    if (empty($posts)) {
+        echo "Không có bài viết.";
+        return;
+    }
+
+    // lấy tên category
+    $categoryName = $posts[0]['category_name'];
+
+    require __DIR__ . '/../Views/Client/Category/Detail2.php';
+}
 }

@@ -1,34 +1,37 @@
-body{
-    background: #f3f5f7;
+/* ================================
+   BASE
+   ================================ */
+body {
+    background: #fff;
     font-family: 'Montserrat', sans-serif;
     color: #1f2937;
 }
 
 /* FIX HEADER */
 .header-container ul.menu-items,
-.header-top ul{
+.header-top ul {
     margin-bottom: 0 !important;
     padding-left: 0 !important;
 }
 
-/* WRAPPER */
-.detail-wrapper{
+/* ================================
+   WRAPPER & SPACING
+   ================================ */
+.category-wrapper {
     width: 1140px;
     background: #fff;
     min-height: 100vh;
-    padding: 28px 32px 80px;
-    margin-bottom: 48px;
+    padding-bottom: 80px;
 }
 
-/* SPACING */
-.page-spacing{
+.page-spacing {
     margin-top: 120px;
 }
 
 /* ================================
-   BREADCRUMB — đồng bộ trang cha
+   BREADCRUMB
    ================================ */
-.breadcrumb-custom{
+.breadcrumb-custom {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -40,32 +43,33 @@ body{
     color: #6c757d;
 }
 
-.breadcrumb-link{
+.breadcrumb-link {
     color: #6c757d;
     text-decoration: none;
     transition: color .2s ease;
 }
 
-.breadcrumb-link:hover{
+.breadcrumb-link:hover {
     color: #b90c17;
 }
 
-/* Danh mục cuối — đỏ, in hoa (giống trang cha) */
-.breadcrumb-current{
+.breadcrumb-current {
     color: #b90c17;
     font-weight: 700;
+    text-decoration: none;
 }
 
-/* HERO */
-.category-hero{
+/* ================================
+   HERO (tên danh mục + mô tả)
+   ================================ */
+.category-hero {
     margin-top: 10px;
     margin-bottom: 48px;
-    padding-bottom: 10px;
+    padding-bottom: 12px;
     border-bottom: 2px solid #e2e8f0;
 }
 
-/* Tiêu đề danh mục — đồng bộ trang cha */
-.category-title{
+.category-title {
     font-family: 'Barlow', sans-serif;
     font-size: 42px;
     font-weight: 800;
@@ -74,50 +78,77 @@ body{
     letter-spacing: -.3px;
 }
 
-/* ================================
-   DANH SÁCH BÀI — layout giống cha
-   ================================ */
-.related-section{
-    padding-top: 0;
+.category-desc {
+    font-size: 15px;
+    color: #6b7280;
+    font-weight: 400;
+    line-height: 1.7;
+    margin: 0;
 }
 
-/* Mỗi bài: ngang, ảnh trái + nội dung phải */
-.related-item{
-    display: flex;
-    gap: 22px;
-    padding-bottom: 34px;
-    margin-bottom: 34px;
+/* ================================
+   SECTION (mỗi danh mục con)
+   ================================ */
+.news-section {
+    margin-bottom: 56px;
+    padding-bottom: 40px;
     border-bottom: 1px solid #e5e7eb;
 }
 
-.related-item:last-child{
+.news-section:last-child {
     border-bottom: none;
     margin-bottom: 0;
 }
 
-.related-image-wrap{
-    width: 300px;
-    flex-shrink: 0;
+/* Title hàng + XEM THÊM — giống Home.php */
+.section-title-wrap {
+    border-bottom: 2px solid #003049;
+    margin-bottom: 28px;
+    padding-bottom: 10px;
 }
 
-.related-image{
+.section-title {
+    font-family: 'Barlow', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: #003049;
+    margin: 0;
+}
+
+.view-more {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Barlow', sans-serif;
+    color: #b90c17 !important;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: opacity .2s;
+}
+
+.view-more:hover {
+    opacity: .7;
+}
+
+/* ================================
+   FEATURED POST — cột trái
+   ================================ */
+.featured-image {
     width: 100%;
-    height: 190px;
+    height: 400px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 1rem;
+    margin-bottom: 14px;
     transition: opacity .3s ease;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
 }
 
-.related-image:hover{
+.featured-image:hover {
     opacity: .9;
 }
 
-.related-content{
-    flex: 1;
-}
-
-/* Nhãn danh mục — đỏ, in hoa, Barlow (giống .post-category trang cha) */
-.article-category{
+/* Nhãn danh mục đỏ — giống Home.php */
+.post-category {
     display: inline-block;
     margin-bottom: 8px;
     font-size: 12px;
@@ -128,91 +159,134 @@ body{
     letter-spacing: .8px;
 }
 
-/* Tiêu đề bài — Newsreader, đậm (giống .side-title trang cha) */
-.related-title{
+.featured-title {
     font-family: 'Newsreader', serif;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
-    line-height: 1.4;
+    line-height: 1.35;
     color: #111827;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     transition: color .2s;
 }
 
-.related-title:hover{
+.featured-title:hover {
     color: #b90c17;
 }
 
-/* Tóm tắt */
-.related-summary{
-    font-size: 14px;
+.featured-summary {
+    font-size: 15px;
     line-height: 1.8;
     color: #6b7280;
+    font-weight: 300;
     text-align: justify;
-    margin-bottom: 14px;
+    margin-bottom: 0;
 }
 
-/* META — đồng bộ .post-meta trang cha */
-.article-meta{
+/* META — ngày · tác giả */
+.post-meta {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
-    color: #565d63;
+    color: #9ca3af;
     letter-spacing: .3px;
+    margin-top: 14px;
 }
 
-.dot{
+.dot {
+    font-size: 20px;
+    line-height: 1;
+    user-select: none;
+}
+
+/* ================================
+   SIDE POSTS — cột phải
+   ================================ */
+.side-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.side-post {
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.side-post:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.side-title {
+    font-family: 'Newsreader', serif;
     font-size: 18px;
-    line-height: 0;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #111827;
+    margin-bottom: 8px;
+    transition: color .2s;
 }
 
-/* CLAMP */
-.clamp-2{
+.side-title:hover {
+    color: #b90c17;
+}
+
+.side-summary {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #6b7280;
+    font-weight: 300;
+    margin: 0;
+}
+
+/* ================================
+   CLAMP
+   ================================ */
+.clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-.clamp-3{
+.clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-/* RESPONSIVE */
-@media(max-width: 992px){
+/* ================================
+   RESPONSIVE
+   ================================ */
+@media (max-width: 992px) {
 
-    .detail-wrapper{
+    .category-wrapper {
         width: 100%;
-        padding: 22px 18px 60px;
+        padding: 0 18px 60px;
     }
 
-    .page-spacing{
+    .page-spacing {
         margin-top: 100px;
     }
 
-    .category-title{
+    .category-title {
         font-size: 32px;
     }
 
-    .related-item{
-        flex-direction: column;
+    .featured-image {
+        height: 240px;
     }
 
-    .related-image-wrap{
-        width: 100%;
+    .featured-title {
+        font-size: 22px;
     }
 
-    .related-image{
-        height: 220px;
-    }
-
-    .related-title{
-        font-size: 18px;
+    .side-title {
+        font-size: 16px;
     }
 }
