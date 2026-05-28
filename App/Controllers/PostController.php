@@ -691,4 +691,83 @@ class PostController
         echo json_encode(['success' => (bool)$result]);
         exit;
     }
+     public function createPostClient()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Chưa đăng nhập → về trang login
+        if (empty($_SESSION['user_id'])) {
+            header('Location: index.php?page=login');
+            exit;
+        }
+
+        // Lấy danh mục để hiển thị dropdown
+        $categories = $this->postRepository->getCategoriesForFilter();
+
+        require __DIR__ . '/../Views/Client/Post/Create.php';
+    }
+     public function storePostClient()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        header('Content-Type: application/json');
+
+        // Kiểm tra đăng nhập — dùng $_SESSION['user_id'] theo chuẩn Client
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']);
+            exit;
+        }
+
+        $title      = trim($_POST['title']       ?? '');
+        $summary    = trim($_POST['summary']     ?? '');
+        $content    = $_POST['content']          ?? '';
+        $categoryId = $_POST['category_id']      ?? '';
+        $action     = $_POST['action']           ?? 'draft';
+
+        // Validate tối thiểu
+        if ($title === '' || $content === '') {
+            echo json_encode(['status' => 'error', 'message' => 'Tiêu đề và nội dung không được để trống.']);
+            exit;
+        }
+
+        // Upload ảnh đại diện lên Cloudinary nếu có
+        $thumbnailUrl = null;
+        if (!empty($_FILES['thumbnail']['tmp_name'])) {
+            $thumbnailUrl = $this->uploadToCloudinary($_FILES['thumbnail']);
+        }
+
+        // Client đăng bài → pending (chờ admin duyệt); lưu nháp → draft
+        $status = ($action === 'publish') ? 'pending' : 'draft';
+
+        $postId = $this->postRepository->createPost([
+            'title'         => $title,
+            'summary'       => $summary,
+            'content'       => $content,
+            'category_id'   => $categoryId,
+            'author_id'     => $userId,          // ← dùng $_SESSION['user_id']
+            'thumbnail_url' => $thumbnailUrl,
+            'status'        => $status,
+            'publish_at'    => null,
+            'tags'          => [],
+        ]);
+
+        if ($postId) {
+            echo json_encode([
+                'status'  => 'success',
+                'message' => $status === 'pending'
+                    ? 'Bài viết đã được gửi, chờ quản trị viên duyệt!'
+                    : 'Đã lưu bản nháp thành công!',
+                'post_id' => $postId,
+            ]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Có lỗi xảy ra khi lưu bài viết.']);
+        }
+        exit;
+    }
+    
 }
