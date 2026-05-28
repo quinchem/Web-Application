@@ -1,0 +1,218 @@
+body{
+    background: #f3f5f7;
+    font-family: 'Montserrat', sans-serif;
+    color: #1f2937;
+}
+
+/* FIX HEADER */
+.header-container ul.menu-items,
+.header-top ul{
+    margin-bottom: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* WRAPPER */
+.detail-wrapper{
+    width: 1140px;
+    background: #fff;
+    min-height: 100vh;
+    padding: 28px 32px 80px;
+    margin-bottom: 48px;
+}
+
+/* SPACING */
+.page-spacing{
+    margin-top: 120px;
+}
+
+/* ================================
+   BREADCRUMB — đồng bộ trang cha
+   ================================ */
+.breadcrumb-custom{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+}
+
+.breadcrumb-link{
+    color: #6c757d;
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.breadcrumb-link:hover{
+    color: #b90c17;
+}
+
+/* Danh mục cuối — đỏ, in hoa (giống trang cha) */
+.breadcrumb-current{
+    color: #b90c17;
+    font-weight: 700;
+}
+
+/* HERO */
+.category-hero{
+    margin-top: 10px;
+    margin-bottom: 48px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Tiêu đề danh mục — đồng bộ trang cha */
+.category-title{
+    font-family: 'Barlow', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    color: #003049;
+    margin-bottom: 6px;
+    letter-spacing: -.3px;
+}
+
+/* ================================
+   DANH SÁCH BÀI — layout giống cha
+   ================================ */
+.related-section{
+    padding-top: 0;
+}
+
+/* Mỗi bài: ngang, ảnh trái + nội dung phải */
+.related-item{
+    display: flex;
+    gap: 22px;
+    padding-bottom: 34px;
+    margin-bottom: 34px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.related-item:last-child{
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.related-image-wrap{
+    width: 300px;
+    flex-shrink: 0;
+}
+
+.related-image{
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: opacity .3s ease;
+}
+
+.related-image:hover{
+    opacity: .9;
+}
+
+.related-content{
+    flex: 1;
+}
+
+/* Nhãn danh mục — đỏ, in hoa, Barlow (giống .post-category trang cha) */
+.article-category{
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Barlow', sans-serif;
+    color: #b90c17;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+}
+
+/* Tiêu đề bài — Newsreader, đậm (giống .side-title trang cha) */
+.related-title{
+    font-family: 'Newsreader', serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #111827;
+    margin-bottom: 10px;
+    transition: color .2s;
+}
+
+.related-title:hover{
+    color: #b90c17;
+}
+
+/* Tóm tắt */
+.related-summary{
+    font-size: 14px;
+    line-height: 1.8;
+    color: #6b7280;
+    text-align: justify;
+    margin-bottom: 14px;
+}
+
+/* META — đồng bộ .post-meta trang cha */
+.article-meta{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #565d63;
+    letter-spacing: .3px;
+}
+
+.dot{
+    font-size: 18px;
+    line-height: 0;
+}
+
+/* CLAMP */
+.clamp-2{
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.clamp-3{
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* RESPONSIVE */
+@media(max-width: 992px){
+
+    .detail-wrapper{
+        width: 100%;
+        padding: 22px 18px 60px;
+    }
+
+    .page-spacing{
+        margin-top: 100px;
+    }
+
+    .category-title{
+        font-size: 32px;
+    }
+
+    .related-item{
+        flex-direction: column;
+    }
+
+    .related-image-wrap{
+        width: 100%;
+    }
+
+    .related-image{
+        height: 220px;
+    }
+
+    .related-title{
+        font-size: 18px;
+    }
+}

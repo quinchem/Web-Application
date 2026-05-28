@@ -1166,3 +1166,266 @@ class PostRepository
         return $this->conn->exec($sql);
     }
 }
+
+public function getPostsByParentCategoryGrouped(string $parentCategoryName, int $limitPerSub = 4): array
+{
+    // =========================================
+    // BƯỚC 1: LẤY CATEGORY CHA
+    // =========================================
+    $stmtParent = $this->conn->prepare("
+        SELECT category_id
+        FROM Category
+        WHERE name = :name
+          AND parent_id IS NULL
+        LIMIT 1
+    ");
+
+    $stmtParent->execute([':name' => $parentCategoryName]);
+
+    $parent = $stmtParent->fetch(PDO::FETCH_ASSOC);
+
+    if (!$parent) {
+        return [];
+    }
+
+    $parentId = $parent['category_id'];
+
+    // =========================================
+    // BƯỚC 2: LẤY SUB CATEGORY
+    // =========================================
+    $stmtSubs = $this->conn->prepare("
+        SELECT
+            category_id,
+            name,
+            slug
+        FROM Category
+        WHERE parent_id = :parent_id
+        ORDER BY `order` ASC
+    ");
+
+    $stmtSubs->execute([':parent_id' => $parentId]);
+
+    $subs = $stmtSubs->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($subs)) {
+        return [];
+    }
+
+    // =========================================
+    // BƯỚC 3: BUILD DATA
+    // =========================================
+    $result = [];
+
+    foreach ($subs as $sub) {
+
+        // =====================================
+        // HERO POST
+        // =====================================
+        $stmtHero = $this->conn->prepare("
+            SELECT
+                p.post_id,
+                p.title,
+                p.summary,
+                p.thumbnail_URL AS thumbnail_url,
+                p.published_at,
+                p.view_count,
+
+                c.name AS category_name,
+                c.slug AS category_slug,
+
+                u.full_name AS author_name,
+                r.role_name AS author_role
+
+            FROM Post p
+
+            JOIN Category c
+                ON p.category_id = c.category_id
+
+            JOIN `User` u
+                ON p.user_id = u.user_id
+
+            JOIN Role r
+                ON u.role_id = r.role_id
+
+            WHERE p.category_id = :cat_id
+              AND p.status = 'approved'
+              AND p.deleted_at IS NULL
+
+            ORDER BY p.view_count DESC,
+                     p.published_at DESC
+
+            LIMIT 1
+        ");
+
+        $stmtHero->execute([':cat_id' => $sub['category_id']]);
+
+        $heroPost = $stmtHero->fetch(PDO::FETCH_ASSOC);
+
+        if (!$heroPost) {
+            continue;
+        }
+
+        // =====================================
+        // OTHER POSTS
+        // =====================================
+        $stmtOthers = $this->conn->prepare("
+            SELECT
+                p.post_id,
+                p.title,
+                p.summary,
+                p.thumbnail_URL AS thumbnail_url,
+                p.published_at,
+
+                c.name AS category_name,
+                c.slug AS category_slug,
+
+                u.full_name AS author_name,
+                r.role_name AS author_role
+
+            FROM Post p
+
+            JOIN Category c
+                ON p.category_id = c.category_id
+
+            JOIN `User` u
+                ON p.user_id = u.user_id
+
+            JOIN Role r
+                ON u.role_id = r.role_id
+
+            WHERE p.category_id = :cat_id
+              AND p.status = 'approved'
+              AND p.deleted_at IS NULL
+              AND p.post_id != :hero_id
+
+            ORDER BY p.published_at DESC
+
+            LIMIT :lim
+        ");
+
+        $stmtOthers->bindValue(':cat_id',   $sub['category_id']);
+        $stmtOthers->bindValue(':hero_id',  $heroPost['post_id']);
+        $stmtOthers->bindValue(':lim',      $limitPerSub - 1, PDO::PARAM_INT);
+        $stmtOthers->execute();
+
+        $otherPosts = $stmtOthers->fetchAll(PDO::FETCH_ASSOC);
+
+        // =====================================
+        // GỘP HERO + OTHERS
+        // =====================================
+        $result[$sub['name']] = array_merge(
+            [$heroPost],
+            $otherPosts
+        );
+    }
+
+    return $result;
+}
+
+public function getRelatedPosts($categoryId, $currentPostId, $limit = 3)
+{
+    $sql = "
+        SELECT
+            p.post_id,
+            p.title,
+            p.summary,
+            p.thumbnail_URL,
+            p.published_at,
+
+            c.name AS category_name,
+
+            u.full_name AS author_name
+
+        FROM Post p
+
+        JOIN Category c
+            ON p.category_id = c.category_id
+
+        JOIN User u
+            ON p.user_id = u.user_id
+
+        WHERE p.status = 'approved'
+        AND p.category_id = :category_id
+        AND p.post_id != :post_id
+
+        ORDER BY p.view_count DESC,
+                 p.published_at DESC
+
+        LIMIT :lim
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    $stmt->bindValue(':category_id', $categoryId);
+    $stmt->bindValue(':post_id', $currentPostId);
+    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getCategoryBySlug($slug)
+{
+    $sql = "
+        SELECT *
+        FROM Category
+        WHERE slug = ?
+        LIMIT 1
+    ";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([$slug]);
+
+    return $stmt->fetch(\PDO::FETCH_ASSOC);
+}
+
+public function getPostsByCategorySlug(string $slug): array
+{
+    $stmt = $this->conn->prepare("
+        SELECT
+            p.post_id,
+            p.title,
+            p.summary,
+            p.content,
+            p.thumbnail_URL AS thumbnail_url,
+            p.published_at,
+            p.view_count,
+
+            c.name  AS category_name,
+            c.slug  AS category_slug,
+
+            parent.name AS parent_category_name,
+            parent.slug AS parent_category_slug,   -- THÊM
+
+            u.full_name AS author_name,
+            r.role_name AS author_role             -- THÊM
+
+        FROM Post p
+        JOIN Category c   ON p.category_id = c.category_id
+        JOIN `User` u     ON p.user_id = u.user_id
+        JOIN Role r       ON u.role_id = r.role_id
+        LEFT JOIN Category parent ON c.parent_id = parent.category_id
+
+        WHERE c.slug = :slug
+          AND p.status = 'approved'
+          AND p.deleted_at IS NULL
+
+        ORDER BY p.published_at DESC
+    ");
+
+    $stmt->execute([':slug' => $slug]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getCategoryByName(string $name): ?array
+{
+    $stmt = $this->conn->prepare("
+        SELECT * FROM Category
+        WHERE name = :name
+        LIMIT 1
+    ");
+    $stmt->execute([':name' => $name]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+}
