@@ -24,9 +24,10 @@ $router->get('post', [PostController::class, 'post']);
 $router->get('api_get_comments', [PostController::class, 'apiGetComments']);
 $router->post('api_get_comments', [PostController::class, 'apiGetComments']);
 
-// 4. Tuyến đường nạp trang cá nhân của người dùng (Bài viết đã lưu, Bài viết đã đăng)
 $router->get('client_saved_posts_page', [PostController::class, 'savedPosts']);
 $router->get('client_my_posts_page', [PostController::class, 'myPostsPage']);
 
+$router->get('create_post', [PostController::class, 'createPostClient']);
+$router->post('store_post_client', [PostController::class, 'storePostClient']);
 $router->get('category_detail', [PostController::class, 'categoryDetail']);
 $router->get('subcategory', [PostController::class, 'subCategoryDetail']);

@@ -44,45 +44,63 @@ class PostController
         require __DIR__ . '/../Views/Client/Home.php';
     }
 
-    public function searchResult()
-    {
-        $keyword = trim($_GET['key'] ?? '');
+  public function searchResult()
+{
+    $keyword = trim($_GET['key'] ?? '');
 
-        $time = $_GET['time'] ?? 'newest';
-        $fromDate = $_GET['from_date'] ?? '';
-        $toDate = $_GET['to_date'] ?? '';
+    $time = $_GET['time'] ?? 'newest';
+    $fromDate = $_GET['from_date'] ?? '';
+    $toDate = $_GET['to_date'] ?? '';
 
-        $categoryIds = $_GET['categories'] ?? [];
-        if (!is_array($categoryIds)) {
-            $categoryIds = [$categoryIds];
-        }
+    $categoryIds = $_GET['categories'] ?? [];
 
-        $author = trim($_GET['author'] ?? '');
-
-        $page = max(1, (int)($_GET['p'] ?? 1));
-        $limit = 3;
-        $offset = ($page - 1) * $limit;
-
-        $filters = [
-            'keyword' => $keyword,
-            'time' => $time,
-            'from_date' => $fromDate,
-            'to_date' => $toDate,
-            'categories' => $categoryIds,
-            'author' => $author,
-            'limit' => $limit,
-            'offset' => $offset
-        ];
-
-        $posts = $this->postRepository->searchPosts($filters);
-        $totalPosts = $this->postRepository->countSearchPosts($filters);
-        $totalPages = max(1, ceil($totalPosts / $limit));
-
-        $categories = $this->categoryController->getCategories();
-
-        require __DIR__ . '/../Views/Client/Search/Result.php';
+    if (!is_array($categoryIds)) {
+        $categoryIds = [$categoryIds];
     }
 
+    $categoryIds = array_values(array_filter($categoryIds, function ($item) {
+        return $item !== '';
+    }));
+
+    $author = trim($_GET['author'] ?? '');
+
+    // Trang phân trang, không dùng $_GET['page']
+    // vì page=search_result là route
+    $paginationPage = max(1, (int)($_GET['p'] ?? 1));
+
+    $limit = 3;
+    $offset = ($paginationPage - 1) * $limit;
+
+    $filters = [
+        'keyword' => $keyword,
+        'time' => $time,
+        'from_date' => $fromDate,
+        'to_date' => $toDate,
+        'categories' => $categoryIds,
+        'author' => $author,
+        'limit' => $limit,
+        'offset' => $offset
+    ];
+
+    $posts = $this->postRepository->searchPosts($filters);
+    $totalPosts = $this->postRepository->countSearchPosts($filters);
+
+    $totalPages = (int)ceil($totalPosts / $limit);
+
+    if ($paginationPage > $totalPages && $totalPages > 0) {
+        $paginationPage = $totalPages;
+
+        $filters['offset'] = ($paginationPage - 1) * $limit;
+        $posts = $this->postRepository->searchPosts($filters);
+    }
+
+    // Biến này truyền qua Result.php
+    $currentPaginationPage = $paginationPage;
+
+    $categories = $this->categoryController->getCategories();
+
+    require __DIR__ . '/../Views/Client/Search/Result.php';
+}
     /**
      * Hiển thị danh sách bài viết của một danh mục cụ thể
      * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
@@ -691,6 +709,85 @@ class PostController
         echo json_encode(['success' => (bool)$result]);
         exit;
     }
+     public function createPostClient()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Chưa đăng nhập → về trang login
+        if (empty($_SESSION['user_id'])) {
+            header('Location: index.php?page=login');
+            exit;
+        }
+
+        // Lấy danh mục để hiển thị dropdown
+        $categories = $this->postRepository->getCategoriesForFilter();
+
+        require __DIR__ . '/../Views/Client/Post/Create.php';
+    }
+     public function storePostClient()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        header('Content-Type: application/json');
+
+        // Kiểm tra đăng nhập — dùng $_SESSION['user_id'] theo chuẩn Client
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']);
+            exit;
+        }
+
+        $title      = trim($_POST['title']       ?? '');
+        $summary    = trim($_POST['summary']     ?? '');
+        $content    = $_POST['content']          ?? '';
+        $categoryId = $_POST['category_id']      ?? '';
+        $action     = $_POST['action']           ?? 'draft';
+
+        // Validate tối thiểu
+        if ($title === '' || $content === '') {
+            echo json_encode(['status' => 'error', 'message' => 'Tiêu đề và nội dung không được để trống.']);
+            exit;
+        }
+
+        // Upload ảnh đại diện lên Cloudinary nếu có
+        $thumbnailUrl = null;
+        if (!empty($_FILES['thumbnail']['tmp_name'])) {
+            $thumbnailUrl = $this->uploadToCloudinary($_FILES['thumbnail']);
+        }
+
+        // Client đăng bài → pending (chờ admin duyệt); lưu nháp → draft
+        $status = ($action === 'publish') ? 'pending' : 'draft';
+
+        $postId = $this->postRepository->createPost([
+            'title'         => $title,
+            'summary'       => $summary,
+            'content'       => $content,
+            'category_id'   => $categoryId,
+            'author_id'     => $userId,          // ← dùng $_SESSION['user_id']
+            'thumbnail_url' => $thumbnailUrl,
+            'status'        => $status,
+            'publish_at'    => null,
+            'tags'          => [],
+        ]);
+
+        if ($postId) {
+            echo json_encode([
+                'status'  => 'success',
+                'message' => $status === 'pending'
+                    ? 'Bài viết đã được gửi, chờ quản trị viên duyệt!'
+                    : 'Đã lưu bản nháp thành công!',
+                'post_id' => $postId,
+            ]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Có lỗi xảy ra khi lưu bài viết.']);
+        }
+        exit;
+    }
+    
 
 public function categoryDetail()
 {
