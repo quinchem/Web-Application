@@ -880,57 +880,61 @@ class PostRepository
 
     /*Quản lý bài viết admin */
     public function getAdminPosts($filters, $limit, $offset)
-    {
-        $where = ["r.role_name = 'admin'"];
-        $params = [];
+{
+    $where = ["r.role_name = 'admin'"];
+    $params = [];
 
-        if (!empty($filters['keyword'])) {
-            $where[] = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
-            $params['kw1'] = '%' . $filters['keyword'] . '%';
-            $params['kw2'] = '%' . $filters['keyword'] . '%';
-        }
-        if (!empty($filters['category_id'])) {
-            $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
-            $params['category_id'] = $filters['category_id'];
-        }
-        if (!empty($filters['status'])) {
-            $where[] = "p.status = :status";
-            $params['status'] = $filters['status'];
-        }
-        if (!empty($filters['date'])) {
-            $where[] = "DATE(p.created_at) = :date";
-            $params['date'] = $filters['date'];
-        }
-
-        $whereSQL = implode(' AND ', $where);
-
-        $sql = "SELECT p.*, u.full_name AS author_name,
-                   c.name AS category_name, c.parent_id,
-                   cp.name AS parent_category_name
-            FROM Post p
-            JOIN `User` u ON p.user_id = u.user_id
-            JOIN Role r ON u.role_id = r.role_id
-            JOIN Category c ON p.category_id = c.category_id
-            LEFT JOIN Category cp ON c.parent_id = cp.category_id
-            WHERE $whereSQL
-            ORDER BY p.created_at DESC
-            LIMIT :limit OFFSET :offset";
-
-        $stmt = $this->conn->prepare($sql);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue(':' . $key, $value);
-        }
-        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $posts = [];
-        foreach ($stmt->fetchAll() as $row) {
-            $posts[] = new Post($row);
-        }
-        return $posts;
+    if (!empty($filters['keyword'])) {
+        $where[] = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
+        $params['kw1'] = '%' . $filters['keyword'] . '%';
+        $params['kw2'] = '%' . $filters['keyword'] . '%';
+    }
+    if (!empty($filters['category_id'])) {
+        $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
+        $params['category_id'] = $filters['category_id'];
+    }
+    // ✅ THÊM MỚI
+    if (!empty($filters['author_id'])) {
+        $where[] = "u.user_id = :author_id";
+        $params['author_id'] = $filters['author_id'];
+    }
+    if (!empty($filters['status'])) {
+        $where[] = "p.status = :status";
+        $params['status'] = $filters['status'];
+    }
+    if (!empty($filters['date'])) {
+        $where[] = "DATE(p.created_at) = :date";
+        $params['date'] = $filters['date'];
     }
 
+    $whereSQL = implode(' AND ', $where);
+
+    $sql = "SELECT p.*, u.full_name AS author_name,
+               c.name AS category_name, c.parent_id,
+               cp.name AS parent_category_name
+        FROM Post p
+        JOIN `User` u ON p.user_id = u.user_id
+        JOIN Role r ON u.role_id = r.role_id
+        JOIN Category c ON p.category_id = c.category_id
+        LEFT JOIN Category cp ON c.parent_id = cp.category_id
+        WHERE $whereSQL
+        ORDER BY p.created_at DESC
+        LIMIT :limit OFFSET :offset";
+
+    $stmt = $this->conn->prepare($sql);
+    foreach ($params as $key => $value) {
+        $stmt->bindValue(':' . $key, $value);
+    }
+    $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $posts = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $posts[] = new Post($row);
+    }
+    return $posts;
+}
     public function countAdminPosts()
     {
         $sql = "SELECT COUNT(*) AS total FROM Post p
@@ -943,39 +947,44 @@ class PostRepository
 
     // Hàm đếm số bài viết của admin với các bộ lọc nâng cao
     public function countAdminPostsFiltered($filters)
-    {
-        $where = ["r.role_name = 'admin'"];
-        $params = [];
+{
+    $where = ["r.role_name = 'admin'"];
+    $params = [];
 
-        if (!empty($filters['keyword'])) {
-            $where[] = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
-            $params['kw1'] = '%' . $filters['keyword'] . '%';
-            $params['kw2'] = '%' . $filters['keyword'] . '%';
-        }
-        if (!empty($filters['category_id'])) {
-            $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
-            $params['category_id'] = $filters['category_id'];
-        }
-        if (!empty($filters['status'])) {
-            $where[] = "p.status = :status";
-            $params['status'] = $filters['status'];
-        }
-        if (!empty($filters['date'])) {
-            $where[] = "DATE(p.created_at) = :date";
-            $params['date'] = $filters['date'];
-        }
-
-        $whereSQL = implode(' AND ', $where);
-        $sql = "SELECT COUNT(*) AS total FROM Post p
-            JOIN `User` u ON p.user_id = u.user_id
-            JOIN Role r ON u.role_id = r.role_id
-            JOIN Category c ON p.category_id = c.category_id
-            WHERE $whereSQL";
-
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetch()['total'];
+    if (!empty($filters['keyword'])) {
+        $where[] = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
+        $params['kw1'] = '%' . $filters['keyword'] . '%';
+        $params['kw2'] = '%' . $filters['keyword'] . '%';
     }
+    if (!empty($filters['category_id'])) {
+        $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
+        $params['category_id'] = $filters['category_id'];
+    }
+    // ✅ THÊM MỚI
+    if (!empty($filters['author_id'])) {
+        $where[] = "u.user_id = :author_id";
+        $params['author_id'] = $filters['author_id'];
+    }
+    if (!empty($filters['status'])) {
+        $where[] = "p.status = :status";
+        $params['status'] = $filters['status'];
+    }
+    if (!empty($filters['date'])) {
+        $where[] = "DATE(p.created_at) = :date";
+        $params['date'] = $filters['date'];
+    }
+
+    $whereSQL = implode(' AND ', $where);
+    $sql = "SELECT COUNT(*) AS total FROM Post p
+        JOIN `User` u ON p.user_id = u.user_id
+        JOIN Role r ON u.role_id = r.role_id
+        JOIN Category c ON p.category_id = c.category_id
+        WHERE $whereSQL";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetch()['total'];
+}
 
     public function countAdminPostsByStatus($status)
     {
