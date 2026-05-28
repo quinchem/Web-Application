@@ -91,7 +91,8 @@ require_once __DIR__ .
 require_once __DIR__ .
 '/Routes/Profile.php';
 
-
+require_once __DIR__ .
+'/Routes/Dashboard.php';
 // ======================================================
 // PAGE HIỆN TẠI
 // ======================================================
