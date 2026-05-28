@@ -81,39 +81,39 @@ $currentPage = $_GET['page'] ?? '';
 
     <div class="admin-profile" id="adminProfile">
 
-        <img
-            src="/Web-Application/Public/Admin/Images/admin-avatar.png"
-            alt="Admin"
-        >
+    <img
+        src="<?= htmlspecialchars($_SESSION['user']->avatar ?? '/Web-Application/Public/Admin/Images/admin-avatar.png') ?>"
+        alt="Admin"
+    >
 
-        <div class="profile-info">
+    <div class="profile-info">
 
-            <strong>
-                <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?>
-            </strong>
+        <strong>
+            <?= htmlspecialchars($_SESSION['user']->full_name ?? 'Admin') ?>
+        </strong>
 
-            <p>
+        <p>
 
-                <span class="logout-btn"
-                      onclick="
-                          event.stopPropagation();
+            <span class="logout-btn"
+                  onclick="
+                      event.stopPropagation();
 
-                          if(confirm('Bạn có chắc muốn đăng xuất không?')){
-                              window.location.href='Admin_index.php?page=logout';
-                          }
-                      ">
+                      if(confirm('Bạn có chắc muốn đăng xuất không?')){
+                          window.location.href='Admin_index.php?page=logout';
+                      }
+                  ">
 
-                    ĐĂNG XUẤT
+                ĐĂNG XUẤT
 
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                <i class="fa-solid fa-right-from-bracket"></i>
 
-                </span>
+            </span>
 
-            </p>
-
-        </div>
+        </p>
 
     </div>
+
+</div>
 
 </div>
 </div>

@@ -5,17 +5,17 @@
     <div class="profile-menu-header border-bottom px-3 py-3">
         <div class="d-flex align-items-center gap-3">
             <img 
-                src="Public/Admin/Images/admin-avatar.png" 
+                src="<?= htmlspecialchars($_SESSION['user']->avatar ?? 'Public/Admin/Images/admin-avatar.png') ?>" 
                 alt="Admin Avatar"
                 class="rounded-circle object-fit-cover"
                 style="width: 58px; height: 58px;"
             >
             <div class="d-flex flex-column">
                 <strong class="fw-black" style="font-size: 15px; color: #07344a;">
-                    <?= htmlspecialchars($_SESSION['admin_name'] ?? 'Nguyễn Văn An') ?>
+                    <?= htmlspecialchars($_SESSION['user']->full_name ?? '') ?>
                 </strong>
                 <span class="fw-medium" style="font-size: 13px; color: #8ea2b2;">
-                    <?= htmlspecialchars($_SESSION['admin_email'] ?? 'annguyen123@example.com') ?>
+                    <?= htmlspecialchars($_SESSION['user']->email ?? '') ?>
                 </span>
             </div>
         </div>
@@ -34,5 +34,4 @@
 </div>
 
 <?php require_once __DIR__ . '/edit.php'; ?>
-
 <?php require_once __DIR__ . '/change_password.php'; ?>
