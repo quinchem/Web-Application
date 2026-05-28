@@ -14,15 +14,15 @@ class PostRepository
     }
 
     // Hàm tìm kiếm bài viết với các bộ lọc nâng cao - Trang Client
-    public function searchPosts($filters)
-    {
-        $sql = "
+public function searchPosts($filters)
+{
+    $sql = "
         SELECT DISTINCT
             p.post_id,
             p.title,
             p.summary,
             p.content,
-            p.thumbnail_URL,
+            p.thumbnail_URL AS thumbnail_url,
             p.created_at,
 
             u.full_name AS author_name,
@@ -44,35 +44,35 @@ class PostRepository
         WHERE 1 = 1
     ";
 
-        $params = [];
+    $params = [];
 
-        $sql .= $this->buildSearchCondition($filters, $params);
+    $sql .= $this->buildSearchCondition($filters, $params);
 
-        if (($filters['time'] ?? '') === 'oldest') {
-            $sql .= " ORDER BY p.created_at ASC ";
-        } else {
-            $sql .= " ORDER BY p.created_at DESC ";
-        }
-
-        $sql .= " LIMIT :limit OFFSET :offset";
-
-        $stmt = $this->conn->prepare($sql);
-
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-
-        $stmt->bindValue(':limit', (int)$filters['limit'], PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)$filters['offset'], PDO::PARAM_INT);
-
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (($filters['time'] ?? '') === 'oldest') {
+        $sql .= " ORDER BY p.created_at ASC ";
+    } else {
+        $sql .= " ORDER BY p.created_at DESC ";
     }
 
-    public function countSearchPosts($filters)
-    {
-        $sql = "
+    $sql .= " LIMIT :limit OFFSET :offset ";
+
+    $stmt = $this->conn->prepare($sql);
+
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+
+    $stmt->bindValue(':limit', (int)($filters['limit'] ?? 3), PDO::PARAM_INT);
+    $stmt->bindValue(':offset', (int)($filters['offset'] ?? 0), PDO::PARAM_INT);
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function countSearchPosts($filters)
+{
+    $sql = "
         SELECT COUNT(DISTINCT p.post_id) AS total
 
         FROM Post p
@@ -89,86 +89,95 @@ class PostRepository
         WHERE 1 = 1
     ";
 
-        $params = [];
+    $params = [];
 
-        $sql .= $this->buildSearchCondition($filters, $params);
+    $sql .= $this->buildSearchCondition($filters, $params);
 
-        $stmt = $this->conn->prepare($sql);
+    $stmt = $this->conn->prepare($sql);
 
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
-        }
-
-        $stmt->execute();
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        return (int)($row['total'] ?? 0);
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
     }
 
-    private function buildSearchCondition($filters, &$params)
-    {
-        $sql = "";
+    $stmt->execute();
 
-        if (!empty($filters['keyword'])) {
-            $sql .= "
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return (int)($row['total'] ?? 0);
+}
+
+private function buildSearchCondition($filters, &$params)
+{
+    $sql = "";
+
+    if (!empty($filters['keyword'])) {
+        $sql .= "
             AND (
                 p.title LIKE :keyword
                 OR p.summary LIKE :keyword
                 OR p.content LIKE :keyword
             )
         ";
-            $params[':keyword'] = '%' . $filters['keyword'] . '%';
+
+        $params[':keyword'] = '%' . $filters['keyword'] . '%';
+    }
+
+    if (!empty($filters['author'])) {
+        $sql .= " AND u.full_name LIKE :author ";
+        $params[':author'] = '%' . $filters['author'] . '%';
+    }
+
+    if (!empty($filters['time'])) {
+        if ($filters['time'] === '24h') {
+            $sql .= " AND p.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY) ";
         }
 
-        if (!empty($filters['author'])) {
-            $sql .= " AND u.user_name LIKE :author ";
-            $params[':author'] = '%' . $filters['author'] . '%';
+        if ($filters['time'] === 'week') {
+            $sql .= " AND p.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
         }
+    }
 
-        if (!empty($filters['time'])) {
-            if ($filters['time'] === '24h') {
-                $sql .= " AND p.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY) ";
+    if (!empty($filters['from_date'])) {
+        $sql .= " AND DATE(p.created_at) >= :from_date ";
+        $params[':from_date'] = $filters['from_date'];
+    }
+
+    if (!empty($filters['to_date'])) {
+        $sql .= " AND DATE(p.created_at) <= :to_date ";
+        $params[':to_date'] = $filters['to_date'];
+    }
+
+    if (!empty($filters['categories'])) {
+        $categoryIds = array_values(array_filter($filters['categories'], function ($item) {
+            return $item !== '';
+        }));
+
+        if (!empty($categoryIds)) {
+            $childPlaceholders = [];
+            $parentPlaceholders = [];
+
+            foreach ($categoryIds as $index => $categoryId) {
+                $childKey = ':child_category_' . $index;
+                $parentKey = ':parent_category_' . $index;
+
+                $childPlaceholders[] = $childKey;
+                $parentPlaceholders[] = $parentKey;
+
+                $params[$childKey] = $categoryId;
+                $params[$parentKey] = $categoryId;
             }
 
-            if ($filters['time'] === 'week') {
-                $sql .= " AND p.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
-            }
-        }
-
-        if (!empty($filters['from_date'])) {
-            $sql .= " AND DATE(p.created_at) >= :from_date ";
-            $params[':from_date'] = $filters['from_date'];
-        }
-
-        if (!empty($filters['to_date'])) {
-            $sql .= " AND DATE(p.created_at) <= :to_date ";
-            $params[':to_date'] = $filters['to_date'];
-        }
-
-        if (!empty($filters['categories'])) {
-            $categoryIds = array_filter($filters['categories']);
-
-            if (!empty($categoryIds)) {
-                $placeholders = [];
-
-                foreach ($categoryIds as $index => $categoryId) {
-                    $key = ':category_' . $index;
-                    $placeholders[] = $key;
-                    $params[$key] = $categoryId;
-                }
-
-                $sql .= "
+            $sql .= "
                 AND (
-                    child.category_id IN (" . implode(',', $placeholders) . ")
-                    OR parent.category_id IN (" . implode(',', $placeholders) . ")
+                    child.category_id IN (" . implode(',', $childPlaceholders) . ")
+                    OR parent.category_id IN (" . implode(',', $parentPlaceholders) . ")
                 )
             ";
-            }
         }
-
-        return $sql;
     }
+
+    return $sql;
+}
 
     public function getUserPostsForAdmin($filters = [], $limit = 10, $offset = 0)
     {

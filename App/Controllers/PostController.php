@@ -44,45 +44,63 @@ class PostController
         require __DIR__ . '/../Views/Client/Home.php';
     }
 
-    public function searchResult()
-    {
-        $keyword = trim($_GET['key'] ?? '');
+  public function searchResult()
+{
+    $keyword = trim($_GET['key'] ?? '');
 
-        $time = $_GET['time'] ?? 'newest';
-        $fromDate = $_GET['from_date'] ?? '';
-        $toDate = $_GET['to_date'] ?? '';
+    $time = $_GET['time'] ?? 'newest';
+    $fromDate = $_GET['from_date'] ?? '';
+    $toDate = $_GET['to_date'] ?? '';
 
-        $categoryIds = $_GET['categories'] ?? [];
-        if (!is_array($categoryIds)) {
-            $categoryIds = [$categoryIds];
-        }
+    $categoryIds = $_GET['categories'] ?? [];
 
-        $author = trim($_GET['author'] ?? '');
-
-        $page = max(1, (int)($_GET['p'] ?? 1));
-        $limit = 3;
-        $offset = ($page - 1) * $limit;
-
-        $filters = [
-            'keyword' => $keyword,
-            'time' => $time,
-            'from_date' => $fromDate,
-            'to_date' => $toDate,
-            'categories' => $categoryIds,
-            'author' => $author,
-            'limit' => $limit,
-            'offset' => $offset
-        ];
-
-        $posts = $this->postRepository->searchPosts($filters);
-        $totalPosts = $this->postRepository->countSearchPosts($filters);
-        $totalPages = max(1, ceil($totalPosts / $limit));
-
-        $categories = $this->categoryController->getCategories();
-
-        require __DIR__ . '/../Views/Client/Search/Result.php';
+    if (!is_array($categoryIds)) {
+        $categoryIds = [$categoryIds];
     }
 
+    $categoryIds = array_values(array_filter($categoryIds, function ($item) {
+        return $item !== '';
+    }));
+
+    $author = trim($_GET['author'] ?? '');
+
+    // Trang phân trang, không dùng $_GET['page']
+    // vì page=search_result là route
+    $paginationPage = max(1, (int)($_GET['p'] ?? 1));
+
+    $limit = 3;
+    $offset = ($paginationPage - 1) * $limit;
+
+    $filters = [
+        'keyword' => $keyword,
+        'time' => $time,
+        'from_date' => $fromDate,
+        'to_date' => $toDate,
+        'categories' => $categoryIds,
+        'author' => $author,
+        'limit' => $limit,
+        'offset' => $offset
+    ];
+
+    $posts = $this->postRepository->searchPosts($filters);
+    $totalPosts = $this->postRepository->countSearchPosts($filters);
+
+    $totalPages = (int)ceil($totalPosts / $limit);
+
+    if ($paginationPage > $totalPages && $totalPages > 0) {
+        $paginationPage = $totalPages;
+
+        $filters['offset'] = ($paginationPage - 1) * $limit;
+        $posts = $this->postRepository->searchPosts($filters);
+    }
+
+    // Biến này truyền qua Result.php
+    $currentPaginationPage = $paginationPage;
+
+    $categories = $this->categoryController->getCategories();
+
+    require __DIR__ . '/../Views/Client/Search/Result.php';
+}
     /**
      * Hiển thị danh sách bài viết của một danh mục cụ thể
      * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)

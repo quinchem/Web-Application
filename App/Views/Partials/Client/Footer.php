@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/../Web-Application/Public/Client/Css/Client_Global.css">
-    <title>Trạm Tin Việt</title>
-
-</head>
-<body>
 <footer class="custom-footer">
     <div class="container">
         <div class="footer-row">
@@ -15,8 +5,6 @@
                 <a class="footer-logo" href="#">Trạm Tin Việt</a>
                 <p style="margin-top: 15px; font-size: 0.9rem;">Kênh thông tin uy tín, chuyên sâu về Kinh tế, Chính trị và Xã hội.</p>
                 <div style="margin-top: 20px; display: flex; gap: 15px;">
-                    <a href="#" style="color: var(--navy); font-size: 1.2rem;"><i class="fab fa-facebook"></i></a>
-                    <a href="#" style="color: var(--navy); font-size: 1.2rem;"><i class="fab fa-twitter"></i></a>
                 </div>
             </div>
             <div>
@@ -34,5 +22,3 @@
         </div>
     </div>
 </footer>
-</body>
-</html>

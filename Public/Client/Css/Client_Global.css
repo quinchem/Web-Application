@@ -147,49 +147,109 @@ body {
 }
 
 /* FOOTER - Bố cục từ file footer.html */
+
 .custom-footer {
-  background-color: var(--light-blue);
-  padding: 60px 0 30px;
-  margin-top: 50px;
-  border-top: 1px solid #c5d7e5;
+    background-color: var(--light-blue);
+    padding: 60px 0 28px;
+    margin-top: 0;
+    border-top: 1px solid #c5d7e5;
+
+    /* bổ sung */
+    display: block;
+    min-height: 0;
+}
+
+.custom-footer .container {
+    height: 100%;
+    padding-left: 60px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+
+    /* bổ sung */
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 .footer-row {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
-  gap: 50px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 50px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+
+    /* bổ sung */
+    min-height: 0;
+}
+.footer-logo {
+    font-family: 'Briem Hand', cursive !important;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--navy);
+    text-decoration: none;
+    line-height: 1;
+    margin: 0;
+    display: inline-block;
+}
+
+.footer-desc {
+    margin: 15px 0 0;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    line-height: 1.6;
+}
+
+.footer-socials {
+    margin-top: 18px;
+    display: flex;
+    gap: 15px;
+}
+
+.footer-socials a {
+    color: var(--navy);
+    font-size: 20px;
+    text-decoration: none;
 }
 
 .footer-title {
-  font-weight: 700;
-  color: var(--navy);
-  text-transform: uppercase;
-  margin-bottom: 20px;
-  font-size: 1rem;
-  border-bottom: 2px solid var(--navy);
-  display: inline-block;
-  padding-bottom: 5px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    margin: 0 0 18px;
+    font-size: 1rem;
+    border-bottom: 2px solid var(--navy);
+    display: inline-block;
+    padding-bottom: 5px;
 }
 
 .footer-contact-item {
-  margin-bottom: 15px;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-main);
 }
 
 .footer-contact-item i {
-  color: var(--red);
-  width: 20px;
+    color: var(--red);
+    width: 20px;
 }
 
-.footer-logo {
-  font-family: 'Briem Hand', cursive !important;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--navy);
-  text-decoration: none;
-  line-height: 1;
-  margin-bottom: 34px;
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 2;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: var(--text-main);
+}
+
+.footer-links a:hover {
+    color: var(--red);
 }
