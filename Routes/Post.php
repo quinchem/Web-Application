@@ -29,3 +29,5 @@ $router->get('client_my_posts_page', [PostController::class, 'myPostsPage']);
 
 $router->get('create_post', [PostController::class, 'createPostClient']);
 $router->post('store_post_client', [PostController::class, 'storePostClient']);
+$router->get('category_detail', [PostController::class, 'categoryDetail']);
+$router->get('subcategory', [PostController::class, 'subCategoryDetail']);

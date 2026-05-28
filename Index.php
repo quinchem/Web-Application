@@ -60,4 +60,17 @@ require_once __DIR__ . '/Routes/Client.php';
 
 // 4. KÍCH HOẠT ĐIỀU HƯỚNG DỰA TRÊN PHƯƠNG THỨC REQUEST
 $requestMethod = $_SERVER['REQUEST_METHOD']; 
+
+function timeAgo($datetime)
+{
+    $time = time() - strtotime($datetime);
+
+    if ($time < 3600)  return max(1, floor($time / 60)) . ' phút trước';
+    if ($time < 86400) return floor($time / 3600) . ' giờ trước';
+
+    $days = floor($time / 86400);
+    if ($days < 30)    return $days . ' ngày trước';
+
+    return date('d/m/Y', strtotime($datetime));
+}
 $router->resolve($requestMethod);
