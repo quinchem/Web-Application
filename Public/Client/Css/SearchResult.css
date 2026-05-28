@@ -1,10 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap');
 
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #eef6fb;
+}
+
 .result-page {
     background: #eef6fb;
     color: #07324c;
-    min-height: 100vh;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     font-family: 'Montserrat', sans-serif;
+    /* prevent margin-collapse gaps between main content and footer */
+    overflow: auto;
 }
 
 .result-container {
@@ -57,6 +67,7 @@
 .result-search-input-wrap {
     position: relative;
     width: 285px;
+    border-radius: 8px;
 }
 
 .result-search-input-wrap i {
@@ -78,6 +89,7 @@
     padding: 0 14px 0 38px;
     font-family: 'Montserrat', sans-serif;
     font-size: 14px;
+    border-radius: 8px;
 }
 
 .result-search-box button {
@@ -102,7 +114,9 @@
 }
 
 .result-content-section {
-    padding: 42px 0 76px;
+        padding-top: 42px !important;
+    padding-bottom: 35px !important;
+    margin: 0 !important;
 }
 
 .result-layout {
@@ -216,7 +230,9 @@
     padding: 0 10px;
     outline: none;
     font-size: 13px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Barlow', sans-serif;
+    border-radius: 6px;
+    color: #07324c;
 }
 
 .result-category-dropdown {
@@ -237,7 +253,7 @@
     justify-content: space-between;
     font-family: 'Barlow', sans-serif;
     font-size: 15px;
-    font-weight: 800;
+    font-weight: 500;
     cursor: pointer;
     text-align: left;
     letter-spacing: 1px;
@@ -273,14 +289,15 @@
     background: transparent;
     padding: 11px 16px;
     text-align: left;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Barlow', sans-serif;
     font-size: 14px;
     color: #3f4b52;
     cursor: pointer;
+    font-weight: 500;
 }
 
 .result-category-clear {
-    font-weight: 700;
+    font-weight: 500;
     color: #07324c;
 }
 
@@ -292,7 +309,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .result-parent-btn i {
@@ -347,13 +364,14 @@
 
 .result-author-input input {
     width: 100%;
-    height: 42px;
+    height: 48px;
     border: 1px solid #cfd8de;
     background: #fff;
     padding: 0 12px 0 38px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
     outline: none;
+    border-radius: 8px;
 }
 
 .result-post-item {
@@ -487,6 +505,10 @@
     cursor: not-allowed;
 }
 
+.result-list-wrap {
+    margin-bottom: 0 !important;
+}
+
 .result-empty {
     background: #fff;
     border: 1px solid #d9e2e8;
@@ -504,6 +526,48 @@
 .result-empty p {
     color: #66737a;
     margin: 0;
+}
+
+/* ===== FIX DROPDOWN DANH MỤC KHÔNG XỔ ===== */
+.result-sidebar,
+.result-filter-group,
+.result-layout,
+.result-content-section,
+.result-container {
+    overflow: visible;
+}
+
+.result-category-dropdown {
+    position: relative;
+    z-index: 1000;
+}
+
+.result-category-menu {
+    z-index: 9999;
+}
+
+.result-category-submenu {
+    z-index: 10000;
+}
+
+/* Mở menu bằng hover/focus, không phụ thuộc JS */
+.result-category-dropdown:hover .result-category-menu,
+.result-category-dropdown:focus-within .result-category-menu,
+.result-category-dropdown.active .result-category-menu {
+    display: block;
+}
+
+.result-category-parent:hover .result-category-submenu {
+    display: block;
+}
+
+.result-category-parent.active .result-category-submenu {
+    display: block;
+}
+
+.result-category-parent.active .result-parent-btn {
+    color: #B90C17;
+    background: #eef6fb;
 }
 
 @media (max-width: 992px) {
@@ -558,3 +622,4 @@
         font-size: 21px;
     }
 }
+

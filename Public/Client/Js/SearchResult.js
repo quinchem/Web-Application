@@ -1,12 +1,31 @@
 document.addEventListener('click', function (e) {
-    const dropdownBtn = e.target.closest('.result-category-btn');
-    const dropdown = document.querySelector('.result-category-dropdown');
+    const categoryDropdown = document.querySelector('.result-category-dropdown');
 
-    if (dropdownBtn && dropdown) {
+    const dropdownBtn = e.target.closest('.result-category-btn');
+
+    if (dropdownBtn) {
         e.preventDefault();
         e.stopPropagation();
 
-        dropdown.classList.toggle('active');
+        if (categoryDropdown) {
+            categoryDropdown.classList.toggle('active');
+        }
+
+        return;
+    }
+
+    const parentBtn = e.target.closest('.result-parent-btn');
+
+    if (parentBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const parentItem = parentBtn.closest('.result-category-parent');
+
+        if (parentItem) {
+            parentItem.classList.toggle('active');
+        }
+
         return;
     }
 
@@ -31,9 +50,13 @@ document.addEventListener('click', function (e) {
             label.textContent = categoryLabel;
         }
 
-        if (dropdown) {
-            dropdown.classList.remove('active');
+        if (categoryDropdown) {
+            categoryDropdown.classList.remove('active');
         }
+
+        document.querySelectorAll('.result-category-parent.active').forEach(function (parent) {
+            parent.classList.remove('active');
+        });
 
         if (filterForm) {
             filterForm.submit();
@@ -42,10 +65,14 @@ document.addEventListener('click', function (e) {
         return;
     }
 
-    const menu = e.target.closest('.result-category-menu');
+    const insideDropdown = e.target.closest('.result-category-dropdown');
 
-    if (!menu && dropdown) {
-        dropdown.classList.remove('active');
+    if (!insideDropdown && categoryDropdown) {
+        categoryDropdown.classList.remove('active');
+
+        document.querySelectorAll('.result-category-parent.active').forEach(function (parent) {
+            parent.classList.remove('active');
+        });
     }
 });
 
