@@ -25,10 +25,8 @@ body{
     margin-top: 120px;
 }
 
-/* ================================
-   BREADCRUMB — đồng bộ trang cha
-   ================================ */
-.breadcrumb-custom{
+/* BREADCRUMB */
+.breadcrumb-custom {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -40,23 +38,49 @@ body{
     color: #6c757d;
 }
 
-.breadcrumb-link{
+.breadcrumb-link {
     color: #6c757d;
     text-decoration: none;
     transition: color .2s ease;
 }
 
-.breadcrumb-link:hover{
+.breadcrumb-link:hover {
     color: #b90c17;
 }
 
-/* Danh mục cuối — đỏ, in hoa (giống trang cha) */
-.breadcrumb-current{
+/* Danh mục cha cấp 1 — đỏ, in hoa, KHÔNG gạch chân */
+.breadcrumb-parent {
     color: #b90c17;
     font-weight: 700;
+    text-decoration: none;
 }
 
-/* HERO */
+.breadcrumb-parent:hover {
+    text-decoration: none;
+    color: #8f0a12;
+}
+
+/* Danh mục con cấp 2 — badge đỏ, KHÔNG gạch chân */
+.breadcrumb-current-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    background: #b90c17;
+    color: #fff !important;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Barlow', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    text-decoration: none !important;
+    border-radius: 3px;
+    transition: background .2s;
+}
+
+.breadcrumb-current-tag:hover {
+    background: #8f0a12;
+    text-decoration: none !important;
+}
+
 .category-hero{
     margin-top: 10px;
     margin-bottom: 48px;
@@ -73,15 +97,67 @@ body{
     margin-bottom: 6px;
     letter-spacing: -.3px;
 }
-
-/* ================================
-   DANH SÁCH BÀI — layout giống cha
-   ================================ */
-.related-section{
-    padding-top: 0;
+/* MAIN ARTICLE */
+.article-main{
+    padding-bottom: 48px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-/* Mỗi bài: ngang, ảnh trái + nội dung phải */
+.article-thumbnail{
+    width: 100%;
+    height: 520px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 18px;
+}
+
+.article-category{
+    font-size: 12px;
+    font-weight: 800;
+    font-family: 'Barlow', sans-serif;
+    color: #b90c17;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.article-title{
+    font-family: 'Newsreader', serif;
+    font-size: 58px;
+    font-weight: 700;
+    line-height: 1.18;
+    color: #1b1f24;
+    margin-bottom: 20px;
+}
+
+.article-summary{
+    font-size: 18px;
+    line-height: 1.8;
+    color: #5f6773;
+    max-width: 100%;
+    margin-bottom: 18px;
+}
+
+/* META */
+.article-meta{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #8b9097;
+}
+
+.dot{
+    font-size: 18px;
+    line-height: 0;
+}
+
+/* RELATED */
+.related-section{
+    padding-top: 46px;
+}
+
 .related-item{
     display: flex;
     gap: 22px;
@@ -96,7 +172,7 @@ body{
 }
 
 .related-image-wrap{
-    width: 300px;
+    width: 330px;
     flex-shrink: 0;
 }
 
@@ -104,69 +180,33 @@ body{
     width: 100%;
     height: 190px;
     object-fit: cover;
-    border-radius: 10px;
-    transition: opacity .3s ease;
-}
-
-.related-image:hover{
-    opacity: .9;
+    border-radius: 6px;
 }
 
 .related-content{
     flex: 1;
 }
 
-/* Nhãn danh mục — đỏ, in hoa, Barlow (giống .post-category trang cha) */
-.article-category{
-    display: inline-block;
-    margin-bottom: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    font-family: 'Barlow', sans-serif;
-    color: #b90c17;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-}
-
-/* Tiêu đề bài — Newsreader, đậm (giống .side-title trang cha) */
 .related-title{
     font-family: 'Newsreader', serif;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
-    line-height: 1.4;
-    color: #111827;
-    margin-bottom: 10px;
-    transition: color .2s;
+    line-height: 1.35;
+    color: #1b1f24;
+    margin-bottom: 14px;
+    transition: .2s;
 }
 
 .related-title:hover{
     color: #b90c17;
 }
 
-/* Tóm tắt */
 .related-summary{
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.8;
-    color: #6b7280;
+    color: #5f6773;
+    margin-bottom: 16px;
     text-align: justify;
-    margin-bottom: 14px;
-}
-
-/* META — đồng bộ .post-meta trang cha */
-.article-meta{
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #565d63;
-    letter-spacing: .3px;
-}
-
-.dot{
-    font-size: 18px;
-    line-height: 0;
 }
 
 /* CLAMP */
@@ -196,8 +236,16 @@ body{
         margin-top: 100px;
     }
 
-    .category-title{
-        font-size: 32px;
+    .article-thumbnail{
+        height: 260px;
+    }
+
+    .article-title{
+        font-size: 34px;
+    }
+
+    .article-summary{
+        font-size: 15px;
     }
 
     .related-item{
@@ -213,6 +261,6 @@ body{
     }
 
     .related-title{
-        font-size: 18px;
+        font-size: 24px;
     }
 }

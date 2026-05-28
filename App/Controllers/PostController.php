@@ -634,7 +634,19 @@ public function updatePost()
 
 public function categoryDetail()
 {
+    $categorySlug = $_GET['slug'] ?? null;
     $categoryName = $_GET['name'] ?? null;
+
+    if ($categorySlug && !$categoryName) {
+        $cat = $this->postRepository->getCategoryBySlug($categorySlug);
+        $categoryName = $cat['name'] ?? null;
+    }
+
+    // Nếu vào bằng name, lấy slug tương ứng để truyền xuống view
+    if ($categoryName && !$categorySlug) {
+        $cat = $this->postRepository->getCategoryByName($categoryName);
+        $categorySlug = $cat['slug'] ?? '';
+    }
 
     if (!$categoryName) {
         $this->homepage();
@@ -651,5 +663,27 @@ public function categoryDetail()
     $categoryDesc = $categoryDescriptions[$categoryName] ?? '';
 
     require __DIR__ . '/../Views/Client/Category/Detail.php';
+}
+
+public function subCategoryDetail()
+{
+    $slug = $_GET['slug'] ?? null;
+
+    if (!$slug) {
+        $this->homepage();
+        return;
+    }
+
+    $posts = $this->postRepository->getPostsByCategorySlug($slug);
+
+    if (empty($posts)) {
+        echo "Không có bài viết.";
+        return;
+    }
+
+    // lấy tên category
+    $categoryName = $posts[0]['category_name'];
+
+    require __DIR__ . '/../Views/Client/Category/Detail2.php';
 }
 }
