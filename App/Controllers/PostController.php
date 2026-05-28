@@ -44,6 +44,45 @@ class PostController
         require __DIR__ . '/../Views/Client/Home.php';
     }
 
+    public function searchResult()
+    {
+        $keyword = trim($_GET['key'] ?? '');
+
+        $time = $_GET['time'] ?? 'newest';
+        $fromDate = $_GET['from_date'] ?? '';
+        $toDate = $_GET['to_date'] ?? '';
+
+        $categoryIds = $_GET['categories'] ?? [];
+        if (!is_array($categoryIds)) {
+            $categoryIds = [$categoryIds];
+        }
+
+        $author = trim($_GET['author'] ?? '');
+
+        $page = max(1, (int)($_GET['p'] ?? 1));
+        $limit = 3;
+        $offset = ($page - 1) * $limit;
+
+        $filters = [
+            'keyword' => $keyword,
+            'time' => $time,
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+            'categories' => $categoryIds,
+            'author' => $author,
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+
+        $posts = $this->postRepository->searchPosts($filters);
+        $totalPosts = $this->postRepository->countSearchPosts($filters);
+        $totalPages = max(1, ceil($totalPosts / $limit));
+
+        $categories = $this->categoryController->getCategories();
+
+        require __DIR__ . '/../Views/Client/Search/Result.php';
+    }
+
     /**
      * Hiển thị danh sách bài viết của một danh mục cụ thể
      * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
@@ -204,27 +243,7 @@ class PostController
             return;
         }
 
-        // Lấy user hiện tại
-        $userId = $this->getCurrentUserId();
-
-        // 1. Khởi tạo biến mặc định để View không bị lỗi
-        $post = null;
-        $tags = [];
-        $recommendedPosts = [];
-        $comments = [];
-        $totalComments = 0;
-        $totalPages = 1;
-        $isSaved = false;
-        $isLiked = false;
-
-        $page = isset($_GET['cpage']) ? max(1, (int) $_GET['cpage']) : 1;
-        $limit = 5;
-        $offset = ($page - 1) * $limit;
-
-        $page = isset($_GET['cpage']) ? max(1, (int) $_GET['cpage']) : 1;
-        $limit = 5;
-        $offset = ($page - 1) * $limit;
-        // 2. Lấy thông tin bài viết
+        // 1. Lấy thông tin bài viết đầu tiên để kiểm tra sự tồn tại
         $post = $this->postRepository->getPostById($postId);
 
         if (!$post) {
@@ -235,29 +254,44 @@ class PostController
             exit;
         }
 
-        // 3. Kiểm tra bài viết đã được user lưu chưa
-        if (isset($_SESSION['user_id'])) {
+        // 2. Tăng lượt xem (chỉ tăng khi bài viết tồn tại)
+        $this->postRepository->incrementViewCount($postId);
 
-            $userId = $_SESSION['user_id'];
+        // 3. Khởi tạo các biến mặc định
+        $userId = $this->getCurrentUserId();
+        $tags = $this->postRepository->getPostTags($postId);
+        $comments = [];
+        $totalComments = 0;
+        $totalPages = 1;
+        $isSaved = false;
+        $isLiked = false;
 
+        // 4. Kiểm tra trạng thái tương tác của User
+        if ($userId) {
             $isLiked = $this->postRepository->isLiked($postId, $userId);
-
             $isSaved = $this->postRepository->isBookmarked($postId, $userId);
         }
 
-        // 4. Lấy dữ liệu bổ sung
-        $tags = $this->postRepository->getPostTags($postId);
-        $recommendedPosts = $this->postRepository->getRecommendedPosts($postId);
+        // 5. Lấy bài viết đề xuất theo danh mục (Sử dụng hàm mới)
+        $recommendedPosts = $this->postRepository->getRecommendedByCategory(
+            $postId,
+            $post['category_id'],
+            8
+        );
+        $trendingGlobal = $this->postRepository->getTrendingGlobal(5);
 
-        // 5. Tính toán và lấy bình luận
+        // 6. Tính toán và lấy bình luận
+        $page = isset($_GET['cpage']) ? max(1, (int) $_GET['cpage']) : 1;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+
         $totalComments = $this->postRepository->countTotalCommentsByPostId($postId);
-
         if ($totalComments > 0) {
             $comments = $this->postRepository->getCommentsByPostId($postId, $limit, $offset);
             $totalPages = ceil($totalComments / $limit);
         }
 
-        // 6. Gọi View
+        // 7. Gọi View
         require __DIR__ . '/../Views/Client/Post/Detail.php';
     }
 
@@ -302,102 +336,102 @@ class PostController
     }
 
     public function myPostsPage()
-{
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
 
-    $userId = $_SESSION['user_id'] ?? null;
+        $userId = $_SESSION['user_id'] ?? null;
 
-    if (!$userId) {
-        echo "<div class='alert alert-warning m-0'>Vui lòng đăng nhập để xem bài viết của bạn.</div>";
+        if (!$userId) {
+            echo "<div class='alert alert-warning m-0'>Vui lòng đăng nhập để xem bài viết của bạn.</div>";
+            exit;
+        }
+
+        $myPostLimit = 4;
+
+        $myPostCurrentPage = isset($_GET['my_post_page'])
+            ? (int)$_GET['my_post_page']
+            : 1;
+
+        if ($myPostCurrentPage < 1) {
+            $myPostCurrentPage = 1;
+        }
+
+        $myPostKeyword = trim($_GET['keyword'] ?? '');
+        $myPostCategory = trim($_GET['category'] ?? '');
+        $myPostStatus = trim($_GET['status'] ?? '');
+        $myPostDate = trim($_GET['date'] ?? '');
+
+        $myPostOffset = ($myPostCurrentPage - 1) * $myPostLimit;
+
+        $myPostTotalPosts = $this->postRepository->countMyPostsByUser(
+            $userId,
+            $myPostKeyword,
+            $myPostCategory,
+            $myPostStatus,
+            $myPostDate
+        );
+
+        $myPostTotalPages = (int)ceil($myPostTotalPosts / $myPostLimit);
+
+        if ($myPostTotalPages > 0 && $myPostCurrentPage > $myPostTotalPages) {
+            $myPostCurrentPage = $myPostTotalPages;
+            $myPostOffset = ($myPostCurrentPage - 1) * $myPostLimit;
+        }
+
+        $myPosts = $this->postRepository->getMyPostsByUser(
+            $userId,
+            $myPostLimit,
+            $myPostOffset,
+            $myPostKeyword,
+            $myPostCategory,
+            $myPostStatus,
+            $myPostDate
+        );
+
+        $myPostTotalAll = $this->postRepository->countMyPostsByUser($userId);
+        $myPostTotalApproved = $this->postRepository->countMyPostsByUserAndStatus($userId, 'approved');
+        $myPostTotalPending = $this->postRepository->countMyPostsByUserAndStatus($userId, 'pending');
+        $myPostTotalDraft = $this->postRepository->countMyPostsByUserAndStatus($userId, 'draft');
+
+        $myPostCategories = $this->categoryController->getCategories();
+
+        include __DIR__ . '/../Views/Client/Post/my_posts.php';
         exit;
     }
-
-    $myPostLimit = 4;
-
-    $myPostCurrentPage = isset($_GET['my_post_page'])
-        ? (int)$_GET['my_post_page']
-        : 1;
-
-    if ($myPostCurrentPage < 1) {
-        $myPostCurrentPage = 1;
-    }
-
-    $myPostKeyword = trim($_GET['keyword'] ?? '');
-    $myPostCategory = trim($_GET['category'] ?? '');
-    $myPostStatus = trim($_GET['status'] ?? '');
-    $myPostDate = trim($_GET['date'] ?? '');
-
-    $myPostOffset = ($myPostCurrentPage - 1) * $myPostLimit;
-
-    $myPostTotalPosts = $this->postRepository->countMyPostsByUser(
-        $userId,
-        $myPostKeyword,
-        $myPostCategory,
-        $myPostStatus,
-        $myPostDate
-    );
-
-    $myPostTotalPages = (int)ceil($myPostTotalPosts / $myPostLimit);
-
-    if ($myPostTotalPages > 0 && $myPostCurrentPage > $myPostTotalPages) {
-        $myPostCurrentPage = $myPostTotalPages;
-        $myPostOffset = ($myPostCurrentPage - 1) * $myPostLimit;
-    }
-
-    $myPosts = $this->postRepository->getMyPostsByUser(
-        $userId,
-        $myPostLimit,
-        $myPostOffset,
-        $myPostKeyword,
-        $myPostCategory,
-        $myPostStatus,
-        $myPostDate
-    );
-
-    $myPostTotalAll = $this->postRepository->countMyPostsByUser($userId);
-    $myPostTotalApproved = $this->postRepository->countMyPostsByUserAndStatus($userId, 'approved');
-    $myPostTotalPending = $this->postRepository->countMyPostsByUserAndStatus($userId, 'pending');
-    $myPostTotalDraft = $this->postRepository->countMyPostsByUserAndStatus($userId, 'draft');
-
-    $myPostCategories = $this->categoryController->getCategories();
-
-    include __DIR__ . '/../Views/Client/Post/my_posts.php';
-    exit;
-}
 
     /**
      * Admin quản lý bài viết người đọc
      */
     public function adminUserPosts()
-{
-    $filters = [
-        'keyword'     => $_GET['keyword'] ?? '',
-        'category_id' => $_GET['category_id'] ?? '',
-        'author_id'   => $_GET['author_id'] ?? '',
-        'status'      => $_GET['status'] ?? '',
-        'date'        => $_GET['date'] ?? ''
-    ];
+    {
+        $filters = [
+            'keyword'     => $_GET['keyword'] ?? '',
+            'category_id' => $_GET['category_id'] ?? '',
+            'author_id'   => $_GET['author_id'] ?? '',
+            'status'      => $_GET['status'] ?? '',
+            'date'        => $_GET['date'] ?? ''
+        ];
 
-    $perPage     = 10;
-    $currentPage = max(1, (int)($_GET['p'] ?? 1));
-    $offset      = ($currentPage - 1) * $perPage;
+        $perPage     = 10;
+        $currentPage = max(1, (int)($_GET['p'] ?? 1));
+        $offset      = ($currentPage - 1) * $perPage;
 
-    $posts         = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
-    $categories    = $this->postRepository->getCategoriesForFilter(); // ← THÊM
-    $authors       = $this->postRepository->getAuthorsForFilter();
+        $posts         = $this->postRepository->getUserPostsForAdmin($filters, $perPage, $offset);
+        $categories    = $this->postRepository->getCategoriesForFilter(); // ← THÊM
+        $authors       = $this->postRepository->getAuthorsForFilter();
 
-    $totalPosts    = $this->postRepository->countUserPosts();
-    $totalForPages = $this->postRepository->countUserPostsFiltered($filters);
-    $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
-    $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
-    $trendingPosts = $this->postRepository->countTrendingUserPosts();
+        $totalPosts    = $this->postRepository->countUserPosts();
+        $totalForPages = $this->postRepository->countUserPostsFiltered($filters);
+        $pendingPosts  = $this->postRepository->countUserPostsByStatus('pending');
+        $hiddenPosts   = $this->postRepository->countUserPostsByStatus('hidden');
+        $trendingPosts = $this->postRepository->countTrendingUserPosts();
 
-    $totalPages = (int)ceil($totalForPages / $perPage);
+        $totalPages = (int)ceil($totalForPages / $perPage);
 
-    require_once __DIR__ . '/../Views/Admin/Post/Index.php';
-}
+        require_once __DIR__ . '/../Views/Admin/Post/Index.php';
+    }
     public function apiGetComments()
     {
         $postId = $_GET['post_id'] ?? null;
@@ -420,7 +454,7 @@ class PostController
         ob_start();
         if (empty($comments)): ?>
             <p class="text-muted text-center py-4 bg-light rounded">Chưa có bình luận nào.</p>
-        <?php else:
+            <?php else:
             foreach ($comments as $cmt): ?>
                 <div class="d-flex mb-4 pb-4 border-bottom">
                     <img src="<?= $defaultAvatar ?>" class="comment-avatar me-3" alt="Avatar">
@@ -462,7 +496,7 @@ class PostController
                     </button>
                 <?php endif; ?>
             </div>
-        <?php endif;
+<?php endif;
         $pagination = ob_get_clean();
 
         header('Content-Type: application/json');
@@ -478,28 +512,32 @@ class PostController
      * Quản lý bài viết cho admin 
      */
     public function adminPosts()
-{
-    $filters = [
-        'keyword'     => $_GET['keyword'] ?? '',
-        'category_id' => $_GET['category_id'] ?? '',
-        'status'      => $_GET['status'] ?? '',
-        'date'        => $_GET['date'] ?? ''
-    ];
+    {
+        $this->postRepository->autoPublishDuePosts();
 
-    $perPage     = 10;
-    $currentPage = max(1, (int)($_GET['p'] ?? 1));
-    $offset      = ($currentPage - 1) * $perPage;
+        $filters = [
+            'keyword'     => $_GET['keyword']     ?? '',
+            'category_id' => $_GET['category_id'] ?? '',
+            'author_id'   => $_GET['author_id']   ?? '',  // ← THÊM
+            'status'      => $_GET['status']       ?? '',
+            'date'        => $_GET['date']         ?? '',
+        ];
 
-    $posts         = $this->postRepository->getAdminPosts($filters, $perPage, $offset);
-    $totalPosts    = $this->postRepository->countAdminPosts();
-    $totalForPages = $this->postRepository->countAdminPostsFiltered($filters);
-    $hiddenPosts   = $this->postRepository->countAdminPostsByStatus('hidden');
-    $trendingPosts = $this->postRepository->countTrendingAdminPosts();
-    $totalPages    = (int)ceil($totalForPages / $perPage);
-    $categories    = $this->postRepository->getCategoriesForFilter(); // ← THÊM DÒNG NÀY
+        $perPage     = 10;
+        $currentPage = max(1, (int)($_GET['p'] ?? 1));
+        $offset      = ($currentPage - 1) * $perPage;
 
-    require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
-}
+        $posts         = $this->postRepository->getAdminPosts($filters, $perPage, $offset);
+        $totalPosts    = $this->postRepository->countAdminPosts();
+        $totalForPages = $this->postRepository->countAdminPostsFiltered($filters);
+        $hiddenPosts   = $this->postRepository->countAdminPostsByStatus('hidden');
+        $trendingPosts = $this->postRepository->countTrendingAdminPosts();
+        $totalPages    = (int)ceil($totalForPages / $perPage);
+        $categories    = $this->postRepository->getCategoriesForFilter();
+        $adminAuthors  = $this->postRepository->getAdminAuthors();  // ← THÊM
+
+        require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
+    }
     public function createPost()
     {
         $categories = $this->postRepository->getCategoriesForFilter();
@@ -508,182 +546,149 @@ class PostController
 
     public function storePost()
     {
-        // DEBUG TẠM — xóa sau khi fix
-    
+        $title      = trim($_POST['title']    ?? '');
+        $summary    = trim($_POST['summary']  ?? '');
+        $content    = $_POST['content']       ?? '';
+        $categoryId = $_POST['category_id']   ?? '';
+        $tags       = $_POST['tags']          ?? [];
+        $publishAt  = $_POST['publish_at']    ?? null;
+        $action     = $_POST['action']        ?? 'draft';
 
-        $title = trim($_POST['title'] ?? '');
-        $summary = trim($_POST['summary'] ?? '');
-        $content = $_POST['content'] ?? '';
-        $categoryId = $_POST['category_id'] ?? '';
-        $tags = $_POST['tags'] ?? [];
-        $publishAt = $_POST['publish_at'] ?? null;
-        $action = $_POST['action'] ?? 'draft';
-
-        // ── FIX 2: dùng đúng key session như getCurrentUserId() ──
         $authorId = $_SESSION['user']->user_id ?? null;
 
-        // ── FIX 1: dùng đường dẫn tuyệt đối + tự tạo thư mục ──
+        // ✅ Thay move_uploaded_file → upload Cloudinary
         $thumbnailUrl = null;
         if (!empty($_FILES['thumbnail']['tmp_name'])) {
-            $ext = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
-            $filename = 'thumb_' . time() . '.' . $ext;
-            $uploadDir = __DIR__ . '/../../../Public/Uploads/thumbnails/';
-
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-
-            $destPath = $uploadDir . $filename;
-            if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $destPath)) {
-                $thumbnailUrl = 'Public/Uploads/thumbnails/' . $filename;
-            }
+            $thumbnailUrl = $this->uploadToCloudinary($_FILES['thumbnail']);
         }
 
         $status = ($action === 'publish') ? 'approved' : 'draft';
 
         $postId = $this->postRepository->createPost([
-            'title' => $title,
-            'summary' => $summary,
-            'content' => $content,
-            'category_id' => $categoryId,
-            'author_id' => $authorId,
+            'title'         => $title,
+            'summary'       => $summary,
+            'content'       => $content,
+            'category_id'   => $categoryId,
+            'author_id'     => $authorId,
             'thumbnail_url' => $thumbnailUrl,
-            'status' => $status,
-            'publish_at' => $publishAt ?: null,
-            'tags' => $tags,
+            'status'        => $status,
+            'publish_at'    => $publishAt ?: null,
+            'tags'          => $tags,
         ]);
 
         header('Location: Admin_index.php?page=admin_posts');
         exit;
     }
     /*Chỉnh sửa bài viết admin*/
-public function editPost()
-{
-    $id = $_GET['id'] ?? ''; // ✅ KHÔNG có (int)
-    
-    if (!$id) {
-        header('Location: Admin_index.php?page=admin_posts');
-        exit;
-    }
+    public function editPost()
+    {
+        $id = $_GET['id'] ?? ''; // ✅ KHÔNG có (int)
 
-    $post       = $this->postRepository->getPostById($id);
-    $categories = $this->postRepository->getCategoriesForFilter();
-    $tags       = $this->postRepository->getPostTags($id);
-
-    if (!$post) {
-        header('Location: Admin_index.php?page=admin_posts');
-        exit;
-    }
-
-    $allParents  = array_filter($categories, fn($c) => empty($c['parent_id']));
-    $allChildren = array_filter($categories, fn($c) => !empty($c['parent_id']));
-
-    require_once __DIR__ . '/../Views/Admin/Post/EditPost.php';
-}
-
-public function updatePost()
-{
-    $id = $_POST['post_id'] ?? ''; // ✅ KHÔNG có (int)
-    
-    if (!$id) {
-        header('Location: Admin_index.php?page=admin_posts');
-        exit;
-    }
-
-    $title     = trim($_POST['title']          ?? '');
-    $summary   = trim($_POST['summary']        ?? '');
-    $content   = $_POST['content']             ?? '';
-    $catId     = (int)($_POST['category_id']   ?? 0);
-    $subCatId  = (int)($_POST['sub_category_id'] ?? 0);
-    $publishAt = $_POST['published_at']         ?? null;
-    $tags      = $_POST['tags']                 ?? [];
-    $action    = $_POST['action']               ?? 'save';
-
-    $finalCatId = $subCatId ?: $catId;
-
-    $data = [
-        'title'        => $title,
-        'summary'      => $summary,
-        'content'      => $content,
-        'category_id'  => $finalCatId,
-        'published_at' => $publishAt ?: null,
-        'status'       => $action === 'publish' ? 'approved' : 'draft',
-    ];
-
-    // Xử lý thumbnail mới nếu có upload
-    if (!empty($_FILES['thumbnail']['tmp_name'])) {
-        $ext      = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
-        $filename = 'thumb_' . time() . '.' . $ext;
-        $uploadDir = __DIR__ . '/../../../Public/Uploads/thumbnails/';
-
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+        if (!$id) {
+            header('Location: Admin_index.php?page=admin_posts');
+            exit;
         }
 
-        if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $uploadDir . $filename)) {
-            $data['thumbnail_URL'] = 'Public/Uploads/thumbnails/' . $filename;
+        $post       = $this->postRepository->getPostById($id);
+        $categories = $this->postRepository->getCategoriesForFilter();
+        $tags       = $this->postRepository->getPostTags($id);
+
+        if (!$post) {
+            header('Location: Admin_index.php?page=admin_posts');
+            exit;
         }
+
+        $allParents  = array_filter($categories, fn($c) => empty($c['parent_id']));
+        $allChildren = array_filter($categories, fn($c) => !empty($c['parent_id']));
+
+        require_once __DIR__ . '/../Views/Admin/Post/EditPost.php';
     }
 
-    $this->postRepository->updatePost($id, $data);
-    $this->postRepository->syncTags($id, $tags);
+    public function updatePost()
+    {
+        $id = $_POST['post_id'] ?? '';
 
-    header('Location: Admin_index.php?page=edit_post&id=' . $id . '&success=1');
-    exit;
-}
+        if (!$id) {
+            header('Location: Admin_index.php?page=admin_posts');
+            exit;
+        }
 
-public function categoryDetail()
-{
-    $categorySlug = $_GET['slug'] ?? null;
-    $categoryName = $_GET['name'] ?? null;
+        $title     = trim($_POST['title']       ?? '');
+        $summary   = trim($_POST['summary']     ?? '');
+        $content   = $_POST['content']          ?? '';
+        $catId     = $_POST['category_id']      ?? '';
+        $subCatId  = $_POST['sub_category_id']  ?? '';
+        $publishAt = $_POST['published_at']     ?? null;
+        $tags      = $_POST['tags']             ?? [];
 
-    if ($categorySlug && !$categoryName) {
-        $cat = $this->postRepository->getCategoryBySlug($categorySlug);
-        $categoryName = $cat['name'] ?? null;
+        $finalCatId = !empty($subCatId) ? $subCatId : $catId;
+
+        // ✅ Giữ nguyên status cũ trong DB, không override
+        $currentPost   = $this->postRepository->getPostById($id);
+        $currentStatus = $currentPost['status'] ?? 'draft';
+
+        $data = [
+            'title'        => $title,
+            'summary'      => $summary,
+            'content'      => $content,
+            'category_id'  => $finalCatId,
+            'published_at' => $publishAt ?: null,
+            'status'       => $currentStatus,
+        ];
+
+        // ✅ Upload Cloudinary nếu có ảnh mới
+        if (!empty($_FILES['thumbnail']['tmp_name'])) {
+            $url = $this->uploadToCloudinary($_FILES['thumbnail']);
+            if ($url) {
+                $data['thumbnail_URL'] = $url;
+            }
+        }
+
+        $this->postRepository->updatePost($id, $data);
+        $this->postRepository->syncTags($id, $tags);
+
+        header('Location: Admin_index.php?page=edit_post&id=' . $id . '&success=1');
+        exit;
     }
+    private function uploadToCloudinary($file): string
+    {
+        $cloudName = $_ENV['CLOUDINARY_CLOUD_NAME'];
+        $apiKey    = $_ENV['CLOUDINARY_API_KEY'];
+        $apiSecret = $_ENV['CLOUDINARY_API_SECRET'];
 
-    // Nếu vào bằng name, lấy slug tương ứng để truyền xuống view
-    if ($categoryName && !$categorySlug) {
-        $cat = $this->postRepository->getCategoryByName($categoryName);
-        $categorySlug = $cat['slug'] ?? '';
+        $folder    = 'tramtinviet/posts';
+        $timestamp = time();
+        $signature = sha1("folder={$folder}&timestamp={$timestamp}{$apiSecret}");
+
+        $cfile = new \CURLFile($file['tmp_name'], $file['type'], $file['name']);
+
+        $ch = curl_init("https://api.cloudinary.com/v1_1/{$cloudName}/image/upload");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, [
+            'file'      => $cfile,
+            'api_key'   => $apiKey,
+            'timestamp' => $timestamp,
+            'signature' => $signature,
+            'folder'    => $folder,
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = json_decode(curl_exec($ch), true);
+        curl_close($ch);
+
+        return $result['secure_url'] ?? '';
     }
+    public function deletePost()
+    {
+        $id = $_POST['post_id'] ?? '';
 
-    if (!$categoryName) {
-        $this->homepage();
-        return;
+        if (!$id) {
+            echo json_encode(['success' => false]);
+            exit;
+        }
+
+        $result = $this->postRepository->deletePost($id);
+
+        echo json_encode(['success' => (bool)$result]);
+        exit;
     }
-
-    $posts = $this->postRepository->getPostsByParentCategoryGrouped($categoryName);
-
-    $categoryDescriptions = [
-        'Thời sự'  => 'Cập nhật những diễn biến quan trọng nhất về chính trị, xã hội và an ninh quốc phòng trong và ngoài nước qua lăng kính phân tích sâu sắc.',
-        'Kinh tế'  => 'Phân tích và cập nhật các xu hướng kinh tế, tài chính, thị trường trong nước và quốc tế.',
-        'Tiện ích' => 'Thông tin hữu ích về đời sống, công nghệ, sức khỏe và giải trí dành cho bạn đọc.',
-    ];
-    $categoryDesc = $categoryDescriptions[$categoryName] ?? '';
-
-    require __DIR__ . '/../Views/Client/Category/Detail.php';
-}
-
-public function subCategoryDetail()
-{
-    $slug = $_GET['slug'] ?? null;
-
-    if (!$slug) {
-        $this->homepage();
-        return;
-    }
-
-    $posts = $this->postRepository->getPostsByCategorySlug($slug);
-
-    if (empty($posts)) {
-        echo "Không có bài viết.";
-        return;
-    }
-
-    // lấy tên category
-    $categoryName = $posts[0]['category_name'];
-
-    require __DIR__ . '/../Views/Client/Category/Detail2.php';
-}
 }

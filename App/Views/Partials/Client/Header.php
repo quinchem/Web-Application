@@ -9,9 +9,10 @@
     <title>Trạm Tin Việt</title>
 </head>
 <?php
-$currentPage = !empty($_GET['page']) ? $_GET['page'] : 'homepage'; 
-                $currentCategory = !empty($_GET['name']) ? $_GET['name'] : '';
+$currentPage = !empty($_GET['page']) ? $_GET['page'] : 'homepage';
+$currentCategory = !empty($_GET['name']) ? $_GET['name'] : '';
 ?>
+
 <body>
     <header class="header-container">
         <div class="container" style="width: 1140px;">
@@ -30,20 +31,22 @@ $currentPage = !empty($_GET['page']) ? $_GET['page'] : 'homepage';
 
                         <div>
                             <img src="<?= !empty($_SESSION['avatar']) ? $_SESSION['avatar'] : '/Public/Admin/Images/admin-avatar.png'; ?>"
-                                alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 8px;">
+                                alt="Avatar"
+                                style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-right: 8px;">
 
-                            <a href="index.php?page=client_profile" style ="text-decoration: none !important;">
-    <span style="color: white; text-transform: uppercase; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px; ">
-        <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['user_name']); ?>
-    </span>
-</a>
+                            <a href="index.php?page=client_profile" style="text-decoration: none !important;">
+                                <span
+                                    style="color: white; text-transform: uppercase; font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px; ">
+                                    <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['user_name']); ?>
+                                </span>
+                            </a>
 
-                            <a class = "logout" href="index.php?page=logout">
+                            <a class="logout" href="index.php?page=logout">
                                 ĐĂNG XUẤT
                             </a>
                         </div>
 
-<?php else: ?>
+                    <?php else: ?>
 
                         <a href="index.php?page=register" style="color: white; text-decoration: none;">ĐĂNG KÝ</a>
                         <span style="opacity: 0.5; color: white;">|</span>
@@ -53,43 +56,56 @@ $currentPage = !empty($_GET['page']) ? $_GET['page'] : 'homepage';
                 </div>
             </div>
 
-           <nav class="nav-bar">
+            <nav class="nav-bar">
                 <ul class="menu-items">
                     <li>
-                        <a href="index.php?page=homepage" class="<?= ($currentPage === 'homepage') ? 'active' : ''; ?>">Trang Chủ</a>
+                        <a href="index.php?page=homepage"
+                            class="<?= ($currentPage === 'homepage') ? 'active' : ''; ?>">Trang Chủ</a>
                     </li>
-                    
+
                     <li>
-                        <a href="index.php?page=category_detail&name=Thời sự" class="<?= ($currentPage === 'category' && $currentCategory === 'Thời sự') ? 'active' : ''; ?>">Thời Sự</a>
+                        <a href="index.php?page=category&name=Thời sự"
+                            class="<?= ($currentPage === 'category' && $currentCategory === 'Thời sự') ? 'active' : ''; ?>">Thời
+                            Sự</a>
                     </li>
                     <li>
-                        <a href="index.php?page=category_detail&name=Kinh tế" class="<?= ($currentPage === 'category' && $currentCategory === 'Kinh tế') ? 'active' : ''; ?>">Kinh Tế</a>
+                        <a href="index.php?page=category&name=Kinh tế"
+                            class="<?= ($currentPage === 'category' && $currentCategory === 'Kinh tế') ? 'active' : ''; ?>">Kinh
+                            Tế</a>
                     </li>
                     <li>
-                        <a href="index.php?page=category_detail&name=Tiện ích" class="<?= ($currentPage === 'category' && $currentCategory === 'Tiện ích') ? 'active' : ''; ?>">Tiện Ích</a>
+                        <a href="index.php?page=category&name=Tiện ích"
+                            class="<?= ($currentPage === 'category' && $currentCategory === 'Tiện ích') ? 'active' : ''; ?>">Tiện
+                            Ích</a>
                     </li>
                 </ul>
-                <div class="search-box" style="position: relative;">
-                    <input type="text" placeholder="Tìm kiếm..."
+                <form class="search-box" action="index.php" method="GET" style="position: relative;">
+                    <input type="hidden" name="page" value="search_result">
+
+                    <input type="text" name="key" placeholder="Tìm kiếm..." autocomplete="off"
                         style="padding: 8px 15px 8px 35px; border-radius: 10px; border: none; outline: none; width: 220px;">
+
+                    <button type="submit" style="display: none;"></button>
+
                     <i class="fas fa-search"
-                        style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #bababa;"></i>
-                </div>
+                        style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #bababa;">
+                    </i>
+                </form>
             </nav>
         </div>
     </header>
-    </body>
-    <script src="/../Web-Application/Public/Client/Js/Current_date.js"></script>
+</body>
+<script src="/../Web-Application/Public/Client/Js/Current_date.js"></script>
 <?php if (isset($_SESSION['success_msg'])): ?>
-        <script>
-            alert('<?= $_SESSION['success_msg']; ?>');
-        </script>
-            <?php unset($_SESSION['success_msg']); // Xóa session sau khi hiện thông báo ?>
+    <script>
+        alert('<?= $_SESSION['success_msg']; ?>');
+    </script>
+    <?php unset($_SESSION['success_msg']); // Xóa session sau khi hiện thông báo ?>
 <?php endif; ?>
-    
+
 <?php if (isset($_SESSION['error'])): ?>
-        <script>
-            alert('<?= $_SESSION['error']; ?>');
-        </script>
-            <?php unset($_SESSION['error']); ?>
+    <script>
+        alert('<?= $_SESSION['error']; ?>');
+    </script>
+    <?php unset($_SESSION['error']); ?>
 <?php endif; ?>

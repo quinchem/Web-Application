@@ -1,5 +1,1 @@
-SELECT 
-            *
-        FROM post
-        WHERE user_id = "US0001"
-        ORDER BY created_at DESC
+UPDATE Post SET status = 'pending' WHERE post_id IN ('PS0003', 'PS0008', 'PS0009');

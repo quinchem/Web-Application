@@ -89,16 +89,16 @@
     font-size: 15px;
     font-style: italic;
     font-family: 'Newsreader', serif;
-    color: #cc2429;
+     color: #07344a !important;
     font-weight: 500;
     line-height: 1.75;
-    border-left: 3px solid #cc2429;
+    border-left: 3px solid #07344a;
     padding-left: 18px;
     outline: none;
 }
 .ep-summary-editor:empty::before {
     content: 'Nhập tóm tắt nội dung bài viết...';
-    color: #d0a0a2;
+    color: #c5d4dc;
     font-style: italic;
 }
 
@@ -381,4 +381,14 @@
     .ep-card {
         padding: 18px 16px;
     }
+}
+/* ── Focus highlight khi click vào card ── */
+.editor-card:focus-within {
+    border-color: #07344a !important;
+    box-shadow: 0 0 0 4px rgba(7, 52, 74, 0.07) !important;
+}
+
+.ep-card:focus-within {
+    border-color: #07344a !important;
+    box-shadow: 0 0 0 4px rgba(7, 52, 74, 0.07) !important;
 }

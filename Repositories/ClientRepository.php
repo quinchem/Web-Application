@@ -41,6 +41,70 @@ class ClientRepository
             return false;
         }
     }
+   public function checkClientLogin($username, $password)
+{
+    try {
+        $sql = "SELECT * FROM user WHERE user_name = :username LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([':username' => $username]);
+        $user = $stmt->fetch(PDO::FETCH_OBJ);
+
+        if (!$user || $user->account_status !== 'active' || $user->role_id !== 'RL0002') {
+            return false;
+        }
+        
+        // 1. Kiểm tra nếu dùng password_verify (Mật khẩu đã hash)
+        if (password_verify($password, $user->password)) {
+            return $user;
+        }
+        
+        // 2. Nếu mật khẩu không verify được, kiểm tra nếu là mật khẩu thường (Plain text)
+        if ($password === $user->password) {
+            // Mật khẩu đúng nhưng chưa hash -> Thực hiện Hash ngay và cập nhật vào DB
+            $this->upgradePasswordHash($user->user_id, $password);
+            return $user;
+        }
+
+        return false;
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+public function verifyLogin($username, $password)
+{
+    $user = $this->getUserByUsername($username);
+
+    if (!$user) return false;
+
+    // 1. Kiểm tra nếu dùng password_hash (mới)
+    if (password_verify($password, $user['password'])) {
+        return $user;
+    }
+
+    // 2. Nếu mật khẩu không khớp, kiểm tra xem có phải mật khẩu thường (cũ) không
+    if ($password === $user['password']) {
+        // Mật khẩu đúng dạng cũ -> Hash lại và lưu vào DB
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $sql = "UPDATE user SET password = ? WHERE user_id = ?";
+        $this->conn->prepare($sql)->execute([$hashed, $user['user_id']]);
+        
+        // Cập nhật lại user để session lấy dữ liệu mới nhất
+        $user['password'] = $hashed;
+        return $user;
+    }
+
+    return false;
+}
+
+
+// Hàm hỗ trợ cập nhật lên hash
+private function upgradePasswordHash($userId, $plainPassword)
+{
+    $hashedPassword = password_hash($plainPassword, PASSWORD_DEFAULT);
+    $sql = "UPDATE user SET password = :password WHERE user_id = :user_id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([':password' => $hashedPassword, ':user_id' => $userId]);
+}
     // =========================
     // QUẢN LÝ TÀI KHOẢN
     // =========================

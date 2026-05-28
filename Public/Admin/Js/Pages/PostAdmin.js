@@ -6,9 +6,28 @@ function goToPage(page) {
 }
 
 function confirmDelete(postId) {
-    if (confirm('Bạn có chắc muốn xóa bài viết này không?')) {
-        window.location.href = 'Index.php?page=delete_post&id=' + postId;
-    }
+    if (!confirm('Bạn có chắc muốn xóa bài viết này không?')) return;
+
+    fetch('Admin_index.php?page=delete_post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'post_id=' + encodeURIComponent(postId)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Tìm button đang gọi confirmDelete và xóa hàng tr chứa nó
+            const buttons = document.querySelectorAll('.delete-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(postId)) {
+                    btn.closest('tr').remove();
+                }
+            });
+        } else {
+            alert('Xóa thất bại!');
+        }
+    })
+    .catch(() => alert('Lỗi kết nối!'));
 }
 
 document.addEventListener('DOMContentLoaded', function () {
