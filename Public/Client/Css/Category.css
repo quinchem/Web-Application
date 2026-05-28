@@ -41,6 +41,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: #6c757d;
+    padding-top: 50px;    
 }
 
 .breadcrumb-link {
@@ -59,6 +60,14 @@ body {
     text-decoration: none;
 }
 
+.page-spacing {
+    margin-top: 120px;
+}
+
+.page-spacing {
+    margin-top: 120px;
+    padding-top: 24px;
+}
 /* ================================
    HERO (tên danh mục + mô tả)
    ================================ */
@@ -116,7 +125,7 @@ body {
 }
 
 .view-more {
-    font-size: 11px;
+    font-size: 15px;
     font-weight: 700;
     font-family: 'Barlow', sans-serif;
     color: #b90c17 !important;
@@ -187,10 +196,10 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: none;
+    color: #8b9097;
     letter-spacing: .3px;
     margin-top: 14px;
 }

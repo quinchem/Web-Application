@@ -53,8 +53,7 @@ $categoryName = $categoryName ?? ($posts[0]['category_name'] ?? '');
     <?php
     $parentName = $posts[0]['parent_category_name'] ?? '';
     $parentSlug = $posts[0]['parent_category_slug'] ?? '';
-    if (!empty($parentName)):
-    ?>
+    if (!empty($parentName)): ?>
         <span class="mx-2">></span>
         <a href="index.php?page=category_detail&slug=<?= urlencode($parentSlug) ?>"
            class="breadcrumb-parent">
@@ -79,78 +78,129 @@ $categoryName = $categoryName ?? ($posts[0]['category_name'] ?? '');
     </div>
 
     <!-- DANH SÁCH BÀI VIẾT -->
-    <?php if (!empty($posts)): ?>
+<?php if (!empty($featuredPost)): ?>
 
-        <section class="related-section">
+<section class="featured-post">
 
-            <?php foreach ($posts as $item): ?>
+    <a href="index.php?page=post&id=<?= htmlspecialchars($featuredPost['post_id']) ?>"
+       class="featured-image-link">
 
-                <article class="related-item">
+        <img src="<?= htmlspecialchars($featuredPost['thumbnail_url'] ?? '') ?>"
+     class="featured-image"
+     alt="">
 
-                    <a href="index.php?page=post&id=<?= htmlspecialchars($item['post_id']) ?>"
-                       class="related-image-wrap">
+    </a>
 
-                        <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? '') ?>"
-                             class="related-image"
-                             alt="thumbnail">
+    <div class="featured-content">
 
-                    </a>
+        <div class="article-category">
+            <?= htmlspecialchars($featuredPost['category_name'] ?? '') ?>
+        </div>
 
-                    <div class="related-content">
+        <a href="index.php?page=post&id=<?= htmlspecialchars($featuredPost['post_id']) ?>"
+           class="text-decoration-none">
 
-                        <div class="article-category">
-                            <?= htmlspecialchars($item['category_name'] ?? '') ?>
-                        </div>
+            <h1 class="featured-title">
 
-                        <a href="index.php?page=post&id=<?= htmlspecialchars($item['post_id']) ?>"
-                           class="text-decoration-none">
+                <?= htmlspecialchars($featuredPost['title'] ?? '') ?>
 
-                            <h3 class="related-title clamp-2">
-                                <?= htmlspecialchars($item['title'] ?? '') ?>
-                            </h3>
+            </h1>
 
-                        </a>
+        </a>
 
-                        <p class="related-summary clamp-3">
-                            <?= htmlspecialchars($item['summary'] ?? '') ?>
-                        </p>
+        <p class="featured-summary">
 
-                        <div class="article-meta">
+            <?= htmlspecialchars($featuredPost['summary'] ?? '') ?>
 
-                            <span>
-                                <?= !empty($item['published_at'])
-                                    ? timeAgo($item['published_at'])
-                                    : '' ?>
-                            </span>
-
-                            <span class="dot">·</span>
-
-                            <span>
-                                 <?php
-                                $authorLabel = ($item['author_role'] ?? '') === 'admin'
-                                    ? 'Biên tập viên: ' . htmlspecialchars($item['author_name'] ?? '')
-                                    : htmlspecialchars($item['author_name'] ?? '');
-                                echo $authorLabel;
-                                ?>
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-            <?php endforeach; ?>
-
-        </section>
-
-    <?php else: ?>
-
-        <p class="text-muted text-center py-5">
-            Không có bài viết nào trong danh mục này.
         </p>
 
-    <?php endif; ?>
+        <div class="article-meta">
+
+            <span>
+                <?= !empty($featuredPost['published_at'])
+                    ? timeAgo($featuredPost['published_at'])
+                    : '' ?>
+            </span>
+
+            <span class="dot">·</span>
+
+            <span>
+                <?= htmlspecialchars($featuredPost['author_name'] ?? '') ?>
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+<?php endif; ?>
+
+<?php if (!empty($posts)): ?>
+
+<section class="related-section">
+
+    <?php foreach ($posts as $item): ?>
+
+        <article class="related-item">
+
+            <a href="index.php?page=post&id=<?= htmlspecialchars($item['post_id']) ?>"
+               class="related-image-wrap">
+
+                <img src="<?= htmlspecialchars($item['thumbnail_url'] ?? '') ?>"
+                class="related-image"
+                alt="">
+
+            </a>
+
+            <div class="related-content">
+
+                <div class="article-category">
+                    <?= htmlspecialchars($item['category_name'] ?? '') ?>
+                </div>
+
+                <a href="index.php?page=post&id=<?= htmlspecialchars($item['post_id']) ?>"
+                   class="text-decoration-none">
+
+                    <h3 class="related-title clamp-2">
+
+                        <?= htmlspecialchars($item['title'] ?? '') ?>
+
+                    </h3>
+
+                </a>
+
+                <p class="related-summary clamp-3">
+
+                    <?= htmlspecialchars($item['summary'] ?? '') ?>
+
+                </p>
+
+                <div class="article-meta">
+
+                    <span>
+                        <?= !empty($item['published_at'])
+                            ? timeAgo($item['published_at'])
+                            : '' ?>
+                    </span>
+
+                    <span class="dot">·</span>
+
+                    <span>
+                        <?= htmlspecialchars($item['author_name'] ?? '') ?>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    <?php endforeach; ?>
+
+</section>
+
+<?php endif; ?>
 
 </main>
 

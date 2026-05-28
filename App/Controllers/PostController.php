@@ -696,17 +696,24 @@ public function categoryDetail()
 {
     $categorySlug = $_GET['slug'] ?? null;
     $categoryName = $_GET['name'] ?? null;
+    $categoryDesc = null;
 
-    if ($categorySlug && !$categoryName) {
+    // Mô tả tĩnh theo slug (chưa có trong database)
+    $categoryDescriptions = [
+        'thoi-su'  => 'Cập nhật những diễn biến quan trọng nhất về chính trị, xã hội và an ninh quốc phòng trong và ngoài nước qua lăng kính phân tích sâu sắc.',
+        'kinh-te'  => 'Thông tin kinh tế vĩ mô, thị trường tài chính và các xu hướng phát triển kinh tế trong nước và quốc tế.',
+    ];
+
+    if ($categorySlug) {
         $cat = $this->postRepository->getCategoryBySlug($categorySlug);
-        $categoryName = $cat['name'] ?? null;
-        $categoryDesc = $cat['description'] ?? null;
+        $categoryName = $cat['name'] ?? $categoryName;
+        $categoryDesc = $categoryDescriptions[$categorySlug] ?? null;
     }
 
     if ($categoryName && !$categorySlug) {
         $cat = $this->postRepository->getCategoryByName($categoryName);
         $categorySlug = $cat['slug'] ?? '';
-        $categoryDesc = $cat['description'] ?? null;
+        $categoryDesc = $categoryDescriptions[$categorySlug] ?? null;
     }
 
     if (!$categoryName) {
@@ -714,12 +721,10 @@ public function categoryDetail()
         return;
     }
 
-    // ✅ Dùng đúng hàm grouped để khớp với view Detail.php
     $posts = $this->postRepository->getPostsByParentCategoryGrouped($categoryName, 4);
 
     require __DIR__ . '/../Views/Client/Category/Detail.php';
 }
-
 public function subCategoryDetail()
 {
     $slug = $_GET['slug'] ?? null;
@@ -729,16 +734,58 @@ public function subCategoryDetail()
         return;
     }
 
-    $posts = $this->postRepository->getPostsByCategorySlug($slug);
+    // =========================
+    // BÀI NỔI BẬT (NHIỀU VIEW NHẤT)
+    // =========================
+    $featuredPost = $this->postRepository
+        ->getFeaturedPostByCategory($slug);
 
-    if (empty($posts)) {
-        echo "Không có bài viết.";
-        return;
+    $featuredId = $featuredPost['post_id'] ?? 0;
+
+    // =========================
+    // PHÂN TRANG
+    // =========================
+    $pageNumber = isset($_GET['p'])
+        ? (int) $_GET['p']
+        : 1;
+
+    if ($pageNumber < 1) {
+        $pageNumber = 1;
     }
 
-    // lấy tên category
-    $categoryName = $posts[0]['category_name'];
+    $limit = 10;
 
+    $offset = ($pageNumber - 1) * $limit;
+
+    // =========================
+    // DANH SÁCH BÀI VIẾT
+    // =========================
+    $posts = $this->postRepository
+        ->getPostsByCategorySlug(
+            $slug,
+            $featuredId,
+            $limit,
+            $offset
+        );
+
+    // =========================
+    // TỔNG SỐ BÀI
+    // =========================
+    $totalPosts = $this->postRepository
+        ->countPostsByCategorySlug($slug);
+
+    $totalPages = ceil($totalPosts / $limit);
+
+    // =========================
+    // CATEGORY NAME
+    // =========================
+    $categoryName =
+        $featuredPost['category_name']
+        ?? ($posts[0]['category_name'] ?? '');
+
+    // =========================
+    // VIEW
+    // =========================
     require __DIR__ . '/../Views/Client/Category/Detail2.php';
 }
 }
