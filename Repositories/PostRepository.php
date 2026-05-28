@@ -1165,7 +1165,6 @@ class PostRepository
             )";
         return $this->conn->exec($sql);
     }
-}
 
 public function getPostsByParentCategoryGrouped(string $parentCategoryName, int $limitPerSub = 4): array
 {
