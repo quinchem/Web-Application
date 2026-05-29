@@ -3,10 +3,6 @@
 
 $breadcrumbs = [
     [
-        'label' => 'DASHBOARD',
-        'url'   => '#'
-    ],
-    [
         'label' => 'THỐNG KÊ'
     ]
 ];
@@ -52,6 +48,10 @@ $breadcrumbs = [
         href="Public/Admin/Css/Pages/Profile.css"
     >
 
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css">
+
     <!-- DASHBOARD CSS -->
 
     <link
@@ -71,12 +71,18 @@ $breadcrumbs = [
         src="https://code.jquery.com/jquery-3.7.1.min.js">
     </script>
 
+    <!-- FLATPICKR -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
     <!-- DASHBOARD JS -->
 
     <script
         src="Public/Admin/Js/Pages/dashboard.js?v=<?= time() ?>"
         defer>
     </script>
+
 
 </head>
 
@@ -128,38 +134,57 @@ $breadcrumbs = [
 
             <div class="filter-box">
 
-                <input
-                    type="date"
-                    id="fromDate"
-                    class="filter-input"
-                >
+                <input type="text" id="fromDate" class="filter-input" placeholder="Từ ngày..." autocomplete="off">
 
-                <input
-                    type="date"
-                    id="toDate"
-                    class="filter-input"
-                >
+                <input type="text" id="toDate"   class="filter-input" placeholder="Đến ngày..." autocomplete="off">
 
-                <select
-                    id="categoryFilter"
-                    class="filter-select"
-                >
 
-                    <option value="">
-                        Danh mục
-                    </option>
-
-                    <?php foreach(($categories ?? []) as $item): ?>
-
-                        <option
-                            value="<?= $item['category_id'] ?>"
-                        >
-                            <?= htmlspecialchars($item['name']) ?>
-                        </option>
-
+                <?php
+                // Build cây cha/con từ $categories
+                $catParents  = [];
+                $catChildren = [];
+                foreach (($categories ?? []) as $cat) {
+                    if (empty($cat['parent_id'])) {
+                        $catParents[$cat['category_id']] = $cat;
+                    } else {
+                        $catChildren[$cat['parent_id']][] = $cat;
+                    }
+                }
+            ?>
+            <div class="dash-category-dropdown" id="dashCategoryDropdown">
+                <button type="button" class="dash-category-trigger" id="dashCategoryTrigger">
+                    <span id="dashCategoryLabel">Danh mục</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="dash-category-menu" id="dashCategoryMenu">
+                    <div class="dash-cat-reset" data-value="" data-label="Danh mục">
+                        Tất cả danh mục
+                    </div>
+                    <?php foreach ($catParents as $parentId => $parent): ?>
+                        <div class="dash-cat-parent" data-parent-id="<?= $parentId ?>">
+                            <div class="dash-cat-parent-label">
+                                <span><?= htmlspecialchars($parent['name']) ?></span>
+                                <?php if (!empty($catChildren[$parentId])): ?>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                <?php endif; ?>
+                            </div>
+                            <?php if (!empty($catChildren[$parentId])): ?>
+                                <div class="dash-cat-children">
+                                    <?php foreach ($catChildren[$parentId] as $child): ?>
+                                        <div class="dash-cat-child"
+                                            data-value="<?= htmlspecialchars($child['category_id']) ?>"
+                                            data-label="<?= htmlspecialchars($parent['name'] . ' › ' . $child['name']) ?>">
+                                            <?= htmlspecialchars($child['name']) ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     <?php endforeach; ?>
-
-                </select>
+                </div>
+                <!-- hidden input để JS đọc giá trị -->
+                <input type="hidden" id="categoryFilter" value="">
+            </div>
 
                 <input
                     type="text"
@@ -311,7 +336,7 @@ $breadcrumbs = [
                     <div class="card-header">
 
                         <h3>
-                            Thống kê bài viết
+                            Thống kê bài viết đã đăng theo thời gian
                         </h3>
 
                     </div>

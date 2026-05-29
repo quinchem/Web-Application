@@ -1,19 +1,11 @@
-const togglePassword =
-document.getElementById("togglePassword");
-
-const password =
-document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
+const password = document.getElementById("password");
 
 togglePassword.addEventListener("click", () => {
+    const isHidden = password.getAttribute("type") === "password";
 
-    const type =
-    password.getAttribute("type") === "password"
-    ? "text"
-    : "password";
+    password.setAttribute("type", isHidden ? "text" : "password");
 
-    password.setAttribute("type", type);
-
-    togglePassword.classList.toggle("fa-eye");
-
-    togglePassword.classList.toggle("fa-eye-slash");
+    togglePassword.classList.toggle("fa-eye",       isHidden);
+    togglePassword.classList.toggle("fa-eye-slash", !isHidden);
 });
