@@ -1,11 +1,23 @@
 <?php
-/**
- * @var array  $posts         Danh sách bài viết trong danh mục cấp 2
- * @var string $categoryName  Tên danh mục hiện tại
- */
+$currentSlug = $_GET['slug'] ?? ($posts[0]['category_slug'] ?? '');
+$parentSlug = $_GET['parent'] ?? '';
 
-$categoryName = $categoryName ?? ($posts[0]['category_name'] ?? '');
+$categoryNames = [
+    'thoi-su' => 'Thời sự',
+    'kinh-te' => 'Kinh tế',
+    'quan-su' => 'Quân sự',
+    'chinh-tri' => 'Chính trị',
+    'xa-hoi' => 'Xã hội',
+    'thi-truong' => 'Thị trường',
+    'chung-khoan' => 'Chứng khoán',
+    'ngan-hang' => 'Ngân hàng',
+    'doanh-nghiep' => 'Doanh nghiệp',
+];
+
+$currentCategoryName = $categoryNames[$currentSlug] ?? $categoryName;
+$parentName = $categoryNames[$parentSlug] ?? '';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -17,7 +29,7 @@ $categoryName = $categoryName ?? ($posts[0]['category_name'] ?? '');
           content="width=device-width, initial-scale=1.0">
 
     <title>
-        <?= htmlspecialchars($categoryName) ?> - Trạm Tin Việt
+        <?= htmlspecialchars($currentCategoryName) ?> - Trạm Tin Việt
     </title>
 
     <!-- BOOTSTRAP -->
@@ -44,17 +56,15 @@ $categoryName = $categoryName ?? ($posts[0]['category_name'] ?? '');
 <main class="container detail-wrapper page-spacing">
 
     <!-- BREADCRUMB -->
-<div class="breadcrumb-custom">
 
+<div class="breadcrumb-custom">
     <a href="index.php?page=homepage" class="breadcrumb-link">
         Trang chủ
     </a>
 
-    <?php
-    $parentName = $posts[0]['parent_category_name'] ?? '';
-    $parentSlug = $posts[0]['parent_category_slug'] ?? '';
-    if (!empty($parentName)): ?>
+    <?php if (!empty($parentName)): ?>
         <span class="mx-2">></span>
+
         <a href="index.php?page=category_detail&slug=<?= urlencode($parentSlug) ?>"
            class="breadcrumb-parent">
             <?= htmlspecialchars($parentName) ?>
@@ -63,17 +73,15 @@ $categoryName = $categoryName ?? ($posts[0]['category_name'] ?? '');
 
     <span class="mx-2">></span>
 
-    <a href="index.php?page=subcategory&slug=<?= urlencode($posts[0]['category_slug'] ?? '') ?>"
-       class="breadcrumb-current-tag">
-        <?= htmlspecialchars($categoryName) ?>
-    </a>
-
+    <span class="breadcrumb-current-tag">
+        <?= htmlspecialchars($currentCategoryName) ?>
+    </span>
 </div>
 
     <!-- TIÊU ĐỀ -->
     <div class="category-hero">
         <h1 class="category-title">
-            <?= htmlspecialchars($categoryName) ?>
+            <?= htmlspecialchars($currentCategoryName) ?>
         </h1>
     </div>
 

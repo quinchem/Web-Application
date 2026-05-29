@@ -1,4 +1,5 @@
 /* 1. Xóa cái vạch màu cam (margin-bottom 16px) của Bootstrap */
+
 .header-container ul.menu-items,
 .header-top ul {
     margin-bottom: 0 !important;
@@ -21,11 +22,12 @@
 .sapo-box {
     font-style: italic;
     font-family: 'Montserrat', sans-serif;
-    color: #5a7d9a;
+    color: #234969;
     font-size: 1.15rem;
     border-left: 4px solid #B90C17;
     padding-left: 20px;
     line-height: 1.7;
+    background-color: #f4f8feaf;
 }
 
 .article-content p {

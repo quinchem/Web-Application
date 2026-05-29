@@ -2,84 +2,18 @@
 // App/Views/Client/Profile/change_password.php
 ?>
 
-<style>
-    .password-change-container {
-        font-family: 'Montserrat', sans-serif; 
-    }
-    
-    /* 1. TIÊU ĐỀ/NHÃN: Sử dụng font Barlow */
-    .form-custom-label {
-        font-family: 'Barlow', sans-serif;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #8c8275;
-        font-size: 0.9rem;
-        letter-spacing: 0.5px;
-        margin-bottom: 8px;
-    }
-    
-    /* 2. NỘI DUNG NHẬP & PHẦN PHỤ TRỢ: Sử dụng font Montserrat */
-    .form-custom-input {
-        font-family: 'Montserrat', sans-serif;
-        background-color: #f1ede7 !important;
-        border: none !important;
-        border-radius: 4px !important;
-        padding: 14px 15px !important;
-        color: #333333 !important;
-        font-weight: 500;
-        font-size: 0.95rem;
-    }
-    
-    .password-wrapper {
-        position: relative;
-    }
-    
-    .password-wrapper .toggle-password {
-        position: absolute;
-        top: 50%;
-        right: 15px;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: #8c8275;
-        font-size: 1.1rem;
-        transition: color 0.2s;
-        z-index: 10;
-    }
-    
-    .password-wrapper .toggle-password:hover {
-        color: #03254c;
-    }
-    
-    .btn-update-password {
-        font-family: 'Montserrat', sans-serif;
-        background-color: #03254c !important;
-        color: white !important;
-        font-weight: 700;
-        padding: 12px 35px;
-        border-radius: 4px;
-        font-size: 0.95rem;
-        border: none;
-        transition: background-color 0.2s;
-    }
-    
-    .btn-update-password:hover {
-        background-color: #021b3a !important;
-    }
-    
-    .password-note {
-        font-family: 'Montserrat', sans-serif;
-        color: #8c8275;
-        font-style: italic;
-        font-size: 0.8rem;
-        margin-top: 6px;
-    }
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    /* Khử hoàn toàn con mắt mặc định hệ thống của các trình duyệt */
-    .password-wrapper input::-ms-reveal,
-    .password-wrapper input::-ms-clear {
-        display: none !important;
-    }
-</style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Newsreader:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/../Web-Application/Public/Client/Css/ProfileChangePassword.css">
+</head>
+<body>
 
 <div class="card shadow-sm border-0 p-4 bg-white" style="min-height: 500px;">
     <div class="password-change-container p-3">
@@ -122,9 +56,11 @@
             </div>
 
             <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-update-password">Cập nhật mật khẩu</button>
+                <button type="submit" class="btn-update-password">CẬP NHẬT</button>
             </div>
 
         </form>
     </div>
 </div>
+</body>
+</html>

@@ -1,0 +1,92 @@
+    .profile-edit-container {
+        /* ĐỒNG BỘ: Chuyển sang font Montserrat */
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    /* Giao diện khu vực ảnh đại diện */
+    .avatar-edit-wrapper {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .avatar-edit-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .btn-upload-img {
+        font-family: 'Barlow', sans-serif;
+        background-color: #03254c !important;
+        color: white !important;
+        font-weight: 600;
+        padding: 8px 18px;
+        font-size: 0.9rem;
+        border-radius: 4px;
+    }
+
+    .btn-remove-img {
+        font-family: 'Barlow', sans-serif;
+        color: #b00f14 !important;
+        font-weight: 700;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    /* ĐỒNG BỘ: Tiêu đề chuyển sang font Barlow chữ hoa cứng cáp */
+    .form-custom-label {
+        font-family: 'Barlow', sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #8c8275;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    /* ĐỒNG BỘ: Ô nhập liệu đồng nhất màu be nhạt và bo góc 4px giống tab Đổi mật khẩu */
+    .form-custom-input {
+        font-family: 'Montserrat', sans-serif;
+        background-color: #f1ede7 !important;
+        border: none !important;
+        border-radius: 4px !important;
+        /* Đã sửa thành 4px cho đồng bộ */
+        padding: 12px 15px !important;
+        color: #333333 !important;
+        font-weight: 500;
+    }
+
+    .form-custom-input:disabled,
+    .form-custom-input[readonly] {
+        background-color: #e6e1da !important;
+        /* Màu sậm hơn một chút khi khóa */
+        color: #666666 !important;
+    }
+
+    /* Cấu hình nhóm nút bấm góc dưới bên phải */
+    .btn-action-edit {
+        font-family: 'Barlow', sans-serif;
+        background-color: #b00f14 !important;
+        /* Màu đỏ đậm */
+        color: white !important;
+        font-weight: 700;
+        padding: 10px 30px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        border: none;
+    }
+
+    .btn-action-save {
+        font-family: 'Barlow', sans-serif;
+        background-color: #03254c !important;
+        color: white !important;
+        font-weight: 700;
+        padding: 10px 45px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        border: none;
+    }

@@ -12,102 +12,18 @@ $uEmail = htmlspecialchars($user['email'] ?? $_SESSION['email'] ?? '');
 $uGender = $user['gender'] ?? 'male';
 $uAvatar  = htmlspecialchars($user['avatar'] ?? $_SESSION['avatar'] ?? 'https://cdn-icons-png.flaticon.com/512/149/149071.png');
 ?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-    .profile-edit-container {
-        /* ĐỒNG BỘ: Chuyển sang font Montserrat */
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    /* Giao diện khu vực ảnh đại diện */
-    .avatar-edit-wrapper {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        overflow: hidden;
-    }
-
-    .avatar-edit-wrapper img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .btn-upload-img {
-        font-family: 'Montserrat', sans-serif;
-        background-color: #03254c !important;
-        color: white !important;
-        font-weight: 600;
-        padding: 8px 18px;
-        font-size: 0.9rem;
-        border-radius: 4px;
-    }
-
-    .btn-remove-img {
-        font-family: 'Montserrat', sans-serif;
-        color: #b00f14 !important;
-        font-weight: 700;
-        text-decoration: none;
-        font-size: 0.9rem;
-    }
-
-    /* ĐỒNG BỘ: Tiêu đề chuyển sang font Barlow chữ hoa cứng cáp */
-    .form-custom-label {
-        font-family: 'Barlow', sans-serif;
-        font-weight: 700;
-        text-transform: uppercase;
-        color: #8c8275;
-        font-size: 0.9rem;
-        letter-spacing: 0.5px;
-        margin-bottom: 8px;
-    }
-
-    /* ĐỒNG BỘ: Ô nhập liệu đồng nhất màu be nhạt và bo góc 4px giống tab Đổi mật khẩu */
-    .form-custom-input {
-        font-family: 'Montserrat', sans-serif;
-        background-color: #f1ede7 !important;
-        border: none !important;
-        border-radius: 4px !important;
-        /* Đã sửa thành 4px cho đồng bộ */
-        padding: 12px 15px !important;
-        color: #333333 !important;
-        font-weight: 500;
-    }
-
-    .form-custom-input:disabled,
-    .form-custom-input[readonly] {
-        background-color: #e6e1da !important;
-        /* Màu sậm hơn một chút khi khóa */
-        color: #666666 !important;
-    }
-
-    /* Cấu hình nhóm nút bấm góc dưới bên phải */
-    .btn-action-edit {
-        font-family: 'Montserrat', sans-serif;
-        background-color: #b00f14 !important;
-        /* Màu đỏ đậm */
-        color: white !important;
-        font-weight: 700;
-        padding: 10px 30px;
-        border-radius: 4px;
-        text-transform: uppercase;
-        font-size: 0.9rem;
-        border: none;
-    }
-
-    .btn-action-save {
-        font-family: 'Montserrat', sans-serif;
-        background-color: #03254c !important;
-        /* Màu xanh đen */
-        color: white !important;
-        font-weight: 700;
-        padding: 10px 45px;
-        border-radius: 4px;
-        text-transform: uppercase;
-        font-size: 0.9rem;
-        border: none;
-    }
-</style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Newsreader:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/../Web-Application/Public/Client/Css/ProfileEdit.css">
+</head>
+<body>
 
 <div class="card shadow-sm border-0 p-4" style="min-height: 500px;">
     <div class="profile-edit-container p-3">
@@ -140,7 +56,7 @@ $uAvatar  = htmlspecialchars($user['avatar'] ?? $_SESSION['avatar'] ?? 'https://
 
                         <input type="hidden" name="remove_avatar" id="removeAvatarFlag" value="0">
 
-                        <button type="button" class="btn btn-upload-img btn-sm" id="btnUploadAvatar">TẢI ẢNH
+                        <button type="button" class="btn-upload-img" id="btnUploadAvatar">TẢI ẢNH
                             MỚI</button>
                         <a href="#" class="btn-remove-img" id="btnRemoveAvatar" style="margin-left: 10px;">Gỡ bỏ</a>
                     </div>
@@ -192,12 +108,14 @@ $uAvatar  = htmlspecialchars($user['avatar'] ?? $_SESSION['avatar'] ?? 'https://
             </div>
 
             <div class="d-flex justify-content-end gap-3 mt-5">
-                <button type="button" class="btn btn-action-edit" id="btnEnableEdit">Chỉnh sửa</button>
-                <button type="submit" class="btn btn-action-save" id="btnSubmitForm" disabled>Lưu</button>
+                <button type="button" class="btn-action-edit" id="btnEnableEdit">Chỉnh sửa</button>
+                <button type="submit" class="btn-action-save" id="btnSubmitForm" disabled>Lưu</button>
             </div>
 
         </form>
 
     </div>
 </div>
+</body>
+</html>
 <script src="/Public/Client/Js/ProfileEdit.js"></script>

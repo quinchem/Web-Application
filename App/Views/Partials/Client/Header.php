@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="/../Web-Application/Public/Client/Css/Client_Global.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Trạm Tin Việt</title>
 </head>
 <?php
 $currentPage = !empty($_GET['page']) ? $_GET['page'] : 'homepage';
@@ -62,21 +63,49 @@ $currentCategory = !empty($_GET['name']) ? $_GET['name'] : '';
                             class="<?= ($currentPage === 'homepage') ? 'active' : ''; ?>">Trang Chủ</a>
                     </li>
 
-                    <li>
-                        <a href="index.php?page=category_detail&slug=thoi-su"
-                            class="<?= ($currentPage === 'category_detail' && ($_GET['slug'] ?? '') === 'thoi-su') ? 'active' : ''; ?>">Thời
-                            Sự</a>
-                    </li>
-                    <li>
-                        <a href="index.php?page=category_detail&slug=kinh-te"
-                            class="<?= ($currentPage === 'category_detail' && ($_GET['slug'] ?? '') === 'kinh-te') ? 'active' : ''; ?>">Kinh
-                            Tế</a>
-                    </li>
-                    <li>
-                        <a href="index.php?page=category_detail&slug=tien-ich"
-                            class="<?= ($currentPage === 'category_detail' && ($_GET['slug'] ?? '') === 'tien-ich') ? 'active' : ''; ?>">Tiện
-                            Ích</a>
-                    </li>
+<li class="nav-dropdown">
+    <a href="index.php?page=category_detail&slug=thoi-su"
+       class="<?= ($currentPage === 'category_detail' && ($_GET['slug'] ?? '') === 'thoi-su') ? 'active' : ''; ?>">
+        Thời Sự
+        <i class="fas fa-chevron-down dropdown-icon"></i>
+    </a>
+
+    <ul class="dropdown-menu-custom">
+
+        <li>
+            <a href="index.php?page=subcategory&parent=thoi-su&slug=chinh-tri">Chính trị</a>
+        </li>
+        <li>
+            <a href="index.php?page=subcategory&parent=thoi-su&slug=xa-hoi">Xã hội</a>
+        </li>
+                <li>
+            <a href="index.php?page=subcategory&parent=thoi-su&slug=quan-su">Quân sự</a>
+        </li>
+    </ul>
+</li>
+
+<li class="nav-dropdown">
+    <a href="index.php?page=category_detail&slug=kinh-te"
+       class="<?= ($currentPage === 'category_detail' && ($_GET['slug'] ?? '') === 'kinh-te') ? 'active' : ''; ?>">
+        Kinh Tế
+        <i class="fas fa-chevron-down dropdown-icon"></i>
+    </a>
+
+    <ul class="dropdown-menu-custom">
+        <li>
+            <a href="index.php?page=subcategory&parent=kinh-te&slug=thi-truong">Thị trường</a>
+        </li>
+        <li>
+            <a href="index.php?page=subcategory&parent=kinh-te&slug=chung-khoan">Chứng khoán</a>
+        </li>
+        <li>
+            <a href="index.php?page=subcategory&parent=kinh-te&slug=ngan-hang">Ngân hàng</a>
+        </li>
+        <li>
+            <a href="index.php?page=subcategory&parent=kinh-te&slug=doanh-nghiep">Doanh nghiệp</a>
+        </li>
+    </ul>
+</li>
                 </ul>
                 <form class="search-box" action="index.php" method="GET" style="position: relative;">
                     <input type="hidden" name="page" value="search_result">
