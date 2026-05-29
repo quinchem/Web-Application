@@ -4,23 +4,32 @@
     <meta charset="UTF-8">
     <title>Chỉnh sửa bài viết - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/PostAdmin.css">
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/EditPost.css">
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
-    <style>
-        html, body { height: 100%; overflow: hidden; }
-        .admin-layout { height: 100vh; overflow: hidden; }
-        .sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
-        .main-content { height: 100vh; overflow-y: auto; flex: 1; }
-        .profile-wrapper { padding: 16px 18px; }
-        .admin-profile { padding: 14px 16px; gap: 12px; border-radius: 14px; }
-        .admin-profile img { width: 40px; height: 40px; }
-        .profile-info strong { font-size: 14px; margin-bottom: 6px; }
-        .profile-info p { font-size: 11px; gap: 7px; }
-        .profile-info i { font-size: 13px; }
-    </style>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/EditPost.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css">
+<style>
+    html, body { height: 100%; overflow: hidden; }
+    .admin-layout { height: 100vh; overflow: hidden; }
+    .sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+    .main-content { height: 100vh; overflow-y: auto; flex: 1; }
+    .profile-wrapper { padding: 16px 18px; }
+    .admin-profile { padding: 14px 16px; gap: 12px; border-radius: 14px; }
+    .admin-profile img { width: 40px; height: 40px; }
+    .profile-info strong { font-size: 14px; margin-bottom: 6px; }
+    .profile-info p { font-size: 11px; gap: 7px; }
+    .profile-info i { font-size: 13px; }
+    .custom-modal-backdrop,
+    #changePasswordModal,
+    #editProfileModal {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 999999 !important;
+    }
+</style>
 </head>
 <body>
 <div class="admin-layout">
@@ -224,6 +233,9 @@
         </section>
     </main>
 </div>
+
+<?php require_once __DIR__ . '/../Profile/edit.php'; ?>
+<?php require_once __DIR__ . '/../Profile/change_password.php'; ?>
 
 <script src="Public/Admin/Js/Pages/EditPost.js?v=<?= time() ?>"></script>
 <script src="Public/Admin/Js/Pages/Profile.js?v=<?= time() ?>" defer></script>

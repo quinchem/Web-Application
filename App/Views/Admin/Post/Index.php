@@ -11,21 +11,33 @@
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Post.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/ReviewPost.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css">
     <script src="Public/Admin/Js/Pages/ReviewPost.js?v=<?= time() ?>" defer></script>
     <script src="Public/Admin/Js/Pages/Post.js?v=<?= time() ?>" defer></script>
     <script src="Public/Admin/Js/Pages/Profile.js?v=<?= time() ?>" defer></script>
     <style>
-        html, body { height: 100%; overflow: hidden; }
-        .admin-layout { height: 100vh; overflow: hidden; }
-        .sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
-        .main-content { height: 100vh; overflow-y: auto; flex: 1; }
-        .profile-wrapper { padding: 16px 18px; }
-        .admin-profile { padding: 14px 16px; gap: 12px; border-radius: 14px; }
-        .admin-profile img { width: 40px; height: 40px; }
-        .profile-info strong { font-size: 14px; margin-bottom: 6px; }
-        .profile-info p { font-size: 11px; gap: 7px; }
-        .profile-info i { font-size: 13px; }
-    </style>
+    html, body { height: 100%; overflow: hidden; }
+    .admin-layout { height: 100vh; overflow: hidden; }
+    .sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+    .main-content { height: 100vh; overflow-y: auto; flex: 1; }
+    .profile-wrapper { padding: 16px 18px; }
+    .admin-profile { padding: 14px 16px; gap: 12px; border-radius: 14px; }
+    .admin-profile img { width: 40px; height: 40px; }
+    .profile-info strong { font-size: 14px; margin-bottom: 6px; }
+    .profile-info p { font-size: 11px; gap: 7px; }
+    .profile-info i { font-size: 13px; }
+
+    /* ✅ FIX: Modal thoát khỏi stacking context của main-content */
+    .custom-modal-backdrop,
+    #changePasswordModal,
+    #editProfileModal {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 999999 !important;
+    }
+</style>
 </head>
 <body>
 
@@ -306,6 +318,10 @@
 </div>
 
 <?php require_once __DIR__ . '/Review.php'; ?>
+
+// THÀNH:
+<?php require_once __DIR__ . '/../Profile/edit.php'; ?>
+<?php require_once __DIR__ . '/../Profile/change_password.php'; ?>
 
 </body>
 </html>

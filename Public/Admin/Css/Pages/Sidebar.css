@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap');
+
+/* =========================================================================
+   RESET & BASE
+   ========================================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Barlow', sans-serif;
+}
+
+body {
+    background: #eef8ff;
+    color: #07344a;
+}
+
+/* =========================================================================
+   LAYOUT
+   ========================================================================= */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* =========================================================================
+   SIDEBAR
+   ========================================================================= */
+.sidebar {
+    width: 300px;
+    min-height: 100vh;
+    background: #00384f;
+    color: #fff;
+    position: relative;
+    padding: 34px;
+    flex-shrink: 0;
+}
+
+.logo {
+    font-family: 'Briem Hand', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 58px;
+    color: #fff;
+    letter-spacing: -1px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menu-item,
+.sub-item {
+    display: block;
+    text-decoration: none;
+    color: #d7edf5;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.menu-item { font-size: 17px; }
+
+.menu-item.active {
+    background: #1b5369;
+    color: #fff;
+    font-weight: 800;
+}
+
+.sub-item {
+    font-size: 12px;
+    padding-left: 45px;
+}
+
+.sub-active { background: #0d455c; }
+
+/* =========================================================================
+   PROFILE WRAPPER (Sidebar bottom)
+   ========================================================================= */
+.profile-wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #e11f26;
+    padding: 38px 24px;
+}
+
+.admin-profile {
+    background: #c81d22;
+    border-radius: 18px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    cursor: pointer;
+}
+
+.admin-profile img {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.profile-info strong {
+    display: block;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.profile-info p {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-info i { font-size: 16px; }
+
+.logout-btn {
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.logout-btn:hover { opacity: 0.8; }
+
+/* =========================================================================
+   MAIN CONTENT
+   ========================================================================= */
+.main-content {
+    flex: 1;
+    background: #eef8ff;
+}
+

@@ -1,6 +1,3 @@
-<link rel="stylesheet" href="Public/Admin/Css/Profile.css">
-<script src="Public/Admin/Js/Profile.js" defer></script>
-
 <div class="custom-modal-backdrop" id="changePasswordModal">
     <div class="custom-modal-dialog">
         <div class="custom-modal-content">
@@ -18,21 +15,10 @@
                 <button type="button" class="btn-close-modal" id="btnCloseChangePassword">&times;</button>
             </div>
 
-            <?php if (isset($_SESSION['error_message'])): ?>
-                <div class="alert alert-danger mx-4 mt-3 mb-0 py-2" role="alert">
-                    <i class="fa-solid fa-triangle-exclamation me-2"></i> <?= htmlspecialchars($_SESSION['error_message']) ?>
-                </div>
-                <?php unset($_SESSION['error_message']); ?>
-            <?php endif; ?>
+            <!-- Thông báo kết quả -->
+            <div id="changePwdAlert" class="d-none mx-4 mt-3 mb-0 rounded-3 px-3 py-2" style="font-size:13.5px; font-weight:500;"></div>
 
-            <?php if (isset($_SESSION['success_message'])): ?>
-                <div class="alert alert-success mx-4 mt-3 mb-0 py-2" role="alert">
-                    <i class="fa-solid fa-circle-check me-2"></i> <?= htmlspecialchars($_SESSION['success_message']) ?>
-                </div>
-                <?php unset($_SESSION['success_message']); ?>
-            <?php endif; ?>
-
-            <form action="Index.php?page=change_password" method="POST" class="custom-modal-body">
+            <form id="changePasswordForm" class="custom-modal-body">
                 
                 <div class="custom-form-group">
                     <label class="form-label-custom">Mật khẩu hiện tại</label>
@@ -64,13 +50,13 @@
                 <div class="security-notice-box">
                     <i class="fa-solid fa-circle-info notice-icon"></i>
                     <p class="notice-text">
-                        <strong>Lưu ý bảo mật:</strong> Sử dụng ít nhất 8 ký tự bao gồm chữ hoa, chữ thường, chữ số và ký hiệu đặc biệt để bảo vệ tài khoản quản trị của bạn tốt nhất.
+                        <strong>Lưu ý bảo mật:</strong> Sử dụng ít nhất 8 ký tự bao gồm chữ hoa, chữ thường, chữ số và ký hiệu đặc biệt.
                     </p>
                 </div>
 
                 <div class="custom-modal-footer">
                     <button type="button" class="btn-custom-cancel" id="btnCancelChangePassword">Hủy</button>
-                    <button type="submit" class="btn-custom-submit">Cập nhật mật khẩu</button>
+                    <button type="submit" class="btn-custom-submit" id="btnSubmitChangePwd">Cập nhật mật khẩu</button>
                 </div>
 
             </form>

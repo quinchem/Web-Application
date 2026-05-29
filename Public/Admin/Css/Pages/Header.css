@@ -1,0 +1,48 @@
+/* =========================================================================
+   TOPBAR
+   ========================================================================= */
+.topbar {
+    height: 74px;
+    background: #d9edf6;
+    display: flex;
+    align-items: center;
+    padding: 0 38px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #7e97a7;
+    font-weight: 800;
+}
+
+.breadcrumb span { color: #9bb0bc; font-weight: 700; }
+
+.breadcrumb .active {
+    color: #072d47;
+    font-weight: 900;
+}
+
+.content-inner { padding: 38px; }
+
+h1 {
+    font-size: 42px;
+    font-weight: 900;
+    color: #07344a;
+    margin-bottom: 18px;
+    letter-spacing: -1px;
+}
