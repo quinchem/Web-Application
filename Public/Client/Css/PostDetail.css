@@ -1,3 +1,5 @@
+/* 1. Xóa cái vạch màu cam (margin-bottom 16px) của Bootstrap */
+
 .header-container ul.menu-items,
 .header-top ul {
     margin-bottom: 0 !important;
@@ -87,6 +89,8 @@
     background: #B90C17 !important;
     color: #fff !important;
 }
+
+/* CSS giới hạn nội dung tóm tắt bài viết đề xuất trong vòng 2 dòng */
 .summary-clamp {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -98,9 +102,10 @@
     line-height: 1.5;
 }
 .trending-sidebar-list .d-flex:last-child .border-bottom {
-    border-bottom: none !important;
+    border-bottom: none !important; /* Xóa gạch chân ở mục cuối cùng */
 }
 
+/* Hiệu ứng di chuột vào tiêu đề bài viết sidebar */
 .trending-sidebar-list .fw-bold:hover, .recommended-list .fw-bold:hover {
     color: var(--red) !important;
     transition: 0.2s;

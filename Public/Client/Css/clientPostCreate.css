@@ -1,3 +1,8 @@
+/* ================================================
+   clientPostCreate.css
+   Đặt tại: Public/Client/Css/clientPostCreate.css
+   ================================================ */
+
 :root {
     --navy:   #003049;
     --red:    #B90C17;
@@ -686,105 +691,4 @@
     .pc-btn-cancel,
     .pc-btn-draft,
     .pc-btn-publish { width: 100%; text-align: center; }
-}
-/* ───────── TOAST THÔNG BÁO ───────── */
-.pc-toast {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    background: #065f46;
-    color: #fff;
-    padding: 14px 22px;
-    border-radius: 10px;
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 700;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.18);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 9999;
-    opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.28s, transform 0.28s;
-    pointer-events: none;
-}
-
-.pc-toast.show {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-
-.pc-toast.pc-toast--error {
-    background: #991b1b;
-}
-
-/* ───────── MODAL OVERLAY ───────── */
-.pc-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 48, 73, 0.45);
-    backdrop-filter: blur(3px);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.pc-modal-box {
-    background: #fff;
-    border-radius: 16px;
-    padding: 40px 36px 32px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0,48,73,0.2);
-    animation: pcModalIn 0.22s ease;
-}
-
-@keyframes pcModalIn {
-    from { opacity: 0; transform: scale(0.94) translateY(12px); }
-    to   { opacity: 1; transform: scale(1)    translateY(0);    }
-}
-
-.pc-modal-icon {
-    font-size: 2.4rem;
-    color: var(--navy);
-    margin-bottom: 16px;
-}
-
-.pc-modal-icon--warn {
-    color: #d97706;
-}
-
-.pc-modal-box h3 {
-    font-family: 'Barlow', sans-serif;
-    font-weight: 900;
-    font-size: 1.25rem;
-    color: var(--navy);
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-.pc-modal-box p {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.9rem;
-    color: var(--muted);
-    margin-bottom: 28px;
-    line-height: 1.6;
-}
-
-.pc-modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-
-.create-post-main {
-    width: 100%;
 }
