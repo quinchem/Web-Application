@@ -1,69 +1,46 @@
+/**
+ * clientPostCreate.js
+ * Đặt tại: Public/Client/Js/clientPostCreate.js
+ * Yêu cầu: jQuery 3.x
+ */
+
 $(function () {
-
-    /* ════════════════════════════════
-       0. HELPERS: TOAST & MODAL
-    ════════════════════════════════ */
-
-    function showToast(msg, isError) {
-        const $t = $('#pcToast');
-        $t.find('#pcToastMsg').text(msg);
-        $t.toggleClass('pc-toast--error', !!isError)
-            .css('display', 'flex')
-            .addClass('show');
-
-        clearTimeout(window._pcToastTimer);
-        window._pcToastTimer = setTimeout(function () {
-            $t.removeClass('show');
-            setTimeout(function () { $t.hide(); }, 300);
-        }, 3000);
-    }
-
-    function showModal(selector) {
-        $(selector).css('display', 'flex');
-    }
-
-    function hideModal(selector) {
-        $(selector).hide();
-    }
-
 
     /* ════════════════════════════════
        1. THUMBNAIL UPLOAD & PREVIEW
     ════════════════════════════════ */
 
     const $zone = $('#pcThumbnailZone');
-    const $input = $('#pcThumbnailInput');
-    const $preview = $('#pcThumbnailPreview');
-    const $placeholder = $('#pcUploadPlaceholder');
-    const $removeBtn = $('#pcRemoveThumbBtn');
 
-    $zone.on('click', function (e) {
-        if ($(e.target).closest('#pcRemoveThumbBtn').length) return;
-        if ($(e.target).is('#pcThumbnailInput')) return;
-        e.preventDefault();
-        e.stopPropagation();
-        $input[0].click();
+    // Click vào zone → trigger input file
+    $zone.on('click', function () {
+        $('#pcThumbnailInput').trigger('click');
     });
 
-    $input.on('change', function () {
+    $('#pcThumbnailInput').on('change', function () {
         const file = this.files[0];
-        if (file) _previewThumb(file);
+        if (!file) return;
+        _previewThumb(file);
     });
 
     // Drag & drop
     $zone.on('dragover', function (e) {
         e.preventDefault();
         $(this).addClass('dragover');
-    }).on('dragleave', function () {
+    });
+
+    $zone.on('dragleave', function () {
         $(this).removeClass('dragover');
-    }).on('drop', function (e) {
+    });
+
+    $zone.on('drop', function (e) {
         e.preventDefault();
         $(this).removeClass('dragover');
         const file = e.originalEvent.dataTransfer.files[0];
         if (file && file.type.startsWith('image/')) {
             const dt = new DataTransfer();
             dt.items.add(file);
-            $input[0].files = dt.files;
+            document.getElementById('pcThumbnailInput').files = dt.files;
             _previewThumb(file);
         }
     });
@@ -71,23 +48,19 @@ $(function () {
     function _previewThumb(file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            $placeholder.hide();
-            $preview.attr('src', e.target.result).show();
-            $removeBtn.show();
+            $('#pcUploadPlaceholder').hide();
+            $('#pcThumbnailPreview').attr('src', e.target.result).show();
+            $('#pcRemoveThumbBtn').show();
         };
         reader.readAsDataURL(file);
     }
 
-    $removeBtn.on('click', function (e) {
-        e.stopPropagation();
-        $preview.hide().attr('src', '');
-        $placeholder.show();
-        $removeBtn.hide();
-        $input.val('');
-    });
-
-    // Expose global (dùng trong onclick nếu cần)
-    window.pcRemoveThumbnail = function () { $removeBtn.trigger('click'); };
+    window.pcRemoveThumbnail = function () {
+        $('#pcThumbnailPreview').hide().attr('src', '');
+        $('#pcUploadPlaceholder').show();
+        $('#pcRemoveThumbBtn').hide();
+        $('#pcThumbnailInput').val('');
+    };
 
 
     /* ════════════════════════════════
@@ -96,7 +69,7 @@ $(function () {
 
     $('#pcParentCat').on('change', function () {
         const parentId = $(this).val();
-        const $child = $('#pcChildCat');
+        const $child   = $('#pcChildCat');
 
         $child.find('option').not(':first').hide();
         $child.val('');
@@ -158,6 +131,7 @@ $(function () {
         }
     }
 
+    // Nút "+ Thêm tag" → focus vào input
     $('#pcAddTagBtn').on('click', function (e) {
         e.preventDefault();
         $('#pcTagInput').show().focus();
@@ -179,7 +153,9 @@ $(function () {
             $(this).hide().val('');
             $('#pcAddTagBtn').show();
         }
-    }).on('blur', function () {
+    });
+
+    $('#pcTagInput').on('blur', function () {
         if ($(this).val().trim()) {
             _addTag($(this).val());
             $(this).val('');
@@ -196,7 +172,7 @@ $(function () {
     ════════════════════════════════ */
 
     $('#pcContentEditor').on('input', function () {
-        const text = $(this).text().trim();
+        const text  = $(this).text().trim();
         const words = text ? text.split(/\s+/).length : 0;
         $('#pcWordCount').text(words);
         $('#pcContentInput').val($(this).html());
@@ -204,172 +180,16 @@ $(function () {
 
 
     /* ════════════════════════════════
-       5. LABEL ĐỔI THEO TIÊU ĐỀ
+       5. FORM SUBMIT — sync editors
     ════════════════════════════════ */
 
-    $('#pcTitleInput').on('input', function () {
-        const val = $(this).val().trim();
-        $('#pcDraftLabel').text(val ? val : 'Bài viết nháp');
-    });
-
-
-    /* ════════════════════════════════
-       6. NÚT LƯU BẢN NHÁP
-          - Gửi AJAX → không reload trang
-          - Nhận post_id trả về → cập nhật hidden input
-          - Hiện toast thành công
-    ════════════════════════════════ */
-
-    $('#pcSaveDraftBtn').on('click', function (e) {
-        e.preventDefault();
-
-        // Sync editor content
+    $('#pcPostForm').on('submit', function () {
         $('#pcContentInput').val($('#pcContentEditor').html());
-
-        const $btn = $(this).prop('disabled', true).text('Đang lưu...');
-
-        const formData = new FormData(document.getElementById('pcPostForm'));
-        formData.set('action', 'draft');
-
-        $.ajax({
-            url: 'index.php?page=client_store_post',
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            success: function (res) {
-                if (res.success) {
-                    // Cập nhật post_id để lần lưu sau là UPDATE, không phải INSERT
-                    if (res.post_id) {
-                        $('#pcPostId').val(res.post_id);
-                    }
-                    $('#pcStatusBadge').text('Bản nháp').removeClass().addClass('pc-status-badge');
-                    showToast('✓ Đã lưu bản nháp thành công!');
-                } else {
-                    showToast(res.message || 'Có lỗi xảy ra, vui lòng thử lại.', true);
-                }
-            },
-            error: function () {
-                showToast('Không thể kết nối máy chủ.', true);
-            },
-            complete: function () {
-                $btn.prop('disabled', false).text('Lưu bản nháp');
-            }
-        });
     });
 
 
     /* ════════════════════════════════
-       7. NÚT ĐĂNG BÀI → MODAL XÁC NHẬN
-    ════════════════════════════════ */
-
-    $('#pcPublishBtn').on('click', function (e) {
-        e.preventDefault();
-        $('#pcContentInput').val($('#pcContentEditor').html());
-
-        const title = $('#pcTitleInput').val().trim();
-        const summary = $('#pcSummaryInput').val().trim();
-        const categoryId = $('#pcChildCat').val() || $('#pcParentCat').val();
-        const content = $('#pcContentEditor').text().trim();
-
-        if (!title) {
-            showToast('Vui lòng nhập tiêu đề bài viết.', true); return;
-        }
-        if (!summary) {
-            showToast('Vui lòng nhập tóm tắt nội dung.', true); return;
-        }
-        if (!categoryId) {
-            showToast('Vui lòng chọn danh mục bài viết.', true); return;
-        }
-        if (!content) {
-            showToast('Vui lòng nhập nội dung bài viết.', true); return;
-        }
-
-        showModal('#pcPublishModal');
-    });
-
-    $('#pcModalCancel').on('click', function () {
-        hideModal('#pcPublishModal');
-    });
-
-    $('#pcModalConfirm').on('click', function () {
-        hideModal('#pcPublishModal');
-
-        const $btn = $(this).prop('disabled', true).text('Đang gửi...');
-
-        const formData = new FormData(document.getElementById('pcPostForm'));
-        formData.set('action', 'publish');
-
-        $.ajax({
-            url: 'index.php?page=client_store_post',
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            success: function (res) {
-                if (res.success) {
-                    showToast('✓ Bài viết đã được gửi đến admin để duyệt!');
-                    $('#pcStatusBadge').text('Chờ duyệt')
-                        .removeClass().addClass('pc-status-badge pending');
-                    setTimeout(function () {
-                        window.location.href = 'index.php?page=client_profile&tab=my_posts';
-                    }, 1800);
-                } else {
-                    showToast(res.message || 'Có lỗi xảy ra, vui lòng thử lại.', true);
-                }
-            },
-            error: function () {
-                showToast('Không thể kết nối máy chủ.', true);
-            },
-            complete: function () {
-                $btn.prop('disabled', false).text('Xác nhận gửi');
-            }
-        });
-    });
-
-
-    /* ════════════════════════════════
-       8. NÚT HUỶ BẢN NHÁP
-          - Nếu chưa lưu (không có post_id) → về trang my_posts ngay
-          - Nếu đã lưu → hiện modal xác nhận xoá
-    ════════════════════════════════ */
-
-    $('#pcCancelBtn').on('click', function () {
-        const postId = $('#pcPostId').val();
-        if (!postId) {
-            window.location.href = 'index.php?page=client_profile&tab=my_posts';
-            return;
-        }
-        showModal('#pcCancelModal');
-    });
-
-    $('#pcCancelModalNo').on('click', function () {
-        hideModal('#pcCancelModal');
-    });
-
-    $('#pcCancelModalYes').on('click', function () {
-        const postId = $('#pcPostId').val();
-        hideModal('#pcCancelModal');
-
-        $.ajax({
-            url: 'index.php?page=client_delete_post',
-            method: 'POST',
-            data: { post_id: postId },
-            dataType: 'json',
-            success: function () {
-                window.location.href = 'index.php?page=client_profile&tab=my_posts';
-            },
-            error: function () {
-                window.location.href = 'index.php?page=client_profile&tab=my_posts';
-            }
-        });
-    });
-
-
-    /* ════════════════════════════════
-       9. AUTO-DISMISS FLASH ALERTS
+       6. AUTO-DISMISS ALERTS
     ════════════════════════════════ */
 
     setTimeout(function () {
@@ -380,7 +200,7 @@ $(function () {
 
 
 /* ════════════════════════════════
-   10. FORMAT HELPERS (global)
+   7. FORMAT HELPERS (global)
 ════════════════════════════════ */
 
 function pcFormat(cmd, val) {
