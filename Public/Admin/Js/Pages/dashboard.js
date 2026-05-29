@@ -66,25 +66,26 @@ function loadDashboard()
 // KPI
 // =========================
 
+
 function loadKPI(kpi)
 {
     $('#totalPosts').text(
-        Number(kpi.total_posts || 0)
+        Number(kpi.totalPosts || 0)
         .toLocaleString('vi-VN')
     );
 
     $('#pendingPosts').text(
-        Number(kpi.pending_posts || 0)
+        Number(kpi.pendingPosts || 0)
         .toLocaleString('vi-VN')
     );
 
     $('#totalAuthors').text(
-        Number(kpi.total_authors || 0)
+        Number(kpi.totalAuthors || 0)
         .toLocaleString('vi-VN')
     );
 
     $('#totalViews').text(
-        Number(kpi.total_views || 0)
+        Number(kpi.totalViews || 0)
         .toLocaleString('vi-VN')
     );
 }
@@ -140,37 +141,95 @@ function loadChart(chartData)
 
 function loadStatusChart(statusData)
 {
-    const labels = statusData.map(
-        item => item.status
-    );
+    const labelMap = {
+        'approved' : 'Đã duyệt',
+        'pending'  : 'Chờ duyệt',
+        'draft'    : 'Bản nháp',
+        'rejected' : 'Từ chối',
+        'hidden'   : 'Ẩn'
+    };
 
-    const totals = statusData.map(
-        item => item.total
-    );
+    const colorMap = {
+        'approved' : '#1D9E75',
+        'pending'  : '#E24B4A',
+        'draft'    : '#378ADD',
+        'rejected' : '#EF9F27',
+        'hidden'   : '#888780'
+    };
+
+    const labels     = statusData.map(item => labelMap[item.status] ?? item.status);
+    const totals     = statusData.map(item => parseInt(item.total));
+    const colors     = statusData.map(item => colorMap[item.status] ?? '#aaa');
+    const grandTotal = totals.reduce((a, b) => a + b, 0);
 
     if(window.statusChartInstance){
-
         window.statusChartInstance.destroy();
     }
 
-    const ctx =
-    document.getElementById('statusChart');
+    window.statusChartInstance = new Chart(
+        document.getElementById('statusChart'), {
 
-    window.statusChartInstance =
-    new Chart(ctx, {
-
-        type: 'doughnut',
+        type: 'pie',
 
         data: {
-
             labels: labels,
-
             datasets: [{
-
-                data: totals
+                data: totals,
+                backgroundColor: colors,
+                borderWidth: 0
             }]
-        }
+        },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+
+                cutout: '35%',          // ← tạo lỗ giữa
+
+                layout: { padding: 0 },
+
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const pct = grandTotal > 0
+                                    ? Math.round(ctx.raw / grandTotal * 100) : 0;
+                                return ` ${ctx.label}: ${pct}%`;
+                            }
+                        }
+                    }
+                }
+            }
     });
+
+    // Re-render legend với dot + background
+    let legendHtml = '';
+
+    statusData.forEach(item => {
+        const pct   = grandTotal > 0
+            ? Math.round(item.total / grandTotal * 100) : 0;
+        const label = labelMap[item.status] ?? item.status;
+        const color = colorMap[item.status] ?? '#aaa';
+
+        legendHtml += `
+            <div class="status-legend-item">
+                <span class="legend-dot"
+                    style="background:${color}">
+                </span>
+                <span class="legend-label">${label}</span>
+                <span class="legend-pct">${pct}%</span>
+            </div>
+        `;
+    });
+
+    const $card = $('#statusChart').closest('.dashboard-card');
+
+    $card.find('.status-legend').remove();
+
+    $('#statusChart')
+        .closest('.chart-wrapper')
+        .after(`<div class="status-legend">${legendHtml}</div>`);
 }
 
 
@@ -180,38 +239,76 @@ function loadStatusChart(statusData)
 
 function loadTopPosts(posts)
 {
-    let html = '';
+    let rows = '';
 
-    posts.forEach(post => {
+    posts.forEach((post, index) => {
 
-        html += `
+        const rank       = String(index + 1).padStart(2, '0');
+        const isTop      = index === 0;
+        const badgeBg    = isTop ? '#fef2f2' : '#f0f2f5';
+        const badgeColor = isTop ? '#e52328'  : '#9fb0bc';
 
-            <tr>
+        rows += `
+            <tr class="top-post-row">
 
-                <td class="post-title">
-                    ${post.title}
+                <td class="col-rank">
+                    <div class="rank-badge"
+                        style="background:${badgeBg};color:${badgeColor}">
+                        ${rank}
+                    </div>
                 </td>
 
-                <td>
-                    ${post.category_name}
+                <td class="col-title" colspan="4">
+                    <h4 class="post-title-text">
+                        ${post.title}
+                    </h4>
                 </td>
 
-                <td>
-                    ${Number(post.view_count)
-                        .toLocaleString('vi-VN')}
+            </tr>
+
+            <tr class="top-post-meta-row">
+
+                <td class="col-rank"></td>
+
+                <td class="col-category">
+                    <span class="category-tag">
+                        ${post.category_name ?? ''}
+                    </span>
                 </td>
 
-                <td>
-                    ${post.likes_count}
+                <td class="col-views">
+                    <span class="meta-views">
+                        <i class="fa-regular fa-eye"></i>
+                        ${Number(post.view_count || 0)
+                            .toLocaleString('vi-VN')} lượt xem
+                    </span>
                 </td>
 
-                <td>
-                    ${post.comments_count}
+                <td class="col-likes">
+                    <span class="meta-stat">
+                        <i class="fa-regular fa-heart"></i>
+                        ${Number(post.likes_count || 0)
+                            .toLocaleString('vi-VN')} lượt thích
+                    </span>
                 </td>
 
+                <td class="col-comments">
+                    <span class="meta-stat">
+                        <i class="fa-regular fa-comment"></i>
+                        ${Number(post.comments_count || 0)
+                            .toLocaleString('vi-VN')} bình luận
+                    </span>
+                </td>
+
+            </tr>
+
+            <tr class="top-post-spacer">
+                <td colspan="5"></td>
             </tr>
         `;
     });
 
-    $('#topPostsBody').html(html);
+    $('#topPostsBody').html(
+        `<table class="top-posts-table">${rows}</table>`
+    );
 }
