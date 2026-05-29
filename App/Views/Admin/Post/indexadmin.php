@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="Public/Admin/Css/Pages/PostAdmin.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css">
     <style>
     html, body { height: 100%; overflow: hidden; }
     .admin-layout { height: 100vh; overflow: hidden; }
@@ -227,7 +229,7 @@
                             </td>
                             <td>
                                 <?php if ($post->status === 'approved'): ?>
-                                    <strong><?= number_format($post->view_count ?? 0, 1, '.', ',') ?>k</strong>
+                                    <strong><?= number_format($post->view_count ?? 0, 0, '.', ',') ?></strong>
                                     <small>Lượt xem</small>
                                 <?php else: ?>
                                     <span style="color:#aaa;font-size:13px;">Chưa công bố</span>
