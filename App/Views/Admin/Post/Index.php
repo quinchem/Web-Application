@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="Public/Admin/Css/Pages/ReviewPost.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css">
     <script src="Public/Admin/Js/Pages/ReviewPost.js?v=<?= time() ?>" defer></script>
     <script src="Public/Admin/Js/Pages/Post.js?v=<?= time() ?>" defer></script>
     <script src="Public/Admin/Js/Pages/Profile.js?v=<?= time() ?>" defer></script>
