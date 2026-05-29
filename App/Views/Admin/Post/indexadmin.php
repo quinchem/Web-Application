@@ -8,22 +8,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/PostAdmin.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
     <style>
-        html, body { height: 100%; overflow: hidden; }
-        .admin-layout { height: 100vh; overflow: hidden; }
-        .sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
-        .main-content { height: 100vh; overflow-y: auto; flex: 1; }
-        .profile-wrapper { padding: 16px 18px; }
-        .admin-profile { padding: 14px 16px; gap: 12px; border-radius: 14px; }
-        .admin-profile img { width: 40px; height: 40px; }
-        .profile-info strong { font-size: 14px; margin-bottom: 6px; }
-        .profile-info p { font-size: 11px; gap: 7px; }
-        .profile-info i { font-size: 13px; }
+    html, body { height: 100%; overflow: hidden; }
+    .admin-layout { height: 100vh; overflow: hidden; }
+    .sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+    .main-content { height: 100vh; overflow-y: auto; flex: 1; }
+    .profile-wrapper { padding: 16px 18px; }
+    .admin-profile { padding: 14px 16px; gap: 12px; border-radius: 14px; }
+    .admin-profile img { width: 40px; height: 40px; }
+    .profile-info strong { font-size: 14px; margin-bottom: 6px; }
+    .profile-info p { font-size: 11px; gap: 7px; }
+    .profile-info i { font-size: 13px; }
+    td strong { font-size: 16px; font-weight: 900; display: block; color: #07344a; }
+    td small  { display: block; font-size: 13px; color: #86a0ad; margin-top: 5px; line-height: 1.4; }
 
-        /* Cột Quản trị viên — khớp với cột Tác giả */
-        td strong { font-size: 16px; font-weight: 900; display: block; color: #07344a; }
-        td small  { display: block; font-size: 13px; color: #86a0ad; margin-top: 5px; line-height: 1.4; }
-    </style>
+    /* ✅ FIX: Modal thoát khỏi stacking context của main-content */
+    .custom-modal-backdrop,
+    #changePasswordModal,
+    #editProfileModal {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 999999 !important;
+    }
+</style>
     <script src="Public/Admin/Js/Pages/PostAdmin.js?v=<?= time() ?>" defer></script>
     <script src="Public/Admin/Js/Pages/Profile.js?v=<?= time() ?>" defer></script>
 </head>
@@ -299,5 +307,10 @@
         </section>
     </main>
 </div>
+
+<!-- ✅ Modal profile render ngoài admin-layout, thẳng vào body -->
+<?php require_once __DIR__ . '/../Profile/edit.php'; ?>
+<?php require_once __DIR__ . '/../Profile/change_password.php'; ?>
+
 </body>
 </html>
