@@ -469,3 +469,200 @@ body {
     .top-posts-table .col-views    { width: 120px; }
     .top-posts-table .col-likes    { width: 100px; }
 }
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    color: #b0c4ce;
+    gap: 12px;
+}
+
+.empty-state i {
+    font-size: 36px;
+}
+
+.empty-state p {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+}
+
+/* =========================================================
+   FLATPICKR CUSTOM
+========================================================= */
+
+.flatpickr-calendar {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+    border-radius: 12px !important;
+    border: none !important;
+    font-family: 'Barlow', sans-serif !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+    background: #e52328 !important;
+    border-color: #e52328 !important;
+}
+
+.flatpickr-day:hover {
+    background: #fef2f2 !important;
+}
+
+/* Ẩn tooltip ngày cũ bị lỗi */
+.flatpickr-calendar .flatpickr-current-month input.cur-year {
+    pointer-events: none;
+}
+
+/* Fix: ẩn cái selected-date tooltip nổi lên */
+.flatpickr-calendar:not(.open) {
+    display: none !important;
+}
+
+/* =========================================================
+   CATEGORY DROPDOWN — DASHBOARD FILTER
+========================================================= */
+
+.dash-category-dropdown {
+    position: relative;
+    flex: 1;
+}
+
+.dash-category-trigger {
+    width: 100%;
+    height: 42px;
+    background: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #07344a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    gap: 8px;
+}
+
+.dash-category-trigger span {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dash-category-trigger i {
+    color: #9fb0bc;
+    font-size: 11px;
+    transition: transform .2s;
+    flex-shrink: 0;
+}
+
+.dash-category-dropdown.open .dash-category-trigger i {
+    transform: rotate(180deg);
+}
+
+.dash-category-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 200px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    z-index: 999;
+    padding: 6px 0;
+    overflow: hidden;
+}
+
+.dash-category-dropdown.open .dash-category-menu {
+    display: block;
+}
+
+.dash-cat-reset {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #9fb0bc;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f2f5;
+    margin-bottom: 4px;
+}
+
+.dash-cat-reset:hover {
+    color: #e52328;
+    background: #fef2f2;
+}
+
+.dash-cat-parent {
+    position: relative;
+}
+
+.dash-cat-parent-label {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #07344a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    gap: 8px;
+}
+
+.dash-cat-parent-label:hover {
+    background: #f4f8fb;
+}
+
+.dash-cat-parent-label i {
+    font-size: 10px;
+    color: #9fb0bc;
+    transition: transform .2s;
+}
+
+.dash-cat-parent.open .dash-cat-parent-label i {
+    transform: rotate(90deg);
+}
+
+.dash-cat-children {
+    display: none;
+    background: #f8fafc;
+    border-top: 1px solid #f0f2f5;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.dash-cat-parent.open .dash-cat-children {
+    display: block;
+}
+
+.dash-cat-child {
+    padding: 9px 16px 9px 28px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a6478;
+    cursor: pointer;
+}
+
+.dash-cat-child:hover {
+    background: #fef2f2;
+    color: #e52328;
+}
+
+.dash-cat-child.active {
+    color: #e52328;
+    font-weight: 800;
+}
+
+.legend-count {
+    font-size: 13px;
+    font-weight: 700;
+    color: #7e97a7;
+    width: 50px;
+    text-align: right;
+}
