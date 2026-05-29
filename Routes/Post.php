@@ -27,7 +27,7 @@ $router->post('api_get_comments', [PostController::class, 'apiGetComments']);
 $router->get('client_saved_posts_page', [PostController::class, 'savedPosts']);
 $router->get('client_my_posts_page', [PostController::class, 'myPostsPage']);
 
-$router->get('create_post', [PostController::class, 'createPostClient']);
-$router->post('store_post_client', [PostController::class, 'storePostClient']);
+$router->get('create_post', [PostController::class, 'clientCreatePostPage']);
+$router->post('client_store_post', [PostController::class, 'clientStorePost']);
 $router->get('category_detail', [PostController::class, 'categoryDetail']);
 $router->get('subcategory', [PostController::class, 'subCategoryDetail']);
