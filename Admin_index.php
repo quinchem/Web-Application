@@ -132,10 +132,13 @@ if (
         $_SESSION['user'] = $user;
 
         header(
-        "Location: http://localhost/Web-Application/Admin_index.php?page=admin_user_posts"
+        "Location: http://localhost/Web-Application/Admin_index.php?page=doashboard"
         );
 
         exit();
+        } else {
+        // Token không hợp lệ → xóa cookie đi
+        setcookie('remember_token', '', time() - 3600, '/');
     }
 }
 

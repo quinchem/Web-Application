@@ -82,7 +82,7 @@
                            placeholder="••••••••"
                            required>
 
-                    <i class="fa-regular fa-eye toggle-password"
+                    <i class="fa-regular fa-eye-slash toggle-password"
                        id="togglePassword"></i>
 
                 </div>

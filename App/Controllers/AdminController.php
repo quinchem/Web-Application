@@ -38,7 +38,7 @@ public function login()
 
         header(
 
-        "Location: http://localhost/Web-Application/Admin_index.php?page=admin_user_posts"
+        "Location: http://localhost/Web-Application/Admin_index.php?page=dashboard"
 
         );
 
@@ -152,7 +152,7 @@ if ($remember) {
                 setTimeout(() => {
 
                     window.location.href =
-'http://localhost/Web-Application/Admin_index.php?page=admin_user_posts';
+'http://localhost/Web-Application/Admin_index.php?page=dashboard';
 
                 }, 1800);
 
@@ -236,7 +236,7 @@ $_SESSION = [];
         session_destroy();
 
         setcookie(
-            'remember_user',
+            'remember_token',
             '',
             time() - 3600,
             "/"
