@@ -32,6 +32,3 @@
     </button>
 
 </div>
-
-<?php require_once __DIR__ . '/edit.php'; ?>
-<?php require_once __DIR__ . '/change_password.php'; ?>

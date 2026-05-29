@@ -1,0 +1,218 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap');
+
+/* =========================================================================
+   RESET & BASE
+   ========================================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Barlow', sans-serif;
+}
+
+body {
+    background: #eef8ff;
+    color: #07344a;
+}
+
+/* =========================================================================
+   LAYOUT
+   ========================================================================= */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* =========================================================================
+   SIDEBAR
+   ========================================================================= */
+.sidebar {
+    width: 300px;
+    min-height: 100vh;
+    background: #00384f;
+    color: #fff;
+    position: relative;
+    padding: 34px;
+    flex-shrink: 0;
+}
+
+.logo {
+    font-family: 'Briem Hand', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 58px;
+    color: #fff;
+    letter-spacing: -1px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menu-item,
+.sub-item {
+    display: block;
+    text-decoration: none;
+    color: #d7edf5;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.menu-item { font-size: 17px; }
+
+.menu-item.active {
+    background: #1b5369;
+    color: #fff;
+    font-weight: 800;
+}
+
+.sub-item {
+    font-size: 12px;
+    padding-left: 45px;
+}
+
+.sub-active { background: #0d455c; }
+
+/* =========================================================================
+   PROFILE WRAPPER (Sidebar bottom)
+   ========================================================================= */
+.profile-wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #e11f26;
+    padding: 38px 24px;
+}
+
+.admin-profile {
+    background: #c81d22;
+    border-radius: 18px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    cursor: pointer;
+}
+
+.admin-profile img {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.profile-info strong {
+    display: block;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.profile-info p {
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-info i { font-size: 16px; }
+
+.logout-btn {
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.logout-btn:hover { opacity: 0.8; }
+
+/* =========================================================================
+   MAIN CONTENT
+   ========================================================================= */
+.main-content {
+    flex: 1;
+    background: #eef8ff;
+}
+
+/* =========================================================================
+   TOPBAR
+   ========================================================================= */
+.topbar {
+    height: 74px;
+    background: #d9edf6;
+    display: flex;
+    align-items: center;
+    padding: 0 38px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #7e97a7;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 800;
+}
+
+.breadcrumb span { color: #9bb0bc; font-weight: 700; }
+
+.breadcrumb .active {
+    color: #072d47;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 900;
+}
+
+.content-inner { padding: 38px; }
+
+h1 {
+    font-size: 42px;
+    font-weight: 900;
+    color: #07344a;
+    margin-bottom: 18px;
+    letter-spacing: -1px;
+}
+
+/* =========================================================================
+   FOOTER
+   ========================================================================= */
+.footer {
+    margin-top: 38px;
+    padding-top: 28px;
+    border-top: 1px solid #d8e8ef;
+    display: flex;
+    justify-content: space-between;
+    color: #98b1bc;
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-weight: 800;
+}
+
+.footer a {
+    color: #7fa1ad;
+    text-decoration: none;
+    margin-left: 38px;
+}

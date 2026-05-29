@@ -100,7 +100,7 @@ document.getElementById('editProfileForm').addEventListener('submit', function(e
     btn.textContent = 'Đang lưu...';
     alertBox.classList.add('d-none');
 
-    fetch('Index.php?page=update-profile', {
+    fetch('Admin_index.php?page=update-profile', {
         method: 'POST',
         body: formData
     })

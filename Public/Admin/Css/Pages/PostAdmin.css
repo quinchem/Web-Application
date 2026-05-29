@@ -46,7 +46,7 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
 .modal-overlay, .modal-backdrop, .profile-modal-overlay, .profile-modal,
 #profileModal, #passwordModal, [id$="Modal"],
 [class*="modal-overlay"], [class*="modal-backdrop"], [class*="-modal"] {
-    z-index: 999999 !important;
+    z-index: 99999 !important;
 }
 
 /* STAT CARDS */
@@ -76,6 +76,8 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
     gap: 14px;
     margin-bottom: 46px;
     overflow: visible;
+    position: relative;  /* ← THÊM */
+    z-index: 1;
 }
 
 /* Search chiếm không gian còn lại */
@@ -99,7 +101,7 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
     min-width: 0;
     height: 42px;
     position: relative;
-    z-index: 100;
+    z-index: 10;
 }
 
 /* Select và date wrapper — flex item đều nhau */
@@ -146,7 +148,7 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
 /* CATEGORY DROPDOWN INNER */
 button.category-trigger { width:100% !important; height:42px !important; min-width:unset !important; padding:0 14px !important; background:#fff !important; border-radius:9px !important; font-size:13px !important; font-weight:800 !important; color:#07344a !important; display:flex !important; align-items:center !important; justify-content:space-between !important; gap:8px !important; cursor:pointer !important; border:none !important; white-space:nowrap; overflow:hidden; }
 .category-trigger i { font-size:10px; color:#9fb0bc; transition:transform 0.2s; flex-shrink:0; }
-.category-dropdown .category-menu { position:absolute; top:calc(100% + 6px); left:0; min-width:200px; background:#fff; border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.12); z-index:9999; padding:6px 0; }
+.category-dropdown .category-menu { position:absolute; top:calc(100% + 6px); left:0; min-width:200px; background:#fff; border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.12); z-index:10000; padding:6px 0; }
 .cat-parent { position:relative; }
 .cat-parent-label { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; font-size:13px; font-weight:800; color:#07344a; cursor:pointer; gap:24px; }
 .cat-parent-label:hover { background:#f0f8fc; }
