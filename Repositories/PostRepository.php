@@ -400,7 +400,7 @@ private function buildSearchCondition($filters, &$params)
     {
         // Công thức: (View * 1) + (Like * 3) + (Save * 5) 
         // Chia cho (Số ngày đăng + 2)^1.5 để ưu tiên bài mới
-        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name,
+        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url,c.name as category_name, u.full_name as author_name,
             p.view_count as display_views, 
             ((p.view_count * 1) + 
               ((SELECT COUNT(*) FROM `Like` WHERE post_id = p.post_id) * 3) + 
@@ -1533,5 +1533,38 @@ public function countPostsByCategorySlug($slug)
     $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
     return $result['total'] ?? 0;
+}
+public function clientCreatePost(array $data): string|false
+{
+    // Sinh post_id theo đúng pattern của repo (PS0001, PS0002, ...)
+    $stmt = $this->conn->query("SELECT post_id FROM Post ORDER BY post_id DESC LIMIT 1");
+    $last = $stmt->fetch(PDO::FETCH_ASSOC);
+    $newNum = $last ? (int) substr($last['post_id'], 2) + 1 : 1;
+    $postId = 'PS' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
+ 
+    $sql = "INSERT INTO Post
+                (post_id, user_id, title, summary, content,
+                 thumbnail_URL, category_id, status,
+                 published_at, created_at)
+            VALUES
+                (:post_id, :user_id, :title, :summary, :content,
+                 :thumbnail_URL, :category_id, :status,
+                 :published_at, NOW())";
+ 
+    $stmt = $this->conn->prepare($sql);
+ 
+    $ok = $stmt->execute([
+        ':post_id'       => $postId,
+        ':user_id'       => $data['user_id'],
+        ':title'         => $data['title'],
+        ':summary'       => $data['summary']       ?? null,
+        ':content'       => $data['content'],
+        ':thumbnail_URL' => $data['thumbnail_URL'] ?? null,
+        ':category_id'   => $data['category_id']   ?? null,
+        ':status'        => $data['status']         ?? 'draft',
+        ':published_at'  => $data['publish_at']     ?? null,
+    ]);
+ 
+    return $ok ? $postId : false;
 }
 }

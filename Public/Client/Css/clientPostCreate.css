@@ -1,0 +1,694 @@
+/* ================================================
+   clientPostCreate.css
+   Đặt tại: Public/Client/Css/clientPostCreate.css
+   ================================================ */
+
+:root {
+    --navy:   #003049;
+    --red:    #B90C17;
+    --light:  #f4f6f8;
+    --border: #e2e6ea;
+    --text:   #1a1a2e;
+    --muted:  #6c7a8d;
+    --white:  #ffffff;
+    --bg:     #f0f2f5;
+}
+
+/* ───────── PAGE WRAPPER ───────── */
+#page-post-create {
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 40px 0 80px;
+}
+
+/* ───────── LAYOUT: SIDEBAR TRÁI + NỘI DUNG PHẢI ───────── */
+.create-post-wrapper {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+
+/* ───────── SIDEBAR TRÁI ───────── */
+.profile-sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    background: var(--white);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,48,73,0.07);
+    position: sticky;
+    top: 24px;
+}
+
+.sidebar-avatar-block {
+    background: #e8eef4;
+    padding: 28px 20px 20px;
+    text-align: center;
+}
+
+.sidebar-avatar-block img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--white);
+    box-shadow: 0 2px 8px rgba(0,48,73,0.15);
+    margin-bottom: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sidebar-avatar-block .username {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.sidebar-nav {
+    padding: 8px 0 12px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 20px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.18s;
+}
+
+.sidebar-nav a i {
+    font-size: 0.85rem;
+    width: 16px;
+    text-align: center;
+}
+
+.sidebar-nav a:hover {
+    color: var(--navy);
+    background: var(--light);
+}
+
+.sidebar-nav a.active {
+    color: var(--navy);
+    border-left-color: var(--red);
+    background: #f0f4f8;
+    font-weight: 700;
+}
+
+/* ───────── CỘT NỘI DUNG CHÍNH ───────── */
+.create-post-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ───────── PAGE HEADING ───────── */
+.create-post-heading {
+    margin-bottom: 6px;
+}
+
+.create-post-heading h1 {
+    font-family: 'Barlow', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 4px 0;
+    line-height: 1.1;
+}
+
+.create-post-heading .subtitle {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ───────── BÀI ĐĂNG COUNT LABEL ───────── */
+.post-count-label {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 20px 0 14px;
+}
+
+/* ───────── CARD CHUNG ───────── */
+.pc-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 6px rgba(0,48,73,0.04);
+}
+
+/* ───────── CARD TIÊU ĐỀ + TÓM TẮT ───────── */
+.pc-title-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-family: 'Newsreader', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #c5cdd6;
+    background: transparent;
+    padding: 0;
+    margin-bottom: 14px;
+    line-height: 1.3;
+}
+
+.pc-title-input::placeholder { color: #c5cdd6; }
+.pc-title-input:focus { color: var(--text); }
+
+.pc-title-divider {
+    height: 3px;
+    width: 40px;
+    background: var(--red);
+    border-radius: 2px;
+    margin-bottom: 20px;
+}
+
+.pc-summary-label {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.pc-summary-textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: #fafbfc;
+    outline: none;
+    resize: vertical;
+    min-height: 88px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.pc-summary-textarea::placeholder { color: #c5cdd6; }
+.pc-summary-textarea:focus { border-color: var(--navy); background: #fff; }
+
+/* ───────── CARD META (DANH MỤC, TAG, TRẠNG THÁI) ───────── */
+.pc-meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.pc-meta-group label {
+    display: block;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.pc-select-wrap {
+    position: relative;
+}
+
+.pc-select-wrap::after {
+    content: '\f078';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.65rem;
+    pointer-events: none;
+}
+
+.pc-select {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 32px 10px 12px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.pc-select:focus { border-color: var(--navy); }
+.pc-select:disabled { background: #f5f5f5; color: var(--muted); opacity: 0.6; cursor: not-allowed; }
+
+/* ───────── TAG ROW ───────── */
+.pc-tag-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    margin-bottom: 14px;
+}
+
+.pc-tag-label-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.pc-field-title {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--light);
+    border: 1px solid var(--border);
+    color: var(--navy);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+}
+
+.tag-chip button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.7rem;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.tag-chip button:hover { color: var(--red); }
+
+.pc-add-tag-btn {
+    background: none;
+    border: none;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--red);
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 4px 0;
+    transition: opacity 0.2s;
+}
+
+.pc-add-tag-btn:hover { opacity: 0.75; }
+
+/* Tag input inline */
+.pc-tag-input-inline {
+    border: none;
+    outline: none;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--navy);
+    background: transparent;
+    min-width: 80px;
+    text-transform: uppercase;
+}
+
+.pc-tag-input-inline::placeholder { color: #c5cdd6; }
+
+/* ───────── TRẠNG THÁI ROW ───────── */
+.pc-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.pc-status-badge {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 6px;
+    background: #f0f4f8;
+    color: var(--navy);
+    border: 1px solid var(--border);
+}
+
+.pc-status-badge.pending { background: #fff3cd; color: #856404; border-color: #ffc107; }
+.pc-status-badge.approved { background: #d1fae5; color: #065f46; border-color: #10b981; }
+.pc-status-badge.rejected { background: #fee2e2; color: #991b1b; border-color: #ef4444; }
+
+/* ───────── CARD ẢNH ĐẠI DIỆN ───────── */
+.pc-card-label {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.pc-card-label i { color: var(--muted); font-size: 0.85rem; }
+
+.pc-thumbnail-zone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    background: #fafbfc;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    overflow: hidden;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pc-thumbnail-zone:hover { border-color: #a0b4c4; }
+.pc-thumbnail-zone.dragover { border-color: var(--navy); background: #eef4f8; }
+
+.pc-upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.pc-upload-placeholder .upload-icon {
+    font-size: 2rem;
+    color: #c5cdd6;
+    margin-bottom: 4px;
+}
+
+.pc-upload-placeholder p {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0;
+}
+
+.pc-upload-placeholder small {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.75rem;
+    color: #b0bac5;
+}
+
+#pcThumbnailPreview {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+.pc-remove-thumb-btn {
+    display: none;
+    margin-top: 10px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 14px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.15s;
+}
+
+.pc-remove-thumb-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* ───────── CARD NỘI DUNG ───────── */
+.pc-content-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+}
+
+.pc-content-toolbar button {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.88rem;
+    color: var(--navy);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 600;
+    line-height: 1.4;
+    min-width: 32px;
+    text-align: center;
+}
+
+.pc-content-toolbar button:hover {
+    background: var(--light);
+    border-color: var(--border);
+}
+
+.pc-content-toolbar .tb-sep {
+    width: 1px;
+    background: var(--border);
+    margin: 2px 4px;
+    align-self: stretch;
+}
+
+.pc-editor {
+    min-height: 260px;
+    outline: none;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.75;
+}
+
+.pc-editor[data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: #c5cdd6;
+    pointer-events: none;
+}
+
+.pc-editor h2 {
+    font-family: 'Newsreader', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 20px 0 8px;
+}
+
+.pc-editor h3 {
+    font-family: 'Newsreader', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 16px 0 6px;
+}
+
+.pc-editor blockquote {
+    border-left: 4px solid var(--red);
+    margin: 14px 0;
+    padding: 10px 16px;
+    background: #fdf4f5;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* ───────── ACTION BAR ───────── */
+.pc-action-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.pc-btn-cancel {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 11px 22px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    transition: all 0.18s;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.pc-btn-cancel:hover { background: var(--light); color: var(--navy); }
+
+.pc-btn-draft {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--navy);
+    padding: 11px 22px;
+    border-radius: 8px;
+    border: 2px solid var(--navy);
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+
+.pc-btn-draft:hover { background: var(--navy); color: #fff; }
+
+.pc-btn-publish {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: none;
+    background: var(--red);
+    cursor: pointer;
+    transition: all 0.18s;
+    box-shadow: 0 3px 12px rgba(185,12,23,0.22);
+}
+
+.pc-btn-publish:hover {
+    background: #96090f;
+    box-shadow: 0 4px 16px rgba(185,12,23,0.35);
+    transform: translateY(-1px);
+}
+
+/* ───────── WORD COUNT ───────── */
+.pc-word-count {
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #b0bac5;
+    text-align: right;
+    margin-top: 8px;
+}
+
+/* ───────── ALERT MESSAGES ───────── */
+.pc-alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pc-alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.pc-alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+/* ───────── RESPONSIVE ───────── */
+@media (max-width: 900px) {
+    .create-post-wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .profile-sidebar {
+        width: 100%;
+        position: static;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 8px 12px;
+        gap: 4px;
+    }
+
+    .sidebar-nav a {
+        border-left: none;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 0.78rem;
+    }
+
+    .sidebar-nav a.active {
+        border-left: none;
+        background: var(--navy);
+        color: #fff;
+    }
+}
+
+@media (max-width: 600px) {
+    #page-post-create { padding: 20px 0 60px; }
+
+    .create-post-heading h1 { font-size: 1.4rem; }
+
+    .pc-meta-row { grid-template-columns: 1fr; }
+
+    .pc-action-bar {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pc-btn-cancel,
+    .pc-btn-draft,
+    .pc-btn-publish { width: 100%; text-align: center; }
+}

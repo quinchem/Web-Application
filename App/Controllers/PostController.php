@@ -39,68 +39,66 @@ class PostController
         // Lấy bài viết bao gồm cả các danh mục con
         $thoiSu = $this->postRepository->getPostsByParentCategory('Thời sự', 4);
         $kinhTe = $this->postRepository->getPostsByParentCategory('Kinh tế', 4);
-        $heroPost = $this->postRepository->getHeroPost();
+        $bannerPosts = $this->postRepository->getTrendingGlobal(5);
 
         require __DIR__ . '/../Views/Client/Home.php';
     }
 
-  public function searchResult()
-{
-    $keyword = trim($_GET['key'] ?? '');
+    public function searchResult()
+    {
+        $keyword = trim($_GET['key'] ?? '');
 
-    $time = $_GET['time'] ?? 'newest';
-    $fromDate = $_GET['from_date'] ?? '';
-    $toDate = $_GET['to_date'] ?? '';
+        $time = $_GET['time'] ?? 'newest';
+        $fromDate = $_GET['from_date'] ?? '';
+        $toDate = $_GET['to_date'] ?? '';
 
-    $categoryIds = $_GET['categories'] ?? [];
+        $categoryIds = $_GET['categories'] ?? [];
 
-    if (!is_array($categoryIds)) {
-        $categoryIds = [$categoryIds];
-    }
+        if (!is_array($categoryIds)) {
+            $categoryIds = [$categoryIds];
+        }
 
-    $categoryIds = array_values(array_filter($categoryIds, function ($item) {
-        return $item !== '';
-    }));
+        $categoryIds = array_values(array_filter($categoryIds, function ($item) {
+            return $item !== '';
+        }));
 
-    $author = trim($_GET['author'] ?? '');
+        $author = trim($_GET['author'] ?? '');
 
-    // Trang phân trang, không dùng $_GET['page']
-    // vì page=search_result là route
-    $paginationPage = max(1, (int)($_GET['p'] ?? 1));
+        // Trang phân trang, không dùng $_GET['page']
+        // vì page=search_result là route
+        $paginationPage = max(1, (int)($_GET['p'] ?? 1));
 
-    $limit = 3;
-    $offset = ($paginationPage - 1) * $limit;
+        $limit = 3;
+        $offset = ($paginationPage - 1) * $limit;
 
-    $filters = [
-        'keyword' => $keyword,
-        'time' => $time,
-        'from_date' => $fromDate,
-        'to_date' => $toDate,
-        'categories' => $categoryIds,
-        'author' => $author,
-        'limit' => $limit,
-        'offset' => $offset
-    ];
+        $filters = [
+            'keyword' => $keyword,
+            'time' => $time,
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+            'categories' => $categoryIds,
+            'author' => $author,
+            'limit' => $limit,
+            'offset' => $offset
+        ];
 
-    $posts = $this->postRepository->searchPosts($filters);
-    $totalPosts = $this->postRepository->countSearchPosts($filters);
-
-    $totalPages = (int)ceil($totalPosts / $limit);
-
-    if ($paginationPage > $totalPages && $totalPages > 0) {
-        $paginationPage = $totalPages;
-
-        $filters['offset'] = ($paginationPage - 1) * $limit;
         $posts = $this->postRepository->searchPosts($filters);
+        $totalPosts = $this->postRepository->countSearchPosts($filters);
+
+        $totalPages = (int)ceil($totalPosts / $limit);
+
+        if ($paginationPage > $totalPages && $totalPages > 0) {
+            $paginationPage = $totalPages;
+            $filters['offset'] = ($paginationPage - 1) * $limit;
+            $posts = $this->postRepository->searchPosts($filters);
+        }
+        // Biến này truyền qua Result.php
+        $currentPaginationPage = $paginationPage;
+        $categories = $this->categoryController->getCategories();
+
+        require __DIR__ . '/../Views/Client/Search/Result.php';
     }
 
-    // Biến này truyền qua Result.php
-    $currentPaginationPage = $paginationPage;
-
-    $categories = $this->categoryController->getCategories();
-
-    require __DIR__ . '/../Views/Client/Search/Result.php';
-}
     /**
      * Hiển thị danh sách bài viết của một danh mục cụ thể
      * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
@@ -709,180 +707,197 @@ class PostController
         echo json_encode(['success' => (bool)$result]);
         exit;
     }
-     public function createPostClient()
+    public function categoryDetail()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+        $categorySlug = $_GET['slug'] ?? null;
+        $categoryName = $_GET['name'] ?? null;
+        $categoryDesc = null;
+
+        // Mô tả tĩnh theo slug (chưa có trong database)
+        $categoryDescriptions = [
+            'thoi-su'  => 'Cập nhật những diễn biến quan trọng nhất về chính trị, xã hội và an ninh quốc phòng trong và ngoài nước qua lăng kính phân tích sâu sắc.',
+            'kinh-te'  => 'Thông tin kinh tế vĩ mô, thị trường tài chính và các xu hướng phát triển kinh tế trong nước và quốc tế.',
+        ];
+
+        if ($categorySlug) {
+            $cat = $this->postRepository->getCategoryBySlug($categorySlug);
+            $categoryName = $cat['name'] ?? $categoryName;
+            $categoryDesc = $categoryDescriptions[$categorySlug] ?? null;
         }
 
-        // Chưa đăng nhập → về trang login
+        if ($categoryName && !$categorySlug) {
+            $cat = $this->postRepository->getCategoryByName($categoryName);
+            $categorySlug = $cat['slug'] ?? '';
+            $categoryDesc = $categoryDescriptions[$categorySlug] ?? null;
+        }
+
+        if (!$categoryName) {
+            $this->homepage();
+            return;
+        }
+
+        $posts = $this->postRepository->getPostsByParentCategoryGrouped($categoryName, 4);
+
+        require __DIR__ . '/../Views/Client/Category/Detail.php';
+    }
+    public function subCategoryDetail()
+    {
+        $slug = $_GET['slug'] ?? null;
+
+        if (!$slug) {
+            $this->homepage();
+            return;
+        }
+
+        // =========================
+        // BÀI NỔI BẬT (NHIỀU VIEW NHẤT)
+        // =========================
+        $featuredPost = $this->postRepository
+            ->getFeaturedPostByCategory($slug);
+
+        $featuredId = $featuredPost['post_id'] ?? 0;
+
+        // =========================
+        // PHÂN TRANG
+        // =========================
+        $pageNumber = isset($_GET['p'])
+            ? (int) $_GET['p']
+            : 1;
+
+        if ($pageNumber < 1) {
+            $pageNumber = 1;
+        }
+
+        $limit = 10;
+
+        $offset = ($pageNumber - 1) * $limit;
+
+        // =========================
+        // DANH SÁCH BÀI VIẾT
+        // =========================
+        $posts = $this->postRepository
+            ->getPostsByCategorySlug(
+                $slug,
+                $featuredId,
+                $limit,
+                $offset
+            );
+
+        // =========================
+        // TỔNG SỐ BÀI
+        // =========================
+        $totalPosts = $this->postRepository
+            ->countPostsByCategorySlug($slug);
+
+        $totalPages = ceil($totalPosts / $limit);
+
+        // =========================
+        // CATEGORY NAME
+        // =========================
+        $categoryName =
+            $featuredPost['category_name']
+            ?? ($posts[0]['category_name'] ?? '');
+
+        // =========================
+        // VIEW
+        // =========================
+        require __DIR__ . '/../Views/Client/Category/Detail2.php';
+    }
+    public function clientCreatePostPage(): void
+    {
         if (empty($_SESSION['user_id'])) {
             header('Location: index.php?page=login');
             exit;
         }
 
-        // Lấy danh mục để hiển thị dropdown
         $categories = $this->postRepository->getCategoriesForFilter();
 
-        require __DIR__ . '/../Views/Client/Post/Create.php';
+        require_once __DIR__ . '/../Views/Client/Post/Create.php';
     }
-     public function storePostClient()
+
+
+    /**
+     * POST  index.php?page=client_store_post
+     * Xử lý lưu bài viết từ phía client (nháp hoặc gửi duyệt).
+     */
+    public function clientStorePost(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        header('Content-Type: application/json');
-
-        // Kiểm tra đăng nhập — dùng $_SESSION['user_id'] theo chuẩn Client
-        $userId = $_SESSION['user_id'] ?? null;
-        if (!$userId) {
-            echo json_encode(['status' => 'unauthorized', 'message' => 'Vui lòng đăng nhập.']);
+        if (empty($_SESSION['user_id'])) {
+            header('Location: index.php?page=login');
             exit;
         }
 
-        $title      = trim($_POST['title']       ?? '');
-        $summary    = trim($_POST['summary']     ?? '');
-        $content    = $_POST['content']          ?? '';
-        $categoryId = $_POST['category_id']      ?? '';
-        $action     = $_POST['action']           ?? 'draft';
+        // ── Validate ──────────────────────────────────────────
+        $title   = trim($_POST['title']   ?? '');
+        $summary = trim($_POST['summary'] ?? '');
+        $content = $_POST['content']      ?? '';
+        $action  = $_POST['action']       ?? 'draft';
 
-        // Validate tối thiểu
         if ($title === '' || $content === '') {
-            echo json_encode(['status' => 'error', 'message' => 'Tiêu đề và nội dung không được để trống.']);
+            $_SESSION['error'] = 'Tiêu đề và nội dung không được để trống.';
+            header('Location: index.php?page=create_post');
             exit;
         }
 
-        // Upload ảnh đại diện lên Cloudinary nếu có
+        // ── Thumbnail — dùng uploadToCloudinary() giống admin ─
         $thumbnailUrl = null;
         if (!empty($_FILES['thumbnail']['tmp_name'])) {
             $thumbnailUrl = $this->uploadToCloudinary($_FILES['thumbnail']);
         }
 
-        // Client đăng bài → pending (chờ admin duyệt); lưu nháp → draft
+        // ── Tags ──────────────────────────────────────────────
+        $tags = [];
+        if (!empty($_POST['tags']) && is_array($_POST['tags'])) {
+            $tags = array_unique(array_filter(array_map('trim', $_POST['tags'])));
+            $tags = array_slice($tags, 0, 10);
+        }
+
+        // ── Category — ưu tiên danh mục con ───────────────────
+        $categoryId = !empty($_POST['category_id'])
+            ? $_POST['category_id']
+            : ($_POST['parent_category'] ?? null);
+
+        // ── Ngày xuất bản ─────────────────────────────────────
+        $publishAt = null;
+        if (!empty($_POST['publish_at'])) {
+            $parsed = strtotime($_POST['publish_at']);
+            if ($parsed !== false) {
+                $publishAt = date('Y-m-d H:i:s', $parsed);
+            }
+        }
+
+        // ── Trạng thái ────────────────────────────────────────
+        // 'draft'   → lưu nháp (chưa gửi)
+        // 'pending' → gửi admin duyệt
         $status = ($action === 'publish') ? 'pending' : 'draft';
 
-        $postId = $this->postRepository->createPost([
+        // ── Lưu DB ────────────────────────────────────────────
+        $postId = $this->postRepository->clientCreatePost([
+            'user_id'       => $_SESSION['user_id'],
             'title'         => $title,
             'summary'       => $summary,
             'content'       => $content,
+            'thumbnail_URL' => $thumbnailUrl,
             'category_id'   => $categoryId,
-            'author_id'     => $userId,          // ← dùng $_SESSION['user_id']
-            'thumbnail_url' => $thumbnailUrl,
             'status'        => $status,
-            'publish_at'    => null,
-            'tags'          => [],
+            'publish_at'    => $publishAt,
         ]);
 
+        // syncTags() đã có sẵn trong repo, dùng lại luôn
+        if ($postId && !empty($tags)) {
+            $this->postRepository->syncTags($postId, $tags);
+        }
+
+        // ── Redirect ──────────────────────────────────────────
         if ($postId) {
-            echo json_encode([
-                'status'  => 'success',
-                'message' => $status === 'pending'
-                    ? 'Bài viết đã được gửi, chờ quản trị viên duyệt!'
-                    : 'Đã lưu bản nháp thành công!',
-                'post_id' => $postId,
-            ]);
+            $_SESSION['success'] = ($status === 'pending')
+                ? 'Bài viết đã được gửi duyệt thành công!'
+                : 'Bài viết đã được lưu nháp.';
+            header('Location: index.php?page=my_posts');
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'Có lỗi xảy ra khi lưu bài viết.']);
+            $_SESSION['error'] = 'Đã có lỗi xảy ra, vui lòng thử lại.';
+            header('Location: index.php?page=create_post');
         }
         exit;
     }
-    
-
-public function categoryDetail()
-{
-    $categorySlug = $_GET['slug'] ?? null;
-    $categoryName = $_GET['name'] ?? null;
-    $categoryDesc = null;
-
-    // Mô tả tĩnh theo slug (chưa có trong database)
-    $categoryDescriptions = [
-        'thoi-su'  => 'Cập nhật những diễn biến quan trọng nhất về chính trị, xã hội và an ninh quốc phòng trong và ngoài nước qua lăng kính phân tích sâu sắc.',
-        'kinh-te'  => 'Thông tin kinh tế vĩ mô, thị trường tài chính và các xu hướng phát triển kinh tế trong nước và quốc tế.',
-    ];
-
-    if ($categorySlug) {
-        $cat = $this->postRepository->getCategoryBySlug($categorySlug);
-        $categoryName = $cat['name'] ?? $categoryName;
-        $categoryDesc = $categoryDescriptions[$categorySlug] ?? null;
-    }
-
-    if ($categoryName && !$categorySlug) {
-        $cat = $this->postRepository->getCategoryByName($categoryName);
-        $categorySlug = $cat['slug'] ?? '';
-        $categoryDesc = $categoryDescriptions[$categorySlug] ?? null;
-    }
-
-    if (!$categoryName) {
-        $this->homepage();
-        return;
-    }
-
-    $posts = $this->postRepository->getPostsByParentCategoryGrouped($categoryName, 4);
-
-    require __DIR__ . '/../Views/Client/Category/Detail.php';
-}
-public function subCategoryDetail()
-{
-    $slug = $_GET['slug'] ?? null;
-
-    if (!$slug) {
-        $this->homepage();
-        return;
-    }
-
-    // =========================
-    // BÀI NỔI BẬT (NHIỀU VIEW NHẤT)
-    // =========================
-    $featuredPost = $this->postRepository
-        ->getFeaturedPostByCategory($slug);
-
-    $featuredId = $featuredPost['post_id'] ?? 0;
-
-    // =========================
-    // PHÂN TRANG
-    // =========================
-    $pageNumber = isset($_GET['p'])
-        ? (int) $_GET['p']
-        : 1;
-
-    if ($pageNumber < 1) {
-        $pageNumber = 1;
-    }
-
-    $limit = 10;
-
-    $offset = ($pageNumber - 1) * $limit;
-
-    // =========================
-    // DANH SÁCH BÀI VIẾT
-    // =========================
-    $posts = $this->postRepository
-        ->getPostsByCategorySlug(
-            $slug,
-            $featuredId,
-            $limit,
-            $offset
-        );
-
-    // =========================
-    // TỔNG SỐ BÀI
-    // =========================
-    $totalPosts = $this->postRepository
-        ->countPostsByCategorySlug($slug);
-
-    $totalPages = ceil($totalPosts / $limit);
-
-    // =========================
-    // CATEGORY NAME
-    // =========================
-    $categoryName =
-        $featuredPost['category_name']
-        ?? ($posts[0]['category_name'] ?? '');
-
-    // =========================
-    // VIEW
-    // =========================
-    require __DIR__ . '/../Views/Client/Category/Detail2.php';
-}
 }

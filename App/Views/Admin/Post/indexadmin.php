@@ -6,11 +6,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Briem+Hand:wght@400..700&family=Newsreader:opsz,wght@6..72,400;6..72,700;6..72,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/PostAdmin.css">
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
-    <link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css">
-<link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/PostAdmin.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css?v=<?= time() ?>">
     <style>
     html, body { height: 100%; overflow: hidden; }
     .admin-layout { height: 100vh; overflow: hidden; }
