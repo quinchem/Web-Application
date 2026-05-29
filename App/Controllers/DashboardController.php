@@ -37,51 +37,38 @@ class DashboardController
     {
         header('Content-Type: application/json');
 
-        $fromDate =
-        $_POST['fromDate'] ?? null;
+        $fromDate = $_POST['fromDate'] ?? null;
+        $toDate   = $_POST['toDate']   ?? null;
+        $category = $_POST['category'] ?? null;
+        $author   = $_POST['author']   ?? null;
 
-        $toDate =
-        $_POST['toDate'] ?? null;
+        // Chuyển empty string thành null
+        $fromDate = $fromDate ?: null;
+        $toDate   = $toDate   ?: null;
+        $category = $category ?: null;
+        $author   = $author   ?: null;
 
-        $category =
-        $_POST['category'] ?? null;
+        // Convert DD/MM/YYYY → YYYY-MM-DD một lần duy nhất
+        $convertDate = function($date) {
+            if (!$date) return null;
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
+                $parts = explode('/', $date);
+                return $parts[2] . '-' . $parts[1] . '-' . $parts[0];
+            }
+            return $date;
+        };
 
-        $author =
-        $_POST['author'] ?? null;
+        $fromDate = $convertDate($fromDate);
+        $toDate   = $convertDate($toDate);
 
         $data = [
-
-            'kpi' => $this->repo->getKPI(
-                $fromDate,
-                $toDate,
-                $category,
-                $author
-            ),
-
-            'chart' => $this->repo->getPostChart(
-                $fromDate,
-                $toDate,
-                $category,
-                $author
-            ),
-
-            'status' => $this->repo->getStatusChart(
-                $fromDate,
-                $toDate,
-                $category,
-                $author
-            ),
-
-            'topPosts' => $this->repo->getTopPosts(
-                $fromDate,
-                $toDate,
-                $category,
-                $author
-            )
+            'kpi'      => $this->repo->getKPI($fromDate, $toDate, $category, $author),
+            'chart'    => $this->repo->getPostChart($fromDate, $toDate, $category, $author),
+            'status'   => $this->repo->getStatusChart($fromDate, $toDate, $category, $author),
+            'topPosts' => $this->repo->getTopPosts($fromDate, $toDate, $category, $author),
         ];
 
         echo json_encode($data);
-
         exit();
     }
 }
