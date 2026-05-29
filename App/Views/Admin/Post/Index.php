@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="Public/Admin/Css/Pages/ReviewPost.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css?v=<?= time() ?>">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css">
 <link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css">
     <script src="Public/Admin/Js/Pages/ReviewPost.js?v=<?= time() ?>" defer></script>
@@ -241,27 +242,29 @@
                                             onclick="openReviewModal('<?= htmlspecialchars($post->post_id) ?>','<?= htmlspecialchars(addslashes($post->title)) ?>')">
                                             DUYỆT<br>BÀI
                                         </button>
+<?php elseif ($status === 'hidden'): ?>
+    <a href="Admin_index.php?page=unhide_post&id=<?= htmlspecialchars($post->post_id) ?>&from=admin_user_posts"
+       class="view-btn" title="Bỏ ẩn"
+       onclick="return confirm('Bạn muốn hiện lại bài viết này?')">
+        <i class="fa-regular fa-eye-slash"></i>
+    </a>
+    <button class="delete-btn" type="button"
+        onclick="confirmDeleteUserPost('<?= $post->post_id ?>')">
+        <i class="fa-regular fa-trash-can"></i>
+    </button>
 
-                                    <?php elseif ($status === 'hidden'): ?>
-                                        <a href="Admin_index.php?page=unhide_post&id=<?= htmlspecialchars($post->post_id) ?>&from=admin_user_posts"
-                                           class="view-btn" title="Bỏ ẩn"
-                                           onclick="return confirm('Bạn muốn hiện lại bài viết này?')">
-                                            <i class="fa-regular fa-eye-slash"></i>
-                                        </a>
-                                        <button class="delete-btn" type="button">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
 
-                                    <?php else: ?>
-                                        <a href="Admin_index.php?page=hide_post&id=<?= htmlspecialchars($post->post_id) ?>&from=admin_user_posts"
-                                           class="view-btn" title="Ẩn bài"
-                                           onclick="return confirm('Bạn muốn ẩn bài viết này?')">
-                                            <i class="fa-regular fa-eye"></i>
-                                        </a>
-                                        <button class="delete-btn" type="button">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
-                                    <?php endif; ?>
+<?php else: ?>
+    <a href="Admin_index.php?page=hide_post&id=<?= htmlspecialchars($post->post_id) ?>&from=admin_user_posts"
+       class="view-btn" title="Ẩn bài"
+       onclick="return confirm('Bạn muốn ẩn bài viết này?')">
+        <i class="fa-regular fa-eye"></i>
+    </a>
+    <button class="delete-btn" type="button"
+        onclick="confirmDeleteUserPost('<?= $post->post_id ?>')">
+        <i class="fa-regular fa-trash-can"></i>
+    </button>
+<?php endif; ?>
                                 </div>
                             </td>
                         </tr>
