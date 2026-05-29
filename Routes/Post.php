@@ -31,3 +31,6 @@ $router->get('create_post', [PostController::class, 'clientCreatePostPage']);
 $router->post('client_store_post', [PostController::class, 'clientStorePost']);
 $router->get('category_detail', [PostController::class, 'categoryDetail']);
 $router->get('subcategory', [PostController::class, 'subCategoryDetail']);
+$router->post('client_delete_post', [PostController::class, 'clientDeletePost']);
+
+$router->get('edit_post', [PostController::class, 'clientEditPostPage']);

@@ -1,13 +1,9 @@
-<?php
+=<?php
 /**
  * App/Views/Client/Post/Create.php
- * Trang soạn thảo bài viết — layout: sidebar profile trái + form chính phải
+ * Trang soạn thảo bài viết — layout: sidebar Client_menu trái + form chính phải
  */
 require_once __DIR__ . '/../../Partials/Client/Header.php';
-
-$defaultAvatar   = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-$usernameSession = $_SESSION['user_name'] ?? '';
-$avatar          = $_SESSION['avatar']    ?? $defaultAvatar;
 
 // Flash messages
 $successMsg = $_SESSION['success'] ?? null;
@@ -24,287 +20,335 @@ foreach (($categories ?? []) as $cat) {
         $catChildren[$cat['parent_id']][] = $cat;
     }
 }
+
+// post_id nếu đang chỉnh sửa bản nháp đã lưu
+$editingPostId = $_GET['draft_id'] ?? null;
 ?>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&family=Montserrat:ital,wght@0,400;0,500;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700;0,6..72,800;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="Public/Client/Css/clientPostCreate.css">
+<link rel="stylesheet" href="Public/Client/Css/ClientPostCreate.css?v=<?= time() ?>">
 
 <main id="page-post-create">
-    <div class="container">
-
-        <div class="create-post-wrapper">
-
-            <!-- ══════════════════════════════
-                 SIDEBAR TRÁI — PROFILE NAV
-            ══════════════════════════════ -->
-            <aside class="profile-sidebar">
-
-                <!-- Avatar + tên -->
-                <div class="sidebar-avatar-block">
-                    <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar">
-                    <div class="username"><?= htmlspecialchars($usernameSession ?: 'Tác giả') ?></div>
-                </div>
-
-                <!-- Nav links -->
-                <nav class="sidebar-nav">
-                    <a href="index.php?page=my_posts" class="active">
-                        <i class="fa-regular fa-file-lines"></i>
-                        Bài viết của tôi
-                    </a>
-                    <a href="index.php?page=profile">
-                        <i class="fa-regular fa-user"></i>
-                        Thông tin tài khoản
-                    </a>
-                    <a href="index.php?page=change_password">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        Đổi mật khẩu
-                    </a>
-                    <a href="index.php?page=saved_posts">
-                        <i class="fa-regular fa-bookmark"></i>
-                        Bài viết đã lưu
-                    </a>
-                </nav>
-
-            </aside><!-- /sidebar -->
-
+    <div class="container my-5">
+        <div class="row g-4">
 
             <!-- ══════════════════════════════
-                 NỘI DUNG CHÍNH
+                 CỘT TRÁI — SIDEBAR CHUNG
             ══════════════════════════════ -->
-            <div class="create-post-main">
+            <div class="col-md-3">
+                <?php
+                // Ghi đè active item: trang này thuộc nhóm "Bài viết của tôi"
+                $activeMenuTarget = 'my_posts';
+                include __DIR__ . '/../../Partials/Client/Client_menu.php';
+                ?>
+            </div>
 
-                <!-- Tiêu đề trang -->
-                <div class="create-post-heading">
-                    <h1>Soạn thảo bài viết</h1>
-                    <div class="subtitle">Soạn thảo nội dung bài đăng</div>
-                </div>
+            <!-- ══════════════════════════════
+                 CỘT PHẢI — NỘI DUNG CHÍNH
+            ══════════════════════════════ -->
+            <div class="col-md-9">
 
-                <!-- Flash messages -->
-                <?php if ($successMsg): ?>
-                    <div class="pc-alert pc-alert-success mt-3">
-                        <i class="fa-solid fa-circle-check"></i>
-                        <?= htmlspecialchars($successMsg) ?>
+                <div class="create-post-main">
+
+                    <!-- Tiêu đề trang -->
+                    <div class="create-post-heading">
+                        <h1>Soạn thảo bài viết</h1>
+                        <div class="subtitle">Soạn thảo nội dung bài đăng</div>
                     </div>
-                <?php endif; ?>
-                <?php if ($errorMsg): ?>
-                    <div class="pc-alert pc-alert-error mt-3">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        <?= htmlspecialchars($errorMsg) ?>
-                    </div>
-                <?php endif; ?>
 
-                <!-- Label đếm bài -->
-                <div class="post-count-label">Bài đăng nhập (1)</div>
+                    <!-- Flash messages -->
+                    <?php if ($successMsg): ?>
+                        <div class="pc-alert pc-alert-success mt-3">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <?= htmlspecialchars($successMsg) ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($errorMsg): ?>
+                        <div class="pc-alert pc-alert-error mt-3">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <?= htmlspecialchars($errorMsg) ?>
+                        </div>
+                    <?php endif; ?>
 
-                <form method="POST" action="index.php?page=client_store_post"
-                      enctype="multipart/form-data" id="pcPostForm">
+                    <!-- Label đếm / tên bài -->
+                    <div class="post-count-label" id="pcDraftLabel">Bài viết nháp</div>
 
-                    <!-- ── CARD 1: TIÊU ĐỀ + TÓM TẮT ── -->
-                    <div class="pc-card">
+                    <form method="POST"
+                          action="index.php?page=client_store_post"
+                          enctype="multipart/form-data"
+                          id="pcPostForm">
 
-                        <!-- Tiêu đề -->
-                        <input type="text"
-                               name="title"
-                               id="pcTitleInput"
-                               class="pc-title-input"
-                               placeholder="Nhập tiêu đề bài viết..."
-                               autocomplete="off"
-                               required>
+                        <!-- post_id ẩn: có giá trị khi đang cập nhật bản nháp -->
+                        <input type="hidden" name="post_id" id="pcPostId"
+                               value="<?= htmlspecialchars($editingPostId ?? '') ?>">
 
-                        <div class="pc-title-divider"></div>
+                        <!-- ── CARD 1: TIÊU ĐỀ + TÓM TẮT ── -->
+                        <div class="pc-card">
 
-                        <!-- Tóm tắt -->
-                        <div class="pc-summary-label">Tóm tắt nội dung</div>
-                        <textarea name="summary"
-                                  id="pcSummaryInput"
-                                  class="pc-summary-textarea"
-                                  placeholder="Nhập một đoạn tóm tắt ngắn để thu hút người đọc..."
-                                  rows="3"></textarea>
+                            <input type="text"
+                                   name="title"
+                                   id="pcTitleInput"
+                                   class="pc-title-input"
+                                   placeholder="Nhập tiêu đề bài viết..."
+                                   autocomplete="off"
+                                   required>
 
-                    </div><!-- /card tiêu đề -->
+                            <div class="pc-title-divider"></div>
+
+                            <div class="pc-summary-label">Tóm tắt nội dung</div>
+                            <textarea name="summary"
+                                      id="pcSummaryInput"
+                                      class="pc-summary-textarea"
+                                      placeholder="Nhập một đoạn tóm tắt ngắn để thu hút người đọc..."
+                                      rows="3"></textarea>
+
+                        </div>
 
 
-                    <!-- ── CARD 2: DANH MỤC + TAG + TRẠNG THÁI ── -->
-                    <div class="pc-card">
+                        <!-- ── CARD 2: DANH MỤC + TAG + TRẠNG THÁI ── -->
+                        <div class="pc-card">
 
-                        <!-- Danh mục cha + con (2 cột) -->
-                        <div class="pc-meta-row">
+                            <div class="pc-meta-row">
 
-                            <div class="pc-meta-group">
-                                <label for="pcParentCat">Danh mục</label>
-                                <div class="pc-select-wrap">
-                                    <select name="parent_category"
-                                            id="pcParentCat"
-                                            class="pc-select">
-                                        <option value="">Chọn danh mục</option>
-                                        <?php foreach ($catParents as $parentId => $parent): ?>
-                                            <option value="<?= htmlspecialchars($parentId) ?>">
-                                                <?= htmlspecialchars($parent['name']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                <div class="pc-meta-group">
+                                    <label for="pcParentCat">Danh mục</label>
+                                    <div class="pc-select-wrap">
+                                        <select name="parent_category"
+                                                id="pcParentCat"
+                                                class="pc-select">
+                                            <option value="">Chọn danh mục</option>
+                                            <?php foreach ($catParents as $parentId => $parent): ?>
+                                                <option value="<?= htmlspecialchars($parentId) ?>">
+                                                    <?= htmlspecialchars($parent['name']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="pc-meta-group">
-                                <label for="pcChildCat">Danh mục con</label>
-                                <div class="pc-select-wrap">
-                                    <select name="category_id"
-                                            id="pcChildCat"
-                                            class="pc-select"
-                                            disabled>
-                                        <option value="">Chọn danh mục con</option>
-                                        <?php foreach ($catParents as $parentId => $parent): ?>
-                                            <?php if (!empty($catChildren[$parentId])): ?>
-                                                <?php foreach ($catChildren[$parentId] as $child): ?>
-                                                    <option value="<?= htmlspecialchars($child['category_id']) ?>"
-                                                            data-parent="<?= htmlspecialchars($parentId) ?>"
-                                                            style="display:none;">
-                                                        <?= htmlspecialchars($child['name']) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </select>
+                                <div class="pc-meta-group">
+                                    <label for="pcChildCat">Danh mục con</label>
+                                    <div class="pc-select-wrap">
+                                        <select name="category_id"
+                                                id="pcChildCat"
+                                                class="pc-select"
+                                                disabled>
+                                            <option value="">Chọn danh mục con</option>
+                                            <?php foreach ($catParents as $parentId => $parent): ?>
+                                                <?php if (!empty($catChildren[$parentId])): ?>
+                                                    <?php foreach ($catChildren[$parentId] as $child): ?>
+                                                        <option value="<?= htmlspecialchars($child['category_id']) ?>"
+                                                                data-parent="<?= htmlspecialchars($parentId) ?>"
+                                                                style="display:none;">
+                                                            <?= htmlspecialchars($child['name']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
                                 </div>
+
                             </div>
 
-                        </div><!-- /pc-meta-row -->
-
-                        <!-- Tags -->
-                        <div class="pc-tag-row">
-                            <div class="pc-field-title">Tag bài viết</div>
-                            <div class="pc-tag-label-group">
-                                <span id="pcTagsList"></span>
-                                <input type="text"
-                                       id="pcTagInput"
-                                       class="pc-tag-input-inline"
-                                       placeholder="Nhập tag..."
-                                       style="display:none;">
+                            <!-- Tags -->
+                            <div class="pc-tag-row">
+                                <div class="pc-field-title">Tag bài viết</div>
+                                <div class="pc-tag-label-group">
+                                    <span id="pcTagsList"></span>
+                                    <input type="text"
+                                           id="pcTagInput"
+                                           class="pc-tag-input-inline"
+                                           placeholder="Nhập tag..."
+                                           style="display:none;">
+                                </div>
+                                <button type="button" id="pcAddTagBtn" class="pc-add-tag-btn">
+                                    + Thêm tag
+                                </button>
                             </div>
-                            <button type="button" id="pcAddTagBtn" class="pc-add-tag-btn">
-                                + Thêm tag
+                            <div id="pcTagsHidden"></div>
+
+                            <!-- Trạng thái -->
+                            <div class="pc-status-row">
+                                <span class="pc-field-title">Trạng thái</span>
+                                <span class="pc-status-badge" id="pcStatusBadge">Bản nháp</span>
+                            </div>
+
+                        </div>
+
+
+                        <!-- ── CARD 3: ẢNH ĐẠI DIỆN ── -->
+                        <div class="pc-card">
+                            <div class="pc-card-label">
+                                <i class="fa-regular fa-image"></i>
+                                Ảnh đại diện bài viết
+                            </div>
+
+                            <div class="pc-thumbnail-zone" id="pcThumbnailZone">
+                                <input type="file"
+                                       name="thumbnail"
+                                       id="pcThumbnailInput"
+                                       accept="image/*"
+                                       hidden>
+
+                                <div class="pc-upload-placeholder" id="pcUploadPlaceholder">
+                                    <div class="upload-icon">
+                                        <i class="fa-regular fa-file-image"></i>
+                                    </div>
+                                    <p>Tải ảnh lên hoặc kéo thả vào đây</p>
+                                    <small>Kích thước khuyến dùng 1200×630px</small>
+                                </div>
+
+                                <img id="pcThumbnailPreview" src="" alt="" style="display:none;">
+                            </div>
+
+                            <button type="button"
+                                    id="pcRemoveThumbBtn"
+                                    class="pc-remove-thumb-btn"
+                                    style="display:none;">
+                                <i class="fa-solid fa-xmark me-1"></i> Xoá ảnh
                             </button>
                         </div>
-                        <div id="pcTagsHidden"></div>
-
-                        <!-- Trạng thái -->
-                        <div class="pc-status-row">
-                            <span class="pc-field-title">Trạng thái</span>
-                            <span class="pc-status-badge" id="pcStatusBadge">Bản nháp</span>
-                        </div>
-
-                    </div><!-- /card meta -->
 
 
-                    <!-- ── CARD 3: ẢNH ĐẠI DIỆN ── -->
-                    <div class="pc-card">
-                        <div class="pc-card-label">
-                            <i class="fa-regular fa-image"></i>
-                            Ảnh đại diện bài viết
-                        </div>
+                        <!-- ── CARD 4: NỘI DUNG ── -->
+                        <div class="pc-card">
 
-                        <div class="pc-thumbnail-zone" id="pcThumbnailZone">
-                            <input type="file"
-                                   name="thumbnail"
-                                   id="pcThumbnailInput"
-                                   accept="image/*"
-                                   hidden>
-
-                            <div class="pc-upload-placeholder" id="pcUploadPlaceholder">
-                                <div class="upload-icon">
-                                    <i class="fa-regular fa-file-image"></i>
-                                </div>
-                                <p>Tải ảnh lên hoặc kéo thả vào đây</p>
-                                <small>Kích thước khuyến dùng 1200×630px</small>
+                            <div class="pc-content-toolbar">
+                                <button type="button" onclick="pcFormat('bold')"        title="In đậm"><b>B</b></button>
+                                <button type="button" onclick="pcFormat('italic')"       title="In nghiêng"><i>I</i></button>
+                                <button type="button" onclick="pcFormat('underline')"    title="Gạch chân"><u>T</u></button>
+                                <button type="button" onclick="pcFormat('formatBlock','blockquote')"
+                                        title="Trích dẫn" style="font-size:.75rem;">99</button>
+                                <div class="tb-sep"></div>
+                                <button type="button" onclick="pcFormat('insertUnorderedList')"
+                                        title="Danh sách"><i class="fa-solid fa-list-ul"></i></button>
+                                <div class="tb-sep"></div>
+                                <button type="button" onclick="pcFormat('createLink')"   title="Chèn link"><i class="fa-solid fa-link"></i></button>
+                                <button type="button" onclick="pcInsertImage()"          title="Chèn ảnh"><i class="fa-regular fa-image"></i></button>
+                                <button type="button" onclick="pcFormat('justifyFull')"  title="Căn đều"><i class="fa-solid fa-align-justify"></i></button>
                             </div>
 
-                            <img id="pcThumbnailPreview" src="" alt="" style="display:none;">
+                            <div class="pc-editor"
+                                 id="pcContentEditor"
+                                 contenteditable="true"
+                                 data-placeholder="Bắt đầu kể câu chuyện của bạn tại đây..."></div>
+
+                            <textarea name="content" id="pcContentInput" hidden></textarea>
+
+                            <div class="pc-word-count">
+                                <span id="pcWordCount">0</span> từ
+                            </div>
+
                         </div>
 
-                        <button type="button"
-                                id="pcRemoveThumbBtn"
-                                class="pc-remove-thumb-btn"
-                                onclick="pcRemoveThumbnail()">
-                            <i class="fa-solid fa-xmark me-1"></i> Xoá ảnh
-                        </button>
-                    </div><!-- /card ảnh -->
 
+                        <!-- ── ACTION BUTTONS ── -->
+                        <div class="pc-action-bar">
 
-                    <!-- ── CARD 4: NỘI DUNG ── -->
-                    <div class="pc-card">
+                            <!-- Huỷ: sẽ được JS xử lý (xác nhận xoá nháp nếu đã lưu) -->
+                            <button type="button"
+                                    id="pcCancelBtn"
+                                    class="pc-btn-cancel">
+                                Huỷ bản nháp
+                            </button>
 
-                        <!-- Toolbar -->
-                        <div class="pc-content-toolbar">
-                            <button type="button" onclick="pcFormat('bold')"
-                                    title="In đậm"><b>B</b></button>
-                            <button type="button" onclick="pcFormat('italic')"
-                                    title="In nghiêng"><i>I</i></button>
-                            <button type="button" onclick="pcFormat('underline')"
-                                    title="Gạch chân"><u>T</u></button>
-                            <button type="button" onclick="pcFormat('formatBlock','blockquote')"
-                                    title="Trích dẫn" style="font-size:.75rem;">99</button>
-                            <div class="tb-sep"></div>
-                            <button type="button" onclick="pcFormat('insertUnorderedList')"
-                                    title="Danh sách"><i class="fa-solid fa-list-ul"></i></button>
-                            <div class="tb-sep"></div>
-                            <button type="button" onclick="pcFormat('createLink')"
-                                    title="Chèn link"><i class="fa-solid fa-link"></i></button>
-                            <button type="button" onclick="pcInsertImage()"
-                                    title="Chèn ảnh"><i class="fa-regular fa-image"></i></button>
-                            <button type="button" onclick="pcFormat('justifyFull')"
-                                    title="Căn đều"><i class="fa-solid fa-align-justify"></i></button>
+                            <button type="submit"
+                                    name="action"
+                                    value="draft"
+                                    class="pc-btn-draft"
+                                    id="pcSaveDraftBtn">
+                                Lưu bản nháp
+                            </button>
+
+                            <button type="submit"
+                                    name="action"
+                                    value="publish"
+                                    class="pc-btn-publish"
+                                    id="pcPublishBtn">
+                                Đăng bài
+                            </button>
+
                         </div>
 
-                        <!-- Vùng soạn thảo -->
-                        <div class="pc-editor"
-                             id="pcContentEditor"
-                             contenteditable="true"
-                             data-placeholder="Bắt đầu kể câu chuyện của bạn tại đây..."></div>
+                    </form>
 
-                        <textarea name="content" id="pcContentInput" hidden></textarea>
+                </div><!-- /create-post-main -->
 
-                        <div class="pc-word-count">
-                            <span id="pcWordCount">0</span> từ
-                        </div>
+            </div><!-- /col-md-9 -->
 
-                    </div><!-- /card nội dung -->
-
-
-                    <!-- ── ACTION BUTTONS ── -->
-                    <div class="pc-action-bar">
-                        <a href="index.php?page=my_posts"
-                           class="pc-btn-cancel">Huỷ bản nháp</a>
-
-                        <button type="submit"
-                                name="action"
-                                value="draft"
-                                class="pc-btn-draft"
-                                onclick="document.getElementById('pcStatusBadge').textContent='Bản nháp'">
-                            Lưu bản nháp
-                        </button>
-
-                        <button type="submit"
-                                name="action"
-                                value="publish"
-                                class="pc-btn-publish"
-                                onclick="document.getElementById('pcStatusBadge').textContent='Chờ duyệt'">
-                            Đăng bài
-                        </button>
-                    </div>
-
-                </form><!-- /pcPostForm -->
-
-            </div><!-- /create-post-main -->
-
-        </div><!-- /create-post-wrapper -->
-
+        </div><!-- /row -->
     </div><!-- /container -->
 </main>
 
+
+<!-- ══ TOAST THÔNG BÁO ══ -->
+<div id="pcToast" class="pc-toast" style="display:none;">
+    <i class="fa-solid fa-circle-check me-2"></i>
+    <span id="pcToastMsg"></span>
+</div>
+
+<!-- ══ MODAL XÁC NHẬN ĐĂNG BÀI ══ -->
+<div id="pcPublishModal" class="pc-modal-overlay" style="display:none;">
+    <div class="pc-modal-box">
+        <div class="pc-modal-icon"><i class="fa-solid fa-paper-plane"></i></div>
+        <h3>Gửi bài duyệt?</h3>
+        <p>Bài viết sẽ được gửi đến admin để xét duyệt. Bạn không thể chỉnh sửa sau khi gửi.</p>
+        <div class="pc-modal-actions">
+            <button type="button" id="pcModalCancel" class="pc-btn-cancel">Huỷ</button>
+            <button type="button" id="pcModalConfirm" class="pc-btn-publish">Xác nhận gửi</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL XÁC NHẬN HUỶ BẢN NHÁP ══ -->
+<div id="pcCancelModal" class="pc-modal-overlay" style="display:none;">
+    <div class="pc-modal-box">
+        <div class="pc-modal-icon pc-modal-icon--warn"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3>Huỷ bản nháp?</h3>
+        <p>Bản nháp này sẽ bị <strong>xoá vĩnh viễn</strong>. Hành động không thể hoàn tác.</p>
+        <div class="pc-modal-actions">
+            <button type="button" id="pcCancelModalNo"  class="pc-btn-cancel">Không, giữ lại</button>
+            <button type="button" id="pcCancelModalYes" class="pc-btn-publish" style="background:var(--red);">Xoá & thoát</button>
+        </div>
+    </div>
+</div>
+<!-- TOAST -->
+<div id="pcToast" class="pc-toast" style="display:none;">
+    <i class="fa-solid fa-circle-check me-2"></i>
+    <span id="pcToastMsg"></span>
+</div>
+
+<!-- MODAL ĐĂNG BÀI -->
+<div id="pcPublishModal" class="pc-modal-overlay" style="display:none;">
+    <div class="pc-modal-box">
+        <div class="pc-modal-icon"><i class="fa-solid fa-paper-plane"></i></div>
+        <h3>Gửi bài duyệt?</h3>
+        <p>Bài viết sẽ được gửi đến admin để xét duyệt.</p>
+        <div class="pc-modal-actions">
+            <button type="button" id="pcModalCancel" class="pc-btn-cancel">Huỷ</button>
+            <button type="button" id="pcModalConfirm" class="pc-btn-publish">Xác nhận gửi</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL HUỶ NHÁP -->
+<div id="pcCancelModal" class="pc-modal-overlay" style="display:none;">
+    <div class="pc-modal-box">
+        <div class="pc-modal-icon pc-modal-icon--warn"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3>Huỷ bản nháp?</h3>
+        <p>Bản nháp này sẽ bị <strong>xoá vĩnh viễn</strong>.</p>
+        <div class="pc-modal-actions">
+            <button type="button" id="pcCancelModalNo"  class="pc-btn-cancel">Không, giữ lại</button>
+            <button type="button" id="pcCancelModalYes" class="pc-btn-publish" style="background:var(--red);">Xoá & thoát</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="Public/Client/Js/clientPostCreate.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="Public/Client/Js/ClientPostCreate.js?v=<?= time() ?>"></script>
 
 <?php include __DIR__ . '/../../Partials/Client/Footer.php'; ?>

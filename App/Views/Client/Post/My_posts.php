@@ -219,7 +219,7 @@ function myPostStatusClass($status)
                             </td>
 
                             <td class="my-post-date">
-                                <?= !empty($createdAt) ? date('d/m/Y', strtotime($createdAt)) : '' ?>
+                               <?= !empty($createdAt) ? date('d/m/Y', strtotime($createdAt) + 0) : '' ?>
                             </td>
 
                             <td>
