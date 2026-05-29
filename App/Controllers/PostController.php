@@ -39,7 +39,7 @@ class PostController
         // Lấy bài viết bao gồm cả các danh mục con
         $thoiSu = $this->postRepository->getPostsByParentCategory('Thời sự', 4);
         $kinhTe = $this->postRepository->getPostsByParentCategory('Kinh tế', 4);
-        $heroPost = $this->postRepository->getHeroPost();
+        $bannerPosts = $this->postRepository->getTrendingGlobal(5);
 
         require __DIR__ . '/../Views/Client/Home.php';
     }

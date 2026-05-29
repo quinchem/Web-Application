@@ -400,7 +400,7 @@ private function buildSearchCondition($filters, &$params)
     {
         // Công thức: (View * 1) + (Like * 3) + (Save * 5) 
         // Chia cho (Số ngày đăng + 2)^1.5 để ưu tiên bài mới
-        $sql = "SELECT p.*, c.name as category_name, u.full_name as author_name,
+        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url,c.name as category_name, u.full_name as author_name,
             p.view_count as display_views, 
             ((p.view_count * 1) + 
               ((SELECT COUNT(*) FROM `Like` WHERE post_id = p.post_id) * 3) + 

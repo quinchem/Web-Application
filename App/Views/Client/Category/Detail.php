@@ -80,11 +80,10 @@
                     <h2 class="section-title">
                         <?= htmlspecialchars($subName) ?>
                     </h2>
-
-                    <a href="index.php?page=subcategory&slug=<?= urlencode($first['category_slug']) ?>"
-                       class="view-more">
-                        XEM THÊM
-                    </a>
+<a href="index.php?page=subcategory&parent=<?= urlencode($categorySlug ?? '') ?>&slug=<?= urlencode($first['category_slug'] ?? '') ?>"
+   class="view-more">
+    XEM THÊM
+</a>
 
                 </div>
 
