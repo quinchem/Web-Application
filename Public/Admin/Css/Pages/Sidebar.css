@@ -71,7 +71,7 @@ body {
 }
 
 .sub-item {
-    font-size: 12px;
+    font-size: 14px !important;
     padding-left: 45px;
 }
 

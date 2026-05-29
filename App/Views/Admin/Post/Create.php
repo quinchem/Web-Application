@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="Public/Admin/Css/Pages/PostCreate.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Profile.css">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css">
+<link rel="stylesheet" href="Public/Admin/Css/Pages/Sidebar.css?v=<?= time() ?>">
     <link rel="stylesheet" href="Public/Admin/Css/Pages/Header.css">
 <link rel="stylesheet" href="Public/Admin/Css/Pages/Footer.css">
     <style>

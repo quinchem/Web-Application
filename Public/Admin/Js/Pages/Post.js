@@ -1,3 +1,4 @@
+// 1. Hàm phân trang toàn cục (Đã đúng)
 function goToPage(page) {
     const url = new URL(window.location.href);
     url.searchParams.set('page', 'admin_user_posts');
@@ -5,6 +6,37 @@ function goToPage(page) {
     window.location.href = url.toString();
 }
 
+// 2. ĐƯA HÀM XÓA RA ĐÂY để sửa lỗi "is not defined" và tránh bị lệnh return chặn đứng
+function confirmDeleteUserPost(postId) {
+    if (!confirm('Bạn có chắc muốn xóa bài viết này không?')) return;
+
+    fetch('Admin_index.php?page=delete_post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'post_id=' + encodeURIComponent(postId)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Tìm tất cả các nút xóa có chứa postId này và xóa dòng <tr> tương ứng đi
+            const buttons = document.querySelectorAll('.delete-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(postId)) {
+                    btn.closest('tr').remove();
+                }
+            });
+            alert('Xóa bài viết thành công!');
+        } else {
+            alert('Xóa thất bại: ' + (data.message || 'Lỗi không xác định'));
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Lỗi kết nối hoặc phản hồi từ Server không phải JSON hợp lệ!');
+    });
+}
+
+// 3. Các logic xử lý giao diện dropdown và active phân trang khi DOM load xong
 document.addEventListener('DOMContentLoaded', function () {
 
     // Highlight đúng trang theo URL param 'p'
@@ -28,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const hiddenInput = document.getElementById('categoryValue');
     const catReset    = document.getElementById('catReset');
 
-    if (!dropdown || !menu || !trigger) return;
+    if (!dropdown || !menu || !trigger) return; // Nếu thiếu element, script dừng tại đây một cách an toàn
 
     // Restore label nếu đang có filter
     const preVal = hiddenInput.value;
@@ -41,25 +73,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Toggle mở/đóng menu chính
-   trigger.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-    const isOpen = menu.style.display === 'block';
-    
-    // Đóng tất cả children trước khi mở lại
-    if (!isOpen) {
-        dropdown.querySelectorAll('.cat-children').forEach(c => {
-            c.style.display = 'none';
-        });
-        dropdown.querySelectorAll('.cat-parent-label i').forEach(i => {
-            i.style.transform = '';
-        });
-    }
-    
-    menu.style.display = isOpen ? 'none' : 'block';
-    trigger.querySelector('i').style.transform = isOpen ? '' : 'rotate(180deg)';
-});
+    trigger.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        const isOpen = menu.style.display === 'block';
+        
+        // Đóng tất cả children trước khi mở lại
+        if (!isOpen) {
+            dropdown.querySelectorAll('.cat-children').forEach(c => {
+                c.style.display = 'none';
+            });
+            dropdown.querySelectorAll('.cat-parent-label i').forEach(i => {
+                i.style.transform = '';
+            });
+        }
+        
+        menu.style.display = isOpen ? 'none' : 'block';
+        trigger.querySelector('i').style.transform = isOpen ? '' : 'rotate(180deg)';
+    });
 
     // Click danh mục cha → expand/collapse con
     dropdown.querySelectorAll('.cat-parent-label').forEach(parentLabel => {
@@ -120,5 +152,4 @@ document.addEventListener('DOMContentLoaded', function () {
             trigger.querySelector('i').style.transform = '';
         }
     });
-
 });
