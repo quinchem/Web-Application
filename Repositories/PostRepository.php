@@ -417,11 +417,6 @@ private function buildSearchCondition($filters, &$params)
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function getAllCategories()
-    {
-        $sql = "SELECT * FROM Category WHERE parent_id IS NULL ORDER BY name";
-        return $this->conn->query($sql)->fetchAll();
-    }
 
     public function getPostById($postId)
     {

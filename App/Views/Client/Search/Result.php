@@ -180,7 +180,7 @@ function resultTimeAgo($datetime)
                                     type="radio" 
                                     name="time" 
                                     value="24h" 
-                                    <?php if ($selectedTime === '24h') echo 'checked'; ?>
+                                    <?= ($selectedTime == '24h') ? 'checked' : '' ?>
                                 >
                                 <span></span>
                                 Trong 24h qua
