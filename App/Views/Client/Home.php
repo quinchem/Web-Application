@@ -9,6 +9,45 @@
 
 <?php
 include __DIR__ . '/../Partials/Client/Header.php';
+function resultTimeAgo($datetime)
+{
+    if (empty($datetime)) {
+        return '';
+    }
+
+    $timestamp = strtotime($datetime);
+    $diff = time() - $timestamp;
+
+    if ($diff < 60) {
+        return 'Vừa xong';
+    }
+
+    if ($diff < 3600) {
+        return floor($diff / 60) . ' phút trước';
+    }
+
+    if ($diff < 86400) {
+        return floor($diff / 3600) . ' giờ trước';
+    }
+
+    if ($diff < 604800) {
+        $days = floor($diff / 86400);
+        return $days === 1 ? 'Hôm qua' : $days . ' ngày trước';
+    }
+
+    return date('d/m/Y', $timestamp);
+}
+
+function displayAuthor($post)
+{
+    $name = htmlspecialchars($post['author_name'] ?? '');
+
+    if (($post['role_id'] ?? '') === 'RL0001') {
+        return 'BTV Trạm Tin Việt: ' . $name;
+    }
+
+    return $name;
+}
 ?>
 
 <main class="container my-5 home-main" style="width: 1140px; max-width: 1140px; min-height: 100vh;">
@@ -93,7 +132,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
     <section class="mb-5 pb-4">
         <div class="d-flex justify-content-between align-items-end section-title-border mb-4 pb-2">
             <h2 class="section-heading h3 fw-bold m-0">Thời sự</h2>
-            <a href="index.php?page=category_detail&slug=<?= urlencode($thoiSuSlug ?? 'thoi-su') ?>" class="section-more text-uppercase fw-bold text-decoration-none tracking-widest text-danger small">
+            <a href="index.php?page=category_detail&slug=<?= urlencode($thoiSuSlug ?? 'thoi-su') ?>" class="section-more text-uppercase fw-bold text-decoration-none tracking-widest small" style="color: #b90c17;">
                 Xem thêm
             </a>
         </div>
@@ -115,9 +154,9 @@ include __DIR__ . '/../Partials/Client/Header.php';
                         <p class="post-summary"><?= htmlspecialchars($first['summary'] ?? '') ?></p>
                     </a>
                     <div class="post-meta d-flex align-items-center gap-2 mt-2 text-uppercase text-muted fw-bold">
-                        <span><?= isset($first['published_at']) ? date('d/m/Y', strtotime($first['published_at'])) : '' ?></span>
-                        <span class="fs-4 lh-1 user-select-none">·</span>
-                        <span><?= htmlspecialchars($first['author_name'] ?? '') ?></span>
+<span><?= resultTimeAgo($first['published_at'] ?? '') ?></span>
+<span class="fs-4 lh-1 user-select-none">·</span>
+<span><?= displayAuthor($first) ?></span>
                     </div>
                 </div>
 
@@ -135,9 +174,9 @@ include __DIR__ . '/../Partials/Client/Header.php';
                                     <p class="post-summary"><?= htmlspecialchars($p['summary'] ?? '') ?></p>
                                 </a>
                                 <div class="side-meta d-flex align-items-center gap-2 mt-3 text-uppercase text-muted fw-bold">
-                                    <span><?= isset($p['published_at']) ? date('d/m/Y', strtotime($p['published_at'])) : '' ?></span>
+                                    <span><?= resultTimeAgo($p['published_at'] ?? '') ?></span>
                                     <span class="fs-4 lh-1 user-select-none">·</span>
-                                    <span><?= htmlspecialchars($p['author_name'] ?? '') ?></span>
+                                    <span><?= displayAuthor($p) ?></span>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -150,7 +189,7 @@ include __DIR__ . '/../Partials/Client/Header.php';
     <section class="mb-5 pb-4">
         <div class="d-flex justify-content-between align-items-end section-title-border mb-4 pb-2">
             <h2 class="section-heading h3 fw-bold m-0">Kinh tế</h2>
-            <a href="index.php?page=category_detail&slug=kinh-te" class="section-more text-uppercase fw-bold text-decoration-none tracking-widest text-danger small">
+            <a href="index.php?page=category_detail&slug=kinh-te" class="section-more text-uppercase fw-bold text-decoration-none tracking-widest small" style="color: #b90c17;">
                 Xem thêm
             </a>
         </div>
@@ -172,9 +211,9 @@ include __DIR__ . '/../Partials/Client/Header.php';
                         <p class="post-summary"><?= htmlspecialchars($first['summary'] ?? '') ?></p>
                     </a>
                     <div class="post-meta d-flex align-items-center gap-2 mt-2 text-uppercase text-muted fw-bold">
-                        <span><?= isset($first['published_at']) ? date('d/m/Y', strtotime($first['published_at'])) : '' ?></span>
+                        <span><?= resultTimeAgo($first['published_at'] ?? '') ?></span>
                         <span class="fs-4 lh-1 user-select-none">·</span>
-                        <span><?= htmlspecialchars($first['author_name'] ?? '') ?></span>
+                        <span><?= displayAuthor($first) ?></span>
                     </div>
                 </div>
 
@@ -192,9 +231,9 @@ include __DIR__ . '/../Partials/Client/Header.php';
                                     <p class="post-summary"><?= htmlspecialchars($p['summary'] ?? '') ?></p>
                                 </a>
                                 <div class="side-meta d-flex align-items-center gap-2 mt-3 text-uppercase text-muted fw-bold">
-                                    <span><?= isset($p['published_at']) ? date('d/m/Y', strtotime($p['published_at'])) : '' ?></span>
+                                    <span><?= resultTimeAgo($p['published_at'] ?? '') ?></span>
                                     <span class="fs-4 lh-1 user-select-none">·</span>
-                                    <span><?= htmlspecialchars($p['author_name'] ?? '') ?></span>
+                                    <span><?= displayAuthor($p) ?></span>
                                 </div>
                             </div>
                         <?php endforeach; ?>

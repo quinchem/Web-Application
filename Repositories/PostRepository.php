@@ -26,7 +26,7 @@ public function searchPosts($filters)
             p.created_at,
 
             u.full_name AS author_name,
-
+            u.role_id,
             parent.name AS parent_category_name,
             child.name AS child_category_name
 
@@ -382,7 +382,7 @@ private function buildSearchCondition($filters, &$params)
 
     public function getPostsByParentCategory($parentCategoryName, $limit = 10)
     {
-        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, p.summary, c.name as category_name, u.full_name as author_name
+        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, p.summary, c.name as category_name, u.role_id, u.full_name as author_name
                 FROM Post p 
                 JOIN Category c ON p.category_id = c.category_id 
                 JOIN User u ON p.user_id = u.user_id

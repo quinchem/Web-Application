@@ -93,6 +93,7 @@ function resultTimeAgo($datetime)
 
     return date('d/m/Y', $timestamp);
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -165,11 +166,11 @@ function resultTimeAgo($datetime)
                             <h3>Thời gian</h3>
 
                             <label class="result-radio">
-                                <input 
-                                    type="radio" 
-                                    name="time" 
-                                    value="newest" 
-                                    <?php if ($selectedTime === 'newest') echo 'checked'; ?>
+                                <input
+                                    type="radio"
+                                    name="time"
+                                     value="newest"
+                                     <?= ($selectedTime == 'newest') ? 'checked' : '' ?>
                                 >
                                 <span></span>
                                 Mới nhất
@@ -191,7 +192,7 @@ function resultTimeAgo($datetime)
                                     type="radio" 
                                     name="time" 
                                     value="week" 
-                                    <?php if ($selectedTime === 'week') echo 'checked'; ?>
+                                    <?= ($selectedTime == 'week') ? 'checked' : '' ?>
                                 >
                                 <span></span>
                                 Trong tuần qua
@@ -202,7 +203,7 @@ function resultTimeAgo($datetime)
                                     type="radio" 
                                     name="time" 
                                     value="oldest" 
-                                    <?php if ($selectedTime === 'oldest') echo 'checked'; ?>
+                                    <?= ($selectedTime == 'oldest') ? 'checked' : '' ?>
                                 >
                                 <span></span>
                                 Cũ nhất
@@ -213,7 +214,7 @@ function resultTimeAgo($datetime)
                                     type="radio" 
                                     name="time" 
                                     value="custom" 
-                                    <?php if ($selectedTime === 'custom') echo 'checked'; ?>
+                                    <?= ($selectedTime == 'custom') ? 'checked' : '' ?>
                                 >
                                 <span></span>
                                 Tùy chọn
@@ -321,7 +322,11 @@ function resultTimeAgo($datetime)
                                     ? htmlspecialchars($post['thumbnail_url'], ENT_QUOTES, 'UTF-8')
                                     : 'Public/Client/Images/default-news.jpg';
 
-                                $authorName = htmlspecialchars($post['author_name'] ?? 'Tòa soạn', ENT_QUOTES, 'UTF-8');
+                                $authorName = htmlspecialchars($post['author_name'], ENT_QUOTES, 'UTF-8');
+
+if (($post['role_id'] ?? '') === 'RL0001') {
+    $authorName = 'BTV Trạm Tin Việt: ' . $authorName;
+}
                                 ?>
 
                                 <article class="result-post-item">
