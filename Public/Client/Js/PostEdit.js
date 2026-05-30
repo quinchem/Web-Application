@@ -15,16 +15,11 @@ $(function () {
             const words = editor.innerText.trim().split(/\s+/).filter(Boolean).length;
             $('#pcWordCount').text(words);
         }
-        // Sync hidden textarea
         $('#pcContentInput').val(EDIT.content);
     }
 
-    // Fill tags ban đầu từ server
     let tags = Array.isArray(EDIT.tags) ? EDIT.tags.filter(Boolean) : [];
     _renderTags();
-    // Không cần _syncTags() vì PHP đã render hidden inputs,
-    // chỉ cần sync lại khi user thay đổi
-
 
     /* ════════════════════════════════
        0. HELPERS: TOAST & MODAL
@@ -120,8 +115,6 @@ $(function () {
             $placeholder.hide();
             $preview.attr('src', url).show();
             $removeBtn.show();
-
-            // Xoá existing_thumbnail vì user đã upload ảnh mới
             $('#pcExistingThumbnail').val('');
 
             $('#pcCropModal').hide();
@@ -142,11 +135,9 @@ $(function () {
         $placeholder.show();
         $removeBtn.hide();
         $input.val('');
-        // Đánh dấu đã xoá thumbnail cũ
         $('#pcExistingThumbnail').val('');
     });
 
-    // Click ảnh preview → mở lại cropper
     $preview.on('click', function (e) {
         e.stopPropagation();
         const src = $preview.attr('src');
@@ -224,7 +215,6 @@ $(function () {
             );
         });
 
-        // Hiện nút "Thêm tag" nếu không có tag nào và input đang ẩn
         if (tags.length === 0 && !$('#pcTagInput').is(':visible')) {
             $('#pcAddTagBtn').show();
         }
@@ -248,7 +238,6 @@ $(function () {
         }
     }
 
-    // Sync tags hidden inputs ngay từ đầu để đồng bộ với mảng tags JS
     _syncTags();
 
     $('#pcAddTagBtn').on('click', function (e) {

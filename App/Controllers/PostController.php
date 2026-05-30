@@ -240,8 +240,6 @@ class PostController
         }
     }
 
-
-
     public function apiAddComment()
     {
         $userId = $this->getCurrentUserId();

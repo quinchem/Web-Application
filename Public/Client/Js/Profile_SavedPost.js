@@ -79,25 +79,31 @@ function removeSavedPost(postId, button) {
                 return;
             }
 
-            if (
-                data.status === 'removed' ||
-                data.status === 'unsaved' ||
-                data.status === 'success'
-            ) {
+            if (data.action === 'unsaved') {
                 const item = button.closest('.saved-post-item');
-
                 if (item) {
-                    item.remove();
+                    item.style.transition = 'opacity 0.3s';
+                    item.style.opacity = '0';
+                    setTimeout(() => item.remove(), 300);
                 }
 
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Đã bỏ lưu bài viết.',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
-                        timer: 1200
+                        timer: 1200,
+                        timerProgressBar: true,
+                        html: `
+                            <div style="display:flex;align-items:center;gap:12px;">
+                                <i class="fa-regular fa-bookmark" style="color:#003049;font-size:18px;flex-shrink:0;"></i>
+                                <div>
+                                    <div style="font-weight:700;font-size:14px;color:#003049;">Đã bỏ lưu bài viết</div>
+                                    <div style="font-size:12px;color:#5a7d9a;margin-top:2px;">Bài viết đã được xoá khỏi danh sách</div>
+                                </div>
+                            </div>`,
+                        background: '#fff',
+                        padding: '12px 16px'
                     });
                 }
             }
