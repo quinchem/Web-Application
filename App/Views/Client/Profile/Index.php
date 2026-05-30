@@ -33,10 +33,10 @@
     <?php include __DIR__ . '/../../Partials/Client/Footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="Public/Client/Js/ClientProfileTab.js"></script>
-    <script src="Public/Client/Js/ClientProfile_Edit.js"></script>
-    <script src="Public/Client/Js/ClientProfile_SavedPost.js"></script>
-    <script src="Public/Client/Js/ClientProfile_MyPost.js"></script>
+    <script src="Public/Client/Js/ProfileTab.js"></script>
+    <script src="Public/Client/Js/Profile_Edit.js"></script>
+    <script src="Public/Client/Js/Profile_SavedPost.js"></script>
+    <script src="Public/Client/Js/Profile_MyPost.js"></script>
     
 </body>
 </html>

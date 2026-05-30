@@ -5,7 +5,7 @@ $savedTotalPages = $savedTotalPages ?? 0;
 ?>
 <!-- savedCurrentPage = <?= $savedCurrentPage ?> | offset = <?= $savedOffset ?> -->
 
-<link rel="stylesheet" href="/../Web-Application/Public/Client/Css/ClientProfile_SavedPost.css">
+<link rel="stylesheet" href="/../Web-Application/Public/Client/Css/Profile_SavedPost.css">
 
 <div class="card shadow-sm border-0 p-4 profile-saved-card">
     <div class="saved-posts-container">
