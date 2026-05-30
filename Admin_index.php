@@ -127,12 +127,12 @@ if (
         $_COOKIE['remember_token']
     );
 
-    if ($user) {
+    if ($user && $user->role_id === 'RL0001') {
 
         $_SESSION['user'] = $user;
 
         header(
-        "Location: http://localhost/Web-Application/Admin_index.php?page=doashboard"
+        "Location: http://localhost/Web-Application/Admin_index.php?page=dashboard"
         );
 
         exit();

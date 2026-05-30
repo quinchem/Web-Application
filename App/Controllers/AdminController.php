@@ -369,7 +369,7 @@ public function handleForgotPassword()
             $_COOKIE['remember_token']
         );
 
-        if ($user) {
+        if ($user && $user->role_id === 'RL0001') {
 
             $_SESSION['user'] = $user;
         }

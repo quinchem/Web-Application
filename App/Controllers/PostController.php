@@ -99,9 +99,10 @@ class PostController
         require __DIR__ . '/../Views/Client/Search/Result.php';
     }
 
-    // =========================
-    // ARTICLE DETAIL
-    // =========================
+    /**
+     * Hiển thị danh sách bài viết của một danh mục cụ thể
+     * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
+     */
     public function category()
     {
         $categoryId = $_GET['id'] ?? null;
@@ -114,6 +115,12 @@ class PostController
         $posts = $this->postRepository->getPostsByParentCategory($categoryId);
         require __DIR__ . '/../Views/Client/Category/Detail.php';
     }
+
+    /**
+     * Hiển thị chi tiết một bài viết cụ thể
+     * (ĐÃ CẬP NHẬT: Tự động lấy id từ URL)
+     */
+
 
     public function hidePost()
     {
@@ -212,6 +219,8 @@ class PostController
             echo json_encode($this->postRepository->toggleBookmark($postId, $userId));
         }
     }
+
+
 
     public function apiAddComment()
     {
@@ -340,6 +349,7 @@ class PostController
         include __DIR__ . '/../Views/Client/Post/saved.php';
         exit;
     }
+
     public function myPostsPage()
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -913,7 +923,7 @@ class PostController
         }
 
         // =========================
-        // BÀI NỔI BẬT 
+        // BÀI NỔI BẬT (NHIỀU VIEW NHẤT)
         // =========================
         $featuredPost = $this->postRepository
             ->getFeaturedPostByCategory($slug);
@@ -965,5 +975,102 @@ class PostController
         // VIEW
         // =========================
         require __DIR__ . '/../Views/Client/Category/Detail2.php';
+    }
+    public function clientCreatePostPage(): void
+    {
+        if (empty($_SESSION['user_id'])) {
+            header('Location: index.php?page=login');
+            exit;
+        }
+
+        $categories = $this->postRepository->getCategoriesForFilter();
+
+        require_once __DIR__ . '/../Views/Client/Post/Create.php';
+    }
+
+
+    /**
+     * POST  index.php?page=client_store_post
+     * Xử lý lưu bài viết từ phía client (nháp hoặc gửi duyệt).
+     */
+    public function clientStorePost(): void
+    {
+        if (empty($_SESSION['user_id'])) {
+            header('Location: index.php?page=login');
+            exit;
+        }
+
+        // ── Validate ──────────────────────────────────────────
+        $title   = trim($_POST['title']   ?? '');
+        $summary = trim($_POST['summary'] ?? '');
+        $content = $_POST['content']      ?? '';
+        $action  = $_POST['action']       ?? 'draft';
+
+        if ($title === '' || $content === '') {
+            $_SESSION['error'] = 'Tiêu đề và nội dung không được để trống.';
+            header('Location: index.php?page=create_post');
+            exit;
+        }
+
+        // ── Thumbnail — dùng uploadToCloudinary() giống admin ─
+        $thumbnailUrl = null;
+        if (!empty($_FILES['thumbnail']['tmp_name'])) {
+            $thumbnailUrl = $this->uploadToCloudinary($_FILES['thumbnail']);
+        }
+
+        // ── Tags ──────────────────────────────────────────────
+        $tags = [];
+        if (!empty($_POST['tags']) && is_array($_POST['tags'])) {
+            $tags = array_unique(array_filter(array_map('trim', $_POST['tags'])));
+            $tags = array_slice($tags, 0, 10);
+        }
+
+        // ── Category — ưu tiên danh mục con ───────────────────
+        $categoryId = !empty($_POST['category_id'])
+            ? $_POST['category_id']
+            : ($_POST['parent_category'] ?? null);
+
+        // ── Ngày xuất bản ─────────────────────────────────────
+        $publishAt = null;
+        if (!empty($_POST['publish_at'])) {
+            $parsed = strtotime($_POST['publish_at']);
+            if ($parsed !== false) {
+                $publishAt = date('Y-m-d H:i:s', $parsed);
+            }
+        }
+
+        // ── Trạng thái ────────────────────────────────────────
+        // 'draft'   → lưu nháp (chưa gửi)
+        // 'pending' → gửi admin duyệt
+        $status = ($action === 'publish') ? 'pending' : 'draft';
+
+        // ── Lưu DB ────────────────────────────────────────────
+        $postId = $this->postRepository->clientCreatePost([
+            'user_id'       => $_SESSION['user_id'],
+            'title'         => $title,
+            'summary'       => $summary,
+            'content'       => $content,
+            'thumbnail_URL' => $thumbnailUrl,
+            'category_id'   => $categoryId,
+            'status'        => $status,
+            'publish_at'    => $publishAt,
+        ]);
+
+        // syncTags() đã có sẵn trong repo, dùng lại luôn
+        if ($postId && !empty($tags)) {
+            $this->postRepository->syncTags($postId, $tags);
+        }
+
+        // ── Redirect ──────────────────────────────────────────
+        if ($postId) {
+            $_SESSION['success'] = ($status === 'pending')
+                ? 'Bài viết đã được gửi duyệt thành công!'
+                : 'Bài viết đã được lưu nháp.';
+            header('Location: index.php?page=my_posts');
+        } else {
+            $_SESSION['error'] = 'Đã có lỗi xảy ra, vui lòng thử lại.';
+            header('Location: index.php?page=create_post');
+        }
+        exit;
     }
 }

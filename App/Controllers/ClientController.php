@@ -84,6 +84,7 @@ class ClientController
     // 1. Hàm hiển thị giao diện tổng lần đầu cho Client
     public function index()
     {
+        // Gọi chính xác file layout tổng nằm trong thư mục Client/Profile
         include __DIR__ . '/../Views/Client/Profile/Index.php';
     }
 
@@ -206,7 +207,11 @@ class ClientController
                     header('Location: index.php?page=client_profile&tab=edit');
                     exit();
                 }
+
+                // Lấy URL an toàn (https) do Cloudinary trả về
                 $newAvatarUrl = $result['secure_url'];
+                
+                // Thực hiện gọi hàm lưu đường dẫn mới vào cột thumbnail_url trong CSDL
                 $this->clientRepository->updateAvatarUrl($userId, $newAvatarUrl);
                 $_SESSION['avatar'] = $newAvatarUrl; 
             }

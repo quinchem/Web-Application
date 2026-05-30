@@ -83,8 +83,25 @@ $breadcrumbs = [
         defer>
     </script>
 
+    <!-- PROFILE JS -->
+    <script src="Public/Admin/Js/Pages/Profile.js?v=<?= time() ?>" defer></script>
 
+    <style>
+        .custom-modal-backdrop,
+        #changePasswordModal,
+        #editProfileModal {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 999999 !important;
+        }
+    </style>
 </head>
+
+</div> 
+
+<!-- Modal profile render ngoài admin-layout -->
+<?php require_once __DIR__ . '/../Profile/edit.php'; ?>
+<?php require_once __DIR__ . '/../Profile/change_password.php'; ?>
 
 <body>
 
