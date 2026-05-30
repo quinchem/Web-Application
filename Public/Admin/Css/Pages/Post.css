@@ -344,21 +344,21 @@ td small {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;                
     min-width: 112px;
     height: 36px;
-    padding: 0 16px;
+    padding: 0 14px;
     border-radius: 999px;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.2px;
 }
 
-.status.approved,
+.status.approved { background: #fff3d6; color: #e07b00; }
 .status.pending  { background: #fff0dc; color: #ff8a00; }
 .status.hidden,
 .status.rejected { background: #ffdede; color: #c93034; }
 .status.draft    { background: #eeeeee; color: #666; }
-
 /* =========================================================================
    ACTIONS
    ========================================================================= */
@@ -382,27 +382,15 @@ td small {
 .view-btn   { color: #6ba4b8; font-size: 18px; }
 .delete-btn { color: #df2529; }
 
-.actions button.approve-btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: #00384f !important;
-    color: #fff !important;
-    padding: 10px 16px !important;
-    border-radius: 10px !important;
-    font-size: 11px !important;
-    font-weight: 900 !important;
-    line-height: 1.3 !important;
-    min-width: 64px !important;
-    min-height: 52px !important;
-    border: none !important;
-    cursor: pointer !important;
-    font-family: 'Barlow', sans-serif !important;
-    letter-spacing: 0.5px !important;
-    text-align: center !important;
-}
 
-.actions button.approve-btn:hover { background: #1b5369 !important; }
+.actions a:not(.approve-btn),
+.actions button:not(.approve-btn) {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 17px;
+    text-decoration: none;
+}
 
 /* =========================================================================
    PAGINATION
@@ -436,4 +424,35 @@ td small {
     background: #df2529;
     color: #fff;
     box-shadow: 0 8px 18px rgba(223, 37, 41, 0.22);
+}
+/* =========================================================================
+   APPROVE BUTTON — Nút Duyệt Bài
+   ========================================================================= */
+.approve-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #07344a !important;
+    color: #fff !important;
+    padding: 10px 18px !important;
+    border-radius: 12px !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1.4 !important;
+    min-width: 72px !important;
+    min-height: 52px !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-family: 'Barlow', sans-serif !important;
+    letter-spacing: 0.6px !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    transition: background 0.2s ease !important;
+    white-space: pre-line !important;
+}
+
+.approve-btn:hover {
+    background: #1b5369 !important;
+    color: #fff !important;
+    text-decoration: none !important;
 }

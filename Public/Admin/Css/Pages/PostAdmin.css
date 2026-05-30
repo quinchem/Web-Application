@@ -154,7 +154,7 @@ button.category-trigger { width:100% !important; height:42px !important; min-wid
 .cat-parent-label:hover { background:#f0f8fc; }
 .cat-parent-label > i { font-size:10px; color:#9fb0bc; transition:transform 0.2s; }
 .category-dropdown .cat-children { background:#f8fcfe; border-top:1px solid #e8f2f7; border-bottom:1px solid #e8f2f7; }
-.cat-child { padding:8px 16px 8px 28px; font-size: 14px !important; font-weight:600; color:#3a6070; cursor:pointer; }
+.cat-child { padding:8px 16px 8px 28px; font-size: 13px !important; font-weight:600; color:#3a6070; cursor:pointer; }
 .cat-child:hover { background:#e4f3fa; color:#07344a; }
 .cat-child.selected { color:#e52328; font-weight:800; }
 .cat-reset { padding:10px 16px; font-size: 14px !important; font-weight:700; color:#9fb0bc; cursor:pointer; border-top:1px solid #eef1f3; }
@@ -169,7 +169,7 @@ td { padding:28px 16px; border-bottom:1px solid #eef1f3; vertical-align:middle; 
 .post-title { width:260px; text-align:left; font-family:'Newsreader',serif; font-size:15px; font-weight:700; line-height:1.55; color:#07344a; }
 .category-pill { display:inline-flex; flex-direction:column; justify-content:center; align-items:center; background:#e9eef3; border-radius:999px; width:130px; height:56px; text-align:center; font-size:12px; font-weight:900; line-height:1.2; }
 .category-pill small { display:block; font-size:11px; font-weight:700; margin-top:3px; color:#5f7280; }
-td strong { font-size:16px; font-weight:900; display:block; color:#07344a; }
+td strong { font-size:14px; font-weight:900; display:block; color:#07344a; }
 td small { display:block; font-size:13px; color:#86a0ad; margin-top:5px; line-height:1.4; }
 
 /* STATUS BADGES */

@@ -155,6 +155,26 @@ class PostController
         exit;
     }
 
+    public function reviewPostPage()
+{
+    $id = $_GET['id'] ?? '';
+
+    if (!$id) {
+        header('Location: Admin_index.php?page=admin_user_posts');
+        exit;
+    }
+
+    $post = $this->postRepository->getPostById($id);
+    $tags = $this->postRepository->getPostTags($id);
+
+    if (!$post) {
+        header('Location: Admin_index.php?page=admin_user_posts');
+        exit;
+    }
+
+    require_once __DIR__ . '/../Views/Admin/Post/ReviewPost.php';
+}
+
     public function reviewPost()
     {
         if (!isset($_GET['id'])) {

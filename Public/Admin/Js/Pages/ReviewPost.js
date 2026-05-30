@@ -34,7 +34,6 @@ function submitReview() {
     window.location.href = url.toString();
 }
 
-// Đóng khi click ra ngoài modal
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('reviewModal').addEventListener('click', function(e) {
         if (e.target === this) closeReviewModal();
