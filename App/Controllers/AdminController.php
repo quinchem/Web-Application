@@ -210,6 +210,18 @@ if ($remember) {
         exit();
     }
 
+
+    // ====================================
+    // DASHBOARD
+    // ====================================
+
+    public function dashboard()
+    {
+        require_once __DIR__ .
+            '/../Views/Admin/Dashboard/Dashboard.php';
+    }
+
+
     // ====================================
     // LOGOUT
     // ====================================

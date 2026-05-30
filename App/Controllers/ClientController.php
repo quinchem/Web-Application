@@ -149,7 +149,7 @@ class ClientController
             }
 
             // ==========================================================
-            // PHẦN 2: XỬ LÝ ẢNH ĐẠI DIỆN (AVATAR) HOẠT ĐỘNG ĐỘC LẬP
+            // PHẦN 2: XỬ LÝ ẢNH ĐẠI DIỆN (AVATAR)
             // ==========================================================
             $isRemoveAvatar = $_POST['remove_avatar'] ?? '0';
 
@@ -256,7 +256,6 @@ public function changePasswordProcess()
         }
 
         // 4. KIỂM TRA MẬT KHẨU CŨ: Giải mã chuỗi hash trong DB bằng password_verify
-        // (Hàm này tự động khớp muối salt, an toàn tuyệt đối)
        $isPasswordCorrect = false;
 
 // Nếu mật khẩu gõ vào trùng khít với DB (chữ thường) HOẶC khớp mã hóa hash
