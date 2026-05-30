@@ -1,8 +1,4 @@
-=<?php
-/**
- * App/Views/Client/Post/Create.php
- * Trang soạn thảo bài viết — layout: sidebar Client_menu trái + form chính phải
- */
+<?php
 require_once __DIR__ . '/../../Partials/Client/Header.php';
 
 // Flash messages
@@ -39,7 +35,6 @@ $editingPostId = $_GET['draft_id'] ?? null;
             ══════════════════════════════ -->
             <div class="col-md-3">
                 <?php
-                // Ghi đè active item: trang này thuộc nhóm "Bài viết của tôi"
                 $activeMenuTarget = 'my_posts';
                 include __DIR__ . '/../../Partials/Client/Client_menu.php';
                 ?>
@@ -80,7 +75,6 @@ $editingPostId = $_GET['draft_id'] ?? null;
                           enctype="multipart/form-data"
                           id="pcPostForm">
 
-                        <!-- post_id ẩn: có giá trị khi đang cập nhật bản nháp -->
                         <input type="hidden" name="post_id" id="pcPostId"
                                value="<?= htmlspecialchars($editingPostId ?? '') ?>">
 
@@ -105,7 +99,6 @@ $editingPostId = $_GET['draft_id'] ?? null;
                                       rows="3"></textarea>
 
                         </div>
-
 
                         <!-- ── CARD 2: DANH MỤC + TAG + TRẠNG THÁI ── -->
                         <div class="pc-card">
@@ -212,7 +205,6 @@ $editingPostId = $_GET['draft_id'] ?? null;
                             </button>
                         </div>
 
-
                         <!-- ── CARD 4: NỘI DUNG ── -->
                         <div class="pc-card">
 
@@ -244,11 +236,8 @@ $editingPostId = $_GET['draft_id'] ?? null;
 
                         </div>
 
-
                         <!-- ── ACTION BUTTONS ── -->
                         <div class="pc-action-bar">
-
-                            <!-- Huỷ: sẽ được JS xử lý (xác nhận xoá nháp nếu đã lưu) -->
                             <button type="button"
                                     id="pcCancelBtn"
                                     class="pc-btn-cancel">
@@ -282,7 +271,6 @@ $editingPostId = $_GET['draft_id'] ?? null;
         </div><!-- /row -->
     </div><!-- /container -->
 </main>
-
 
 <!-- ══ TOAST THÔNG BÁO ══ -->
 <div id="pcToast" class="pc-toast" style="display:none;">

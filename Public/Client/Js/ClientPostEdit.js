@@ -1,6 +1,3 @@
-/**
- * Public/Client/Js/ClientPostEdit.js
- */
 
 $(function () {
 
