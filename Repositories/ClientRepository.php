@@ -573,7 +573,6 @@ public function updatePassword($userId, $hashedPassword)
     public function updateAvatarUrl($userId, $avatarUrl) 
     {
         try {
-            // Sửa tên cột thành `avatar`
             $sql = "UPDATE user SET avatar = ? WHERE user_id = ?";
             
             $stmt = $this->conn->prepare($sql);
