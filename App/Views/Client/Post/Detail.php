@@ -19,26 +19,34 @@ $isLiked = $isLiked ?? false;
     <div class="row">
         <div class="col-lg-8 pe-lg-5">
 
-            <div class="breadcrumb text-muted mb-3 text-uppercase fw-bold" style="font-size: 0.8rem;">
-                <a href="index.php?page=homepage" class="text-decoration-none text-muted">Trang chủ</a>
+            <div class="breadcrumb-custom">
+                <a href="index.php?page=homepage" class="breadcrumb-link">
+                    Trang chủ
+                </a>
 
                 <?php if (!empty($post['parent_category_name'])): ?>
-                    <span class="mx-2">></span>
-                    <a href="index.php?page=category&name=<?= urlencode($post['parent_category_name']) ?>" class="text-decoration-none text-muted">
+                    <span class="mx-1">></span>
+                    <a href="index.php?page=category_detail&name=<?= urlencode($post['parent_category_name']) ?>"
+                        class="breadcrumb-parent">
                         <?= htmlspecialchars($post['parent_category_name']) ?>
                     </a>
                 <?php endif; ?>
 
-                <span class="mx-2">></span>
-                <a href="index.php?page=category&id=<?= $post['category_id'] ?>" class="text-decoration-none text-danger" style="color: var(--red) !important;">
-                    <?= htmlspecialchars($post['category_name']) ?>
-                </a>
+                <?php if (!empty($post['category_name'])): ?>
+                    <span class="mx-1">></span>
+                    <span class="breadcrumb-current-tag">
+                        <?= htmlspecialchars($post['category_name']) ?>
+                    </span>
+                <?php endif; ?>
             </div>
 
             <h1 class="article-title fw-bold"><?= htmlspecialchars($post['title']) ?></h1>
 
             <div class="d-flex align-items-center mb-4 pb-3 border-bottom mt-4">
-                <img src="<?= htmlspecialchars($post['avatar'] ?? $defaultAvatar) ?>" alt="Avatar" class="rounded-circle me-3" style="width: 55px; height: 55px; object-fit: cover; border: 2px solid #eee;">
+                <img src="<?= !empty($post['avatar']) ? htmlspecialchars($post['avatar']) : htmlspecialchars($defaultAvatar) ?>"
+                    alt="Avatar"
+                    class="rounded-circle me-3"
+                    style="width: 55px; height: 55px; object-fit: cover; border: 2px solid #eee;">
 
                 <div class="w-100 d-flex justify-content-between align-items-center">
                     <div>
@@ -47,7 +55,9 @@ $isLiked = $isLiked ?? false;
                         </div>
                         <div class="text-muted mt-1" style="font-size: 0.85rem;">
                             <i class="fa-regular fa-calendar me-1"></i>
-                            <?= date('d/m/Y H:i', strtotime($post['published_at'])) ?>
+                            <?= !empty($post['published_at'])
+                                ? date('d/m/Y H:i', strtotime($post['published_at']))
+                                : date('d/m/Y H:i', strtotime($post['created_at'])) ?>
                         </div>
                     </div>
 
@@ -121,8 +131,8 @@ $isLiked = $isLiked ?? false;
                         placeholder="Chia sẻ ý kiến của bạn..." style="resize: none;"></textarea>
                     <div class="text-end mt-3">
                         <button class="btn px-4 fw-bold py-2 rounded btn-comment-submit" onclick="submitComment()">
-    Gửi bình luận
-</button>
+                            Gửi bình luận
+                        </button>
                     </div>
                 </div>
 
@@ -146,8 +156,23 @@ $isLiked = $isLiked ?? false;
                                     <div class="text-dark" style="font-size: 0.95rem; line-height: 1.6;">
                                         <?= nl2br(htmlspecialchars($cmt['content'])) ?>
                                     </div>
-                                    <a href="#" class="text-danger fw-bold text-decoration-none mt-2 d-inline-block"
-                                        style="font-size: 0.8rem; color: var(--red) !important;">TRẢ LỜI</a>
+                                    <a href="#" class="reply-btn fw-bold text-decoration-none mt-2 d-inline-block"
+                                        style="font-size:0.8rem; color:var(--red) !important;"
+                                        data-comment-id="<?= htmlspecialchars($cmt['comment_id']) ?>"
+                                        data-author="<?= htmlspecialchars($cmt['full_name']) ?>">
+                                        TRẢ LỜI
+                                    </a>
+                                    <div class="reply-form mt-2" style="display:none;">
+                                        <textarea class="form-control reply-input" rows="2"
+                                            placeholder="Trả lời <?= htmlspecialchars($cmt['full_name']) ?>..."></textarea>
+                                        <div class="text-end mt-2">
+                                            <button class="btn btn-sm btn-secondary reply-cancel-btn me-2">Huỷ</button>
+                                            <button class="btn btn-sm btn-comment-submit reply-submit-btn"
+                                                data-comment-id="<?= htmlspecialchars($cmt['comment_id']) ?>">
+                                                Gửi
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
