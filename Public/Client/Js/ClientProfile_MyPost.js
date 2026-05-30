@@ -107,3 +107,28 @@ function loadMyPostsPage(page) {
             `;
         });
 }
+document.addEventListener('click', function (e) {
+    const deleteBtn = e.target.closest('.my-post-delete-btn');
+    if (!deleteBtn) return;
+
+    if (!confirm('Bạn có chắc muốn xóa bài viết này không?')) return;
+
+    const postId = deleteBtn.dataset.id;
+
+    fetch('index.php?page=client_delete_post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'post_id=' + encodeURIComponent(postId)
+    })
+    .then(r => r.json())
+    .then(function (res) {
+        if (res.success) {
+            deleteBtn.closest('tr').remove();
+        } else {
+            alert(res.message || 'Không thể xóa bài viết này.');
+        }
+    })
+    .catch(function () {
+        alert('Lỗi kết nối, vui lòng thử lại.');
+    });
+});

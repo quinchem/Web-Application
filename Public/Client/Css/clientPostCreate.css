@@ -159,7 +159,7 @@
     font-family: 'Newsreader', serif;
     font-size: 1.6rem;
     font-weight: 700;
-    color: #c5cdd6;
+    color: #082546;
     background: transparent;
     padding: 0;
     margin-bottom: 14px;
@@ -787,4 +787,18 @@
 
 .create-post-main {
     width: 100%;
+}
+/* ───────── MODAL CROP ───────── */
+#pcCropModal .pc-modal-box {
+    max-width: 700px;
+    width: 95%;
+}
+
+#pcCropImage {
+    max-width: 100%;
+    display: block;
+}
+
+.cropper-container {
+    max-height: 460px;
 }
