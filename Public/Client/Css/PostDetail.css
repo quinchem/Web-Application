@@ -78,6 +78,17 @@
     color: white;
 }
 
+.btn-comment-submit {
+    background-color: #003049 !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.btn-comment-submit:hover {
+    background-color: #B90C17 !important;
+    color: #fff !important;
+}
+
 .active-like {
     background: #003049 !important;
     color: #fff !important;

@@ -51,7 +51,7 @@
             <div class="form-group">
 
                 <label>
-                    EMAIL NGƯỜI ĐỌC
+                    EMAIL QUẢN TRỊ VIÊN
                 </label>
 
                 <div class="input-group">

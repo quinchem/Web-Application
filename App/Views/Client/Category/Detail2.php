@@ -52,8 +52,8 @@ $parentName = $categoryNames[$parentSlug] ?? '';
 <body>
 
 <?php include __DIR__ . '/../../Partials/Client/Header.php'; ?>
-
-<main class="container detail-wrapper page-spacing">
+<div class= "background" style="width: 100%; height: 100%; background-color: #F0F8FF !important;">
+<main class="container detail-wrapper page-spacing" style="background-color: #F0F8FF !important;">
 
     <!-- BREADCRUMB -->
 
@@ -211,6 +211,7 @@ $parentName = $categoryNames[$parentSlug] ?? '';
 <?php endif; ?>
 
 </main>
+</div>
 
 <?php include __DIR__ . '/../../Partials/Client/Footer.php'; ?>
 

@@ -24,8 +24,8 @@
 <body>
 
 <?php include __DIR__ . '/../../Partials/Client/Header.php'; ?>
-
-<main class="container category-wrapper page-spacing">
+<div class= "background" style="width: 100%; height: 100%; background-color: #F0F8FF !important;">
+<main class="container category-wrapper page-spacing" style="background-color: #F0F8FF !important;">
 
     <!-- BREADCRUMB -->
     <div class="breadcrumb-custom">
@@ -188,6 +188,7 @@
     <?php endif; ?>
 
 </main>
+</div>
 
 <?php include __DIR__ . '/../../Partials/Client/Footer.php'; ?>
 

@@ -26,7 +26,7 @@ foreach (($categories ?? []) as $cat) {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&family=Montserrat:ital,wght@0,400;0,500;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700;0,6..72,800;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="Public/Client/Css/ClientPostCreate.css">
+<link rel="stylesheet" href="Public/Client/Css/PostCreate.css">
 
 <main id="page-post-create">
     <div class="container">
@@ -318,7 +318,7 @@ foreach (($categories ?? []) as $cat) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="Public/Client/Js/clientPostCreate.js"></script>
+<script src="Public/Client/Js/PostCreate.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
 <?php include __DIR__ . '/../../Partials/Client/Footer.php'; ?>
