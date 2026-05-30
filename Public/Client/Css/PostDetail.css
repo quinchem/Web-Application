@@ -1,20 +1,70 @@
+:root {
+    --navy:   #003049;
+    --red:    #B90C17;
+    --light:  #f4f6f8;
+    --border: #e2e6ea;
+    --text:   #1a1a2e;
+    --muted:  #6c7a8d;
+    --white:  #ffffff;
+    --bg:     #f0f2f5;
+} 
+
 .header-container ul.menu-items,
 .header-top ul {
     margin-bottom: 0 !important;
     padding-left: 0 !important;
 }
 
-.breadcrumb {
+.breadcrumb-custom{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+
+    margin-bottom: 12px;
+
     font-size: 0.8rem;
-    letter-spacing: 0.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #6c757d;
+    padding-top: 5px;
 }
 
+.breadcrumb-link {
+    color: #6c757d;
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.breadcrumb-link:hover {
+    color: #b90c17;
+}
+
+.breadcrumb-parent {
+    color:  #6c757d;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .2s;
+}
+
+.breadcrumb-parent:hover {
+    text-decoration: none;
+    color: #b90c17;
+}
+
+.breadcrumb-current-tag {
+    color: #b90c17;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+}
 .article-title {
     font-size: 2.8rem;
     font-family: 'Newsreader', serif;
     line-height: 1.2;
     color: #111;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 .sapo-box {
