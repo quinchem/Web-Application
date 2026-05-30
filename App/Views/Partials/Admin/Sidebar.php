@@ -2,7 +2,7 @@
 
 <?php
 $currentPage = $_GET['page'] ?? '';
-$postPages   = ['admin_posts', 'admin_user_posts', 'create_post', 'edit_post'];
+$postPages   = ['admin_posts', 'admin_user_posts', 'create_post', 'edit_post', 'review_post_page'];
 ?>
 
 <div class="sidebar">
@@ -35,7 +35,7 @@ $postPages   = ['admin_posts', 'admin_user_posts', 'create_post', 'edit_post'];
 
         <!-- USER POSTS -->
         <a href="Admin_index.php?page=admin_user_posts"
-           class="sub-item <?= $currentPage === 'admin_user_posts' ? 'sub-active' : '' ?>">
+           class="sub-item <?= in_array($currentPage, ['admin_user_posts', 'review_post_page']) ? 'sub-active' : '' ?>">
             Bài viết Người đọc
         </a>
 

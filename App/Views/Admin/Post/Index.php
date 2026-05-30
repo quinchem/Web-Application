@@ -38,6 +38,35 @@
         inset: 0 !important;
         z-index: 999999 !important;
     }
+    /* ── Override approve-btn ── */
+.actions .approve-btn,
+a.approve-btn {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #07344a !important;
+    color: #fff !important;
+    padding: 10px 18px !important;
+    border-radius: 12px !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1.4 !important;
+    min-width: 72px !important;
+    min-height: 52px !important;
+    border: none !important;
+    cursor: pointer !important;
+    font-family: 'Barlow', sans-serif !important;
+    letter-spacing: 0.6px !important;
+    text-align: center !important;
+    text-decoration: none !important;
+}
+.actions .approve-btn:hover,
+a.approve-btn:hover {
+    background: #1b5369 !important;
+    color: #fff !important;
+    text-decoration: none !important;
+}
 </style>
 </head>
 <body>
@@ -214,16 +243,21 @@
                             </td>
                             <td>
                                 <?php
-                                $statusMap = [
-                                    'approved' => ['label' => 'ĐÃ XUẤT BẢN', 'class' => 'approved'],
-                                    'pending'  => ['label' => 'CHỜ DUYỆT',   'class' => 'pending'],
-                                    'hidden'   => ['label' => 'ĐÃ ẨN',        'class' => 'hidden'],
-                                    'draft'    => ['label' => 'BẢN NHÁP',    'class' => 'draft'],
-                                    'rejected' => ['label' => 'TỪ CHỐI',     'class' => 'rejected'],
-                                ];
-                                $s = $statusMap[$post->status] ?? ['label' => 'KHÔNG RÕ', 'class' => 'draft'];
-                                ?>
-                                <span class="status <?= $s['class'] ?>"><?= $s['label'] ?></span>
+$statusMap = [
+    'approved' => ['label' => 'ĐÃ XUẤT BẢN', 'icon' => 'fa-bolt',     'class' => 'approved'],
+    'pending'  => ['label' => 'CHỜ DUYỆT',   'icon' => 'fa-clock',    'class' => 'pending'],
+    'hidden'   => ['label' => 'ĐÃ ẨN',        'icon' => 'fa-eye-slash','class' => 'hidden'],
+    'draft'    => ['label' => 'BẢN NHÁP',    'icon' => '',            'class' => 'draft'],
+    'rejected' => ['label' => 'TỪ CHỐI',     'icon' => 'fa-xmark',   'class' => 'rejected'],
+];
+$s = $statusMap[$post->status] ?? ['label' => 'KHÔNG RÕ', 'icon' => '', 'class' => 'draft'];
+?>
+<span class="status <?= $s['class'] ?>">
+    <?php if ($s['icon']): ?>
+        <i class="fa-solid <?= $s['icon'] ?>"></i>
+    <?php endif; ?>
+    <?= $s['label'] ?>
+</span>
                             </td>
                             <td>
                                 <?php if ($post->status === 'approved'): ?>
@@ -238,10 +272,11 @@
                                     <?php $status = strtolower(preg_replace('/\s+/', '', $post->status)); ?>
 
                                     <?php if ($status === 'pending'): ?>
-                                        <button class="approve-btn" type="button"
-                                            onclick="openReviewModal('<?= htmlspecialchars($post->post_id) ?>','<?= htmlspecialchars(addslashes($post->title)) ?>')">
-                                            DUYỆT<br>BÀI
-                                        </button>
+    <a href="Admin_index.php?page=review_post_page&id=<?= htmlspecialchars($post->post_id) ?>"
+       class="approve-btn">
+        <span>DUYỆT</span>
+        <span>BÀI</span>
+    </a>
 <?php elseif ($status === 'hidden'): ?>
     <a href="Admin_index.php?page=unhide_post&id=<?= htmlspecialchars($post->post_id) ?>&from=admin_user_posts"
        class="view-btn" title="Bỏ ẩn"
@@ -319,10 +354,44 @@
         </section>
     </main>
 </div>
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal-box">
+        <div class="modal-header d-flex align-items-center justify-content-between">
+            <div class="modal-label">DUYỆT BÀI VIẾT</div>
+            <button class="modal-close" onclick="closeReviewModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-section-label">BÀI VIẾT ĐANG XÉT DUYỆT</p>
+            <div class="modal-title" id="modal-post-title"></div>
 
-<?php require_once __DIR__ . '/Review.php'; ?>
+            <p class="modal-section-label">QUYẾT ĐỊNH PHÊ DUYỆT</p>
+            <div class="modal-decision d-grid gap-3 mb-4">
+                <button class="decision-btn approve selected" onclick="selectDecision('approved')">
+                    <i class="fa-regular fa-circle-check"></i> Duyệt
+                </button>
+                <button class="decision-btn reject" onclick="selectDecision('rejected')">
+                    <i class="fa-regular fa-circle-xmark"></i> Chưa duyệt
+                </button>
+            </div>
 
-// THÀNH:
+            <p class="modal-section-label">LÝ DO & GHI CHÚ</p>
+            <textarea class="modal-textarea" id="modal-reason"
+                placeholder="Nhập lý do chưa duyệt cho tác giả..."></textarea>
+        </div>
+
+        <input type="hidden" id="modal-post-id">
+        <input type="hidden" id="modal-decision" value="approved">
+
+        <div class="modal-footer">
+            <button class="modal-cancel" onclick="closeReviewModal()">Hủy</button>
+            <button class="modal-confirm" onclick="submitReview()">Xác nhận</button>
+        </div>
+    </div>
+</div>
+
 <?php require_once __DIR__ . '/../Profile/edit.php'; ?>
 <?php require_once __DIR__ . '/../Profile/change_password.php'; ?>
 
