@@ -53,7 +53,7 @@ function myPostStatusClass($status)
 }
 ?>
 
-<link rel="stylesheet" href="Public/Client/Css/ClientProfile_MyPost.css?v=<?= time() ?>">
+<link rel="stylesheet" href="Public/Client/Css/Profile_MyPost.css?v=<?= time() ?>">
 
 <div class="my-post-page">
 
