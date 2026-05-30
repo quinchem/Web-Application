@@ -2,14 +2,14 @@
 
 class Database
 {
-    // 1. Chỉ khai báo biến, không gán giá trị cứng ở đây
+    // Khai báo các thuộc tính để lưu trữ thông tin kết nối
     private $host;
     private $port;
     private $dbname;
     private $username;
     private $password;
 
-    // 2. Dùng hàm khởi tạo __construct để lấy dữ liệu từ file .env
+    // Dùng hàm khởi tạo __construct để lấy dữ liệu từ file .env
     public function __construct()
     {
         $this->host = $_ENV['DB_HOST'] ?? '127.0.0.1';
