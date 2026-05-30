@@ -28,8 +28,8 @@ $(function () {
 
 
     /* ════════════════════════════════
-       1. THUMBNAIL UPLOAD & PREVIEW
-    ════════════════════════════════ */
+   1. THUMBNAIL UPLOAD & CROP
+════════════════════════════════ */
 
     const $zone = $('#pcThumbnailZone');
     const $input = $('#pcThumbnailInput');
@@ -37,46 +37,87 @@ $(function () {
     const $placeholder = $('#pcUploadPlaceholder');
     const $removeBtn = $('#pcRemoveThumbBtn');
 
+    let cropperInstance = null;
+
     $zone.on('click', function (e) {
         if ($(e.target).closest('#pcRemoveThumbBtn').length) return;
         if ($(e.target).is('#pcThumbnailInput')) return;
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         $input[0].click();
     });
 
     $input.on('change', function () {
         const file = this.files[0];
-        if (file) _previewThumb(file);
+        if (file) _openCropper(file);
     });
 
-    // Drag & drop
     $zone.on('dragover', function (e) {
-        e.preventDefault();
-        $(this).addClass('dragover');
+        e.preventDefault(); $(this).addClass('dragover');
     }).on('dragleave', function () {
         $(this).removeClass('dragover');
     }).on('drop', function (e) {
-        e.preventDefault();
-        $(this).removeClass('dragover');
+        e.preventDefault(); $(this).removeClass('dragover');
         const file = e.originalEvent.dataTransfer.files[0];
         if (file && file.type.startsWith('image/')) {
             const dt = new DataTransfer();
             dt.items.add(file);
             $input[0].files = dt.files;
-            _previewThumb(file);
+            _openCropper(file);
         }
     });
 
-    function _previewThumb(file) {
+    function _openCropper(file) {
         const reader = new FileReader();
         reader.onload = function (e) {
-            $placeholder.hide();
-            $preview.attr('src', e.target.result).show();
-            $removeBtn.show();
+            $('#pcCropImage').attr('src', e.target.result);
+            $('#pcCropModal').css('display', 'flex');
+
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+
+            cropperInstance = new Cropper(document.getElementById('pcCropImage'), {
+                aspectRatio: NaN,
+                viewMode: 1,
+                movable: true,
+                zoomable: true,
+                scalable: true,
+                cropBoxResizable: true,
+                rotatable: false,
+            });
         };
         reader.readAsDataURL(file);
     }
+
+    $('#pcCropConfirm').on('click', function () {
+        if (!cropperInstance) return;
+
+        cropperInstance.getCroppedCanvas().toBlob(function (blob) {
+            const croppedFile = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
+            const dt = new DataTransfer();
+            dt.items.add(croppedFile);
+            $input[0].files = dt.files;
+
+            const url = URL.createObjectURL(blob);
+            $placeholder.hide();
+            $preview.attr('src', url).show();
+            $removeBtn.show();
+
+            $('#pcCropModal').hide();
+            cropperInstance.destroy();
+            cropperInstance = null;
+        }, 'image/jpeg', 0.92);
+    });
+
+    $('#pcCropCancel').on('click', function () {
+        $('#pcCropModal').hide();
+        if (cropperInstance) {
+            cropperInstance.destroy();
+            cropperInstance = null;
+        }
+        $input.val('');
+    });
 
     $removeBtn.on('click', function (e) {
         e.stopPropagation();
@@ -86,10 +127,31 @@ $(function () {
         $input.val('');
     });
 
-    // Expose global (dùng trong onclick nếu cần)
     window.pcRemoveThumbnail = function () { $removeBtn.trigger('click'); };
+    // Click vào ảnh preview → mở lại cropper với ảnh hiện tại
+    $preview.on('click', function (e) {
+        e.stopPropagation();
+        const src = $preview.attr('src');
+        if (!src) return;
 
+        $('#pcCropImage').attr('src', src);
+        $('#pcCropModal').css('display', 'flex');
 
+        if (cropperInstance) {
+            cropperInstance.destroy();
+            cropperInstance = null;
+        }
+
+        cropperInstance = new Cropper(document.getElementById('pcCropImage'), {
+            aspectRatio: NaN,
+            viewMode: 1,
+            movable: true,
+            zoomable: true,
+            scalable: true,
+            cropBoxResizable: true,
+            rotatable: false,
+        });
+    });
     /* ════════════════════════════════
        2. DANH MỤC CHA → CON
     ════════════════════════════════ */
@@ -366,7 +428,13 @@ $(function () {
             }
         });
     });
-
+    /* ════════════════════════════════
+   8b. NÚT QUAY LẠI
+════════════════════════════════ */
+    $('#pcBackBtn').on('click', function (e) {
+        e.preventDefault();
+        window.location.href = 'index.php?page=client_profile&tab=my_posts';
+    });
 
     /* ════════════════════════════════
        9. AUTO-DISMISS FLASH ALERTS

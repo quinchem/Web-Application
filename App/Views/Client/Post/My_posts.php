@@ -219,7 +219,7 @@ function myPostStatusClass($status)
                             </td>
 
                             <td class="my-post-date">
-                               <?= !empty($createdAt) ? date('d/m/Y', strtotime($createdAt) + 0) : '' ?>
+                                <?= !empty($createdAt) ? date('d/m/Y', strtotime($createdAt) + 0) : '' ?>
                             </td>
 
                             <td>
@@ -230,18 +230,14 @@ function myPostStatusClass($status)
 
                             <td>
                                 <div class="my-post-actions">
-                                    <a href="index.php?page=post&id=<?= urlencode($postId) ?>" title="Xem">
-                                        <i class="fa-regular fa-eye"></i>
-                                    </a>
 
-                                    <a href="index.php?page=edit_post&id=<?= urlencode($postId) ?>" title="Sửa">
+                                    <a href="index.php?page=client_edit_post&id=<?= urlencode($postId) ?>" title="Sửa">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
 
-                                    <a href="index.php?page=delete_post&id=<?= urlencode($postId) ?>" title="Xóa"
-                                        onclick="return confirm('Bạn có chắc muốn xóa bài viết này không?')">
+                                    <button type="button" class="my-post-delete-btn" data-id="<?= htmlspecialchars($postId) ?>" title="Xóa">
                                         <i class="fa-regular fa-trash-can"></i>
-                                    </a>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
