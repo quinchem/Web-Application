@@ -63,13 +63,12 @@ $isLiked = $isLiked ?? false;
 
                     <div class="text-end">
                         <?php if (!empty($post['parent_category_name'])): ?>
-                            <span class="badge border text-muted bg-light me-1 px-3 py-2 rounded-pill fw-bold"
-                                style="font-size: 0.75rem;">
+                            <span class="post-parent-category">
                                 <?= htmlspecialchars($post['parent_category_name']) ?>
                             </span>
                         <?php endif; ?>
 
-                        <span class="badge px-3 py-2 rounded-pill shadow-sm" style="background-color: var(--red); font-size: 0.8rem; letter-spacing: 0.5px;">
+                        <span class="post-child-category">
                             <?= htmlspecialchars($post['category_name']) ?>
                         </span>
                     </div>

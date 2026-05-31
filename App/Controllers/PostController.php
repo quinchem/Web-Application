@@ -155,26 +155,6 @@ class PostController
         exit;
     }
 
-    public function reviewPostPage()
-{
-    $id = $_GET['id'] ?? '';
-
-    if (!$id) {
-        header('Location: Admin_index.php?page=admin_user_posts');
-        exit;
-    }
-
-    $post = $this->postRepository->getPostById($id);
-    $tags = $this->postRepository->getPostTags($id);
-
-    if (!$post) {
-        header('Location: Admin_index.php?page=admin_user_posts');
-        exit;
-    }
-
-    require_once __DIR__ . '/../Views/Admin/Post/ReviewPost.php';
-}
-
     public function reviewPost()
     {
         if (!isset($_GET['id'])) {
@@ -252,7 +232,6 @@ class PostController
 
         $postId = $_POST['post_id'] ?? null;
         $content = $_POST['content'] ?? null;
-        $parentId = $_POST['parent_id'] ?? null;
 
         if ($postId && $content) {
             if ($this->postRepository->addComment($postId, $userId, $content)) {
@@ -280,7 +259,7 @@ class PostController
             return;
         }
 
-        $this->postRepository->incrementViewCount($postId);
+        // 1. Lấy thông tin bài viết đầu tiên để kiểm tra sự tồn tại
         $post = $this->postRepository->getPostById($postId);
 
         if (!$post) {
@@ -291,6 +270,10 @@ class PostController
             exit;
         }
 
+        // 2. Tăng lượt xem (chỉ tăng khi bài viết tồn tại)
+        $this->postRepository->incrementViewCount($postId);
+
+        // 3. Khởi tạo các biến mặc định
         $userId = $this->getCurrentUserId();
         $tags = $this->postRepository->getPostTags($postId);
         $comments = [];
@@ -298,16 +281,22 @@ class PostController
         $totalPages = 1;
         $isSaved = false;
         $isLiked = false;
+
+        // 4. Kiểm tra trạng thái tương tác của User
         if ($userId) {
             $isLiked = $this->postRepository->isLiked($postId, $userId);
             $isSaved = $this->postRepository->isBookmarked($postId, $userId);
         }
+
+        // 5. Lấy bài viết đề xuất theo danh mục (Sử dụng hàm mới)
         $recommendedPosts = $this->postRepository->getRecommendedByCategory(
             $postId,
             $post['category_id'],
             8
         );
         $trendingGlobal = $this->postRepository->getTrendingGlobal(5);
+
+        // 6. Tính toán và lấy bình luận
         $page = isset($_GET['cpage']) ? max(1, (int) $_GET['cpage']) : 1;
         $limit = 5;
         $offset = ($page - 1) * $limit;
