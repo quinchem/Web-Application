@@ -398,10 +398,19 @@
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
     overflow: hidden;
-    min-height: 160px;
+    aspect-ratio: 16 / 9;   /* ← thay min-height và height cố định bằng dòng này */
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+#pcThumbnailPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: 8px;
 }
 
 .pc-thumbnail-zone:hover { border-color: #a0b4c4; }
@@ -436,13 +445,6 @@
     font-family: 'Barlow', sans-serif;
     font-size: 0.75rem;
     color: #b0bac5;
-}
-
-#pcThumbnailPreview {
-    width: 100%;
-    max-height: 300px;
-    object-fit: cover;
-    display: block;
 }
 
 .pc-remove-thumb-btn {

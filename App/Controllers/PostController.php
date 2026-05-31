@@ -967,4 +967,84 @@ exit;
 
         require __DIR__ . '/../Views/Client/Category/Detail2.php';
     }
+
+    public function apiUploadImage(): void {
+    header('Content-Type: application/json; charset=utf-8');
+
+    // Kiểm tra đăng nhập
+    if (empty($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Chưa đăng nhập.']);
+        exit;
+    }
+
+    // Kiểm tra file
+    if (empty($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+        $code = $_FILES['image']['error'] ?? -1;
+        echo json_encode(['success' => false, 'message' => 'Lỗi file upload. Mã: ' . $code]);
+        exit;
+    }
+
+    // Kiểm tra config Cloudinary
+    $cloudName = $_ENV['CLOUDINARY_CLOUD_NAME'] ?? '';
+    $apiKey    = $_ENV['CLOUDINARY_API_KEY']    ?? '';
+    $apiSecret = $_ENV['CLOUDINARY_API_SECRET'] ?? '';
+
+    if (!$cloudName || !$apiKey || !$apiSecret) {
+        echo json_encode(['success' => false, 'message' => 'Thiếu cấu hình Cloudinary.']);
+        exit;
+    }
+
+    $fileTmp  = $_FILES['image']['tmp_name'];
+    $fileType = $_FILES['image']['type'];
+    $fileName = $_FILES['image']['name'];
+
+    // Chỉ chấp nhận ảnh
+    if (!str_starts_with($fileType, 'image/')) {
+        echo json_encode(['success' => false, 'message' => 'Chỉ chấp nhận file ảnh.']);
+        exit;
+    }
+
+    $folder    = 'tramtinviet/content';   // khác folder avatar để dễ quản lý
+    $timestamp = time();
+    $signature = sha1("folder={$folder}&timestamp={$timestamp}{$apiSecret}");
+
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload",
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => [
+            'file'      => new \CURLFile($fileTmp, $fileType, $fileName),
+            'api_key'   => $apiKey,
+            'timestamp' => $timestamp,
+            'signature' => $signature,
+            'folder'    => $folder,
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 30,
+        CURLOPT_SSL_VERIFYPEER => false,
+    ]);
+
+    $response  = curl_exec($ch);
+    $curlError = curl_error($ch);
+    $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($response === false) {
+        echo json_encode(['success' => false, 'message' => 'Không kết nối được Cloudinary: ' . $curlError]);
+        exit;
+    }
+
+    $result = json_decode($response, true);
+
+    if ($httpCode !== 200 || empty($result['secure_url'])) {
+        echo json_encode([
+            'success' => false,
+            'message' => $result['error']['message'] ?? 'Cloudinary từ chối upload.',
+        ]);
+        exit;
+    }
+
+    echo json_encode(['success' => true, 'url' => $result['secure_url']]);
+    exit;
+}
 }
