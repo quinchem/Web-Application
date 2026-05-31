@@ -238,9 +238,12 @@ a.approve-btn:hover {
                                 </div>
                             </td>
                             <td>
-                                <strong><?= htmlspecialchars($post->author_name) ?></strong>
-                                <small><?= date('d/m/Y', strtotime($post->created_at)) ?><br>09:00</small>
-                            </td>
+    <strong><?= htmlspecialchars($post->author_name) ?></strong>
+    <small>
+        <?= date('d/m/Y', strtotime($post->created_at)) ?><br>
+        <?= date('H:i', strtotime($post->created_at)) ?>
+    </small>
+</td>
                             <td>
                                 <?php
 $statusMap = [
