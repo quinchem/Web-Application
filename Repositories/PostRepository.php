@@ -381,16 +381,23 @@ class PostRepository
         $sql = "UPDATE Post          
             SET status      = :status,
                 review_note = :reason,
-                reviewed_at = NOW()
-            WHERE post_id   = :post_id";
+                reviewed_at = NOW(),
+                published_at = CASE 
+                    WHEN :decision = 'approved' AND published_at IS NULL 
+                    THEN NOW() 
+                    ELSE published_at 
+                END
+            WHERE post_id = :post_id";
 
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([
-            ':status' => $decision,
-            ':reason' => $reason,
-            ':post_id' => $postId
+            ':status'   => $decision,
+            ':reason'   => $reason,
+            ':decision' => $decision,
+            ':post_id'  => $postId
         ]);
     }
+    
 
     public function getHeroPost()
     {
