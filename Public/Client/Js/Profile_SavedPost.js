@@ -84,6 +84,9 @@ function removeSavedPost(postId, button) {
                 return;
             }
 
+<<<<<<< HEAD
+            if (data.action === 'unsaved') {
+=======
             if (
                 data.action === 'unsaved' ||
                 data.status === 'removed' ||
@@ -96,9 +99,14 @@ function removeSavedPost(postId, button) {
                     icon.className = 'fa-regular fa-bookmark';
                 }
 
+>>>>>>> 03f4c4261d4574d28b5281e7cd0aa8481b0405fb
                 const item = button.closest('.saved-post-item');
-
                 if (item) {
+<<<<<<< HEAD
+                    item.style.transition = 'opacity 0.3s';
+                    item.style.opacity = '0';
+                    setTimeout(() => item.remove(), 300);
+=======
                     item.style.transition = '0.25s ease';
                     item.style.opacity = '0';
                     item.style.transform = 'translateX(10px)';
@@ -120,6 +128,7 @@ function removeSavedPost(postId, button) {
                             }
                         }
                     }, 250);
+>>>>>>> 03f4c4261d4574d28b5281e7cd0aa8481b0405fb
                 }
 
                 if (typeof Swal !== 'undefined') {
@@ -127,12 +136,24 @@ function removeSavedPost(postId, button) {
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
+<<<<<<< HEAD
+                        timer: 1200,
+=======
                         timer: 1000,
+>>>>>>> 03f4c4261d4574d28b5281e7cd0aa8481b0405fb
                         timerProgressBar: true,
                         html: `
                             <div style="display:flex;align-items:center;gap:12px;">
                                 <i class="fa-regular fa-bookmark" style="color:#003049;font-size:18px;flex-shrink:0;"></i>
                                 <div>
+<<<<<<< HEAD
+                                    <div style="font-weight:700;font-size:14px;color:#003049;">Đã bỏ lưu bài viết</div>
+                                    <div style="font-size:12px;color:#5a7d9a;margin-top:2px;">Bài viết đã được xoá khỏi danh sách</div>
+                                </div>
+                            </div>`,
+                        background: '#fff',
+                        padding: '12px 16px'
+=======
                                     <div style="font-weight:700;font-size:14px;color:#003049;letter-spacing:0.2px;">Đã bỏ lưu bài viết</div>
                                 </div>
                             </div>`,
@@ -147,6 +168,7 @@ function removeSavedPost(postId, button) {
                         hideClass: {
                             popup: 'swal-slide-out'
                         }
+>>>>>>> 03f4c4261d4574d28b5281e7cd0aa8481b0405fb
                     });
                 }
             }

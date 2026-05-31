@@ -1,4 +1,3 @@
-/* Nền màu xám nhạt nhẹ nhàng như ảnh */
 body {
     background-color: #f4f6f9; 
     font-family: 'Montserrat', sans-serif;
@@ -9,7 +8,6 @@ body {
     margin: 0;
 }
 
-/* Khung form đăng nhập vuông vức, đổ bóng cực nhẹ */
 .auth-card {
     background: #ffffff;
     width: 100%;
@@ -19,7 +17,6 @@ body {
     border-radius: 4px; 
 }
 
-/* Phần Logo Trạm Tin Việt */
 .brand-header {
     display: flex;
     align-items: center;
@@ -40,7 +37,6 @@ body {
     font-weight: 700;
 }
 
-/* Tiêu đề "Chào mừng trở lại" */
 .auth-title {
     font-family: 'Newsreader', serif;
     color: #003049;
@@ -57,7 +53,6 @@ body {
     max-width: 90%;
 }
 
-/* Label "Đăng nhập" phía trên input */
 .form-section-label {
     font-weight: 700;
     color: #333;
@@ -65,7 +60,6 @@ body {
     margin-bottom: 15px;
 }
 
-/* Ô nhập liệu nền xám, không viền như bản thiết kế */
 .input-wrapper {
     background-color: #f4f5f7; 
     border-radius: 6px;
@@ -106,7 +100,6 @@ body {
     color: #6c757d;
 }
 
-/* Nút Quên mật khẩu căn lề phải */
 .forgot-password {
     display: block;
     text-align: right;
@@ -121,7 +114,6 @@ body {
     text-decoration: underline;
 }
 
-/* Nút Đăng nhập đỏ */
 .btn-submit {
     background-color: #b90c17;
     color: white;
@@ -139,8 +131,6 @@ body {
     background-color: #920a12;
 }
 
-
-/* Chân trang form đăng nhập */
 .auth-footer {
     text-align: center;
     font-size: 0.95rem;

@@ -16,7 +16,6 @@
     padding: 40px 0 80px;
 }
 
-/* ───────── LAYOUT: SIDEBAR TRÁI + NỘI DUNG PHẢI ───────── */
 .create-post-wrapper {
     display: flex;
     gap: 28px;
