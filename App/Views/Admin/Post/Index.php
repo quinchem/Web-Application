@@ -29,8 +29,6 @@
     .profile-info strong { font-size: 14px; margin-bottom: 6px; }
     .profile-info p { font-size: 11px; gap: 7px; }
     .profile-info i { font-size: 13px; }
-
-    /* ✅ FIX: Modal thoát khỏi stacking context của main-content */
     .custom-modal-backdrop,
     #changePasswordModal,
     #editProfileModal {
@@ -38,7 +36,6 @@
         inset: 0 !important;
         z-index: 999999 !important;
     }
-    /* ── Override approve-btn ── */
 .actions .approve-btn,
 a.approve-btn {
     display: inline-flex !important;

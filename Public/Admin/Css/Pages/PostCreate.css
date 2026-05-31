@@ -26,20 +26,18 @@ body { background:#eef8ff; color:#07344a; }
 /* ── CONTENT INNER — mở rộng full width ── */
 .content-inner {
     padding: 38px 48px;
-    max-width: 100%;        /* bỏ giới hạn 860px */
+    max-width: 100%;       
     width: 100%;
 }
 
 h1 { font-size:36px; font-weight:900; color:#07344a; margin-bottom:28px; letter-spacing:-1px; }
 
 /* ── EDITOR CARD ── */
-/* ── EDITOR CARD ── */
 .editor-card {
     background:#fff;
     border-radius:14px;
     padding:0;
     margin-bottom:20px;
-    /* overflow:hidden; ← XÓA DÒNG NÀY */
     box-shadow:0 2px 8px rgba(0,0,0,0.04);
     border: 1px solid rgba(208, 232, 242, 0.6);
     transition: border-color 0.2s, box-shadow 0.2s;

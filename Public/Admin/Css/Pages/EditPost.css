@@ -12,7 +12,6 @@
     border: 1px solid rgba(208, 232, 242, 0.6);
 }
 
-/* ── Label nhỏ đầu mỗi section ── */
 .ep-section-label {
     display: block;
     font-size: 11px;
@@ -382,7 +381,6 @@
         padding: 18px 16px;
     }
 }
-/* ── Focus highlight khi click vào card ── */
 .editor-card:focus-within {
     border-color: #07344a !important;
     box-shadow: 0 0 0 4px rgba(7, 52, 74, 0.07) !important;

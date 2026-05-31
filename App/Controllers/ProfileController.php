@@ -15,7 +15,7 @@ class ProfileController
         $this->clientRepository = new \ClientRepository();
     }
 
-    // ── Hiển thị form đổi mật khẩu (GET) ────────────────────────────────────
+    // ── Hiển thị form đổi mật khẩu (GET) 
     public function changePassword()
     {
         header('Content-Type: application/json');
@@ -82,7 +82,7 @@ class ProfileController
         exit;
     }
 
-    // ── Xử lý cập nhật hồ sơ (POST — AJAX, trả JSON) ────────────────────────
+    // ── Xử lý cập nhật hồ sơ (POST — AJAX, trả JSON) 
     public function updateProfile()
 {
     header('Content-Type: application/json; charset=utf-8');
@@ -104,9 +104,7 @@ class ProfileController
 
     $avatarPath = null;
 
-    // ==============================
     // UPLOAD AVATAR LÊN CLOUDINARY
-    // ==============================
     if (isset($_FILES['avatar']) && !empty($_FILES['avatar']['name'])) {
 
         if ($_FILES['avatar']['error'] !== UPLOAD_ERR_OK) {
@@ -189,9 +187,7 @@ class ProfileController
         $avatarPath = $uploadResult['secure_url'];
     }
 
-    // ==============================
     // CẬP NHẬT DATABASE
-    // ==============================
     $updateResult = $this->clientRepository->updateAdminProfile(
         $userId,
         $fullname,

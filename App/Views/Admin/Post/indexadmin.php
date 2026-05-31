@@ -24,8 +24,6 @@
         .profile-info i { font-size: 13px; }
         td strong { font-size: 16px; font-weight: 900; display: block; color: #07344a; }
         td small  { display: block; font-size: 13px; color: #86a0ad; margin-top: 5px; line-height: 1.4; }
-
-        /* ✅ FIX: Modal thoát khỏi stacking context của main-content */
         .custom-modal-backdrop,
         #changePasswordModal,
         #editProfileModal {
@@ -208,8 +206,11 @@
                                 <td>
                                     <strong><?= htmlspecialchars($post->author_name ?? 'Ban Biên tập') ?></strong>
                                     <small>
-                                        <?= date('d/m/Y', strtotime($post->created_at)) ?><br>
-                                        <?= date('H:i', strtotime($post->created_at)) ?>
+                                        <?php
+        $displayDate = !empty($post->published_at) ? $post->published_at : $post->created_at;
+        ?>
+        <?= date('d/m/Y', strtotime($displayDate)) ?><br>
+        <?= date('H:i', strtotime($displayDate)) ?>
                                     </small>
                                 </td>
 
@@ -309,8 +310,7 @@
             </section>
         </main>
     </div>
-
-    <!-- ✅ Modal profile render ngoài admin-layout, thẳng vào body -->
+    
     <?php require_once __DIR__ . '/../Profile/edit.php'; ?>
     <?php require_once __DIR__ . '/../Profile/change_password.php'; ?>
 
