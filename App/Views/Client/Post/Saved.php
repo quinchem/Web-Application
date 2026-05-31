@@ -61,13 +61,14 @@ $savedTotalPages = $savedTotalPages ?? 0;
                             </p>
 
                             <div class="saved-post-date">
-                                Đã lưu lúc <?= date('H:i', strtotime($post['saved_at'])) ?> ngày <?= date('d/m/Y', strtotime($post['saved_at'])) ?>
+                                Đã lưu lúc <?= date('H:i', strtotime($post['saved_at'])) ?> ngày
+                                <?= date('d/m/Y', strtotime($post['saved_at'])) ?>
                             </div>
 
                         </div>
 
                         <button type="button" class="saved-bookmark-btn js-remove-saved"
-                            data-post-id="<?= htmlspecialchars($post['post_id']) ?>" title="Bỏ lưu">
+                            data-post-id="<?= htmlspecialchars($post['post_id'], ENT_QUOTES, 'UTF-8') ?>">
                             <i class="fa-solid fa-bookmark"></i>
                         </button>
 
