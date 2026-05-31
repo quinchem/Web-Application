@@ -38,6 +38,7 @@ $(function () {
     const $removeBtn = $('#pcRemoveThumbBtn');
 
     let cropperInstance = null;
+    let originalFile = null;
 
     $zone.on('click', function (e) {
         if ($(e.target).closest('#pcRemoveThumbBtn').length) return;
@@ -48,7 +49,10 @@ $(function () {
 
     $input.on('change', function () {
         const file = this.files[0];
-        if (file) _openCropper(file);
+        if (file) {
+            originalFile = file;
+            _openCropper(file);
+        }
     });
 
     $zone.on('dragover', function (e) {
@@ -62,6 +66,7 @@ $(function () {
             const dt = new DataTransfer();
             dt.items.add(file);
             $input[0].files = dt.files;
+            originalFile = file;
             _openCropper(file);
         }
     });
@@ -78,7 +83,7 @@ $(function () {
             }
 
             cropperInstance = new Cropper(document.getElementById('pcCropImage'), {
-                aspectRatio: NaN,
+                aspectRatio: 16 / 9,
                 viewMode: 1,
                 movable: true,
                 zoomable: true,
@@ -125,32 +130,15 @@ $(function () {
         $placeholder.show();
         $removeBtn.hide();
         $input.val('');
+        originalFile = null;
     });
 
     window.pcRemoveThumbnail = function () { $removeBtn.trigger('click'); };
     // Click vào ảnh preview → mở lại cropper với ảnh hiện tại
     $preview.on('click', function (e) {
         e.stopPropagation();
-        const src = $preview.attr('src');
-        if (!src) return;
-
-        $('#pcCropImage').attr('src', src);
-        $('#pcCropModal').css('display', 'flex');
-
-        if (cropperInstance) {
-            cropperInstance.destroy();
-            cropperInstance = null;
-        }
-
-        cropperInstance = new Cropper(document.getElementById('pcCropImage'), {
-            aspectRatio: NaN,
-            viewMode: 1,
-            movable: true,
-            zoomable: true,
-            scalable: true,
-            cropBoxResizable: true,
-            rotatable: false,
-        });
+        if (!originalFile) return;
+        _openCropper(originalFile);
     });
     /* ════════════════════════════════
        2. DANH MỤC CHA → CON
@@ -462,13 +450,83 @@ function pcFormat(cmd, val) {
     $('#pcContentInput').val($('#pcContentEditor').html());
 }
 
-function pcInsertImage() {
-    const url = prompt('Nhập URL ảnh:');
-    if (!url) return;
-    document.getElementById('pcContentEditor').focus();
-    document.execCommand(
-        'insertHTML', false,
-        '<img src="' + url + '" style="max-width:100%;border-radius:8px;margin:12px 0;" alt="">'
-    );
-    $('#pcContentInput').val($('#pcContentEditor').html());
-}
+(function () {
+    // Tạo hidden file input một lần duy nhất
+    const $imgPicker = $('<input type="file" accept="image/*" style="display:none;" id="pcContentImgPicker">');
+    $('body').append($imgPicker);
+
+    // Lưu vị trí con trỏ trước khi mở picker
+    let savedRange = null;
+
+    window.pcInsertImage = function () {
+        // Lưu selection hiện tại
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+            savedRange = sel.getRangeAt(0).cloneRange();
+        }
+        $imgPicker.val('').trigger('click');
+    };
+
+    $imgPicker.on('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        // Hiện placeholder ảnh ngay lập tức
+        const placeholderId = 'img-uploading-' + Date.now();
+        const $editor = $('#pcContentEditor');
+        $editor.focus();
+
+        // Khôi phục vị trí con trỏ
+        if (savedRange) {
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(savedRange);
+        }
+
+        document.execCommand(
+            'insertHTML', false,
+            '<span id="' + placeholderId + '" style="display:inline-flex;align-items:center;gap:6px;' +
+            'background:#f0f4f8;border-radius:6px;padding:8px 14px;font-size:0.82rem;color:#6c7a8d;' +
+            'font-family:Barlow,sans-serif;font-weight:600;margin:6px 0;">' +
+            '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải ảnh lên...</span>'
+        );
+
+        // Upload lên Cloudinary qua server
+        const formData = new FormData();
+        formData.append('image', file);
+
+        $.ajax({
+            url: 'index.php?page=api_upload_image',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function (res) {
+                const $placeholder = $('#' + placeholderId);
+                if (res.success && res.url) {
+                    // Thay placeholder bằng ảnh thật
+                    $placeholder.replaceWith(
+                        '<img src="' + res.url + '" ' +
+                        'style="max-width:100%;border-radius:8px;margin:12px 0;display:block;" alt="">'
+                    );
+                } else {
+                    $placeholder.replaceWith(
+                        '<span style="color:#991b1b;font-family:Barlow,sans-serif;font-size:0.82rem;">' +
+                        '⚠ Upload thất bại: ' + (res.message || 'Không rõ lỗi') + '</span>'
+                    );
+                }
+            },
+            error: function () {
+                $('#' + placeholderId).replaceWith(
+                    '<span style="color:#991b1b;font-family:Barlow,sans-serif;font-size:0.82rem;">' +
+                    '⚠ Không thể kết nối máy chủ.</span>'
+                );
+            },
+            complete: function () {
+                // Sync lại textarea hidden
+                $('#pcContentInput').val($('#pcContentEditor').html());
+            }
+        });
+    });
+})();

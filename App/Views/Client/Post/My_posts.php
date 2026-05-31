@@ -198,9 +198,16 @@ function myPostStatusClass($status)
 
                         <tr>
                             <td class="my-post-title-cell">
-                                <a href="index.php?page=post&id=<?= urlencode($postId) ?>" class="my-post-title">
-                                    <?= htmlspecialchars($title) ?>
-                                </a>
+                                <?php if ($status === 'approved'): ?>
+                                    <a href="index.php?page=post&id=<?= urlencode($postId) ?>" class="my-post-title">
+                                        <?= htmlspecialchars($title) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="my-post-title my-post-title--disabled">
+                                        <?= htmlspecialchars($title) ?>
+                                    </span>
+                                <?php endif; ?>
+
 
                                 <p>
                                     Tác giả: <?= htmlspecialchars($_SESSION['full_name'] ?? $_SESSION['user_name'] ?? '') ?>

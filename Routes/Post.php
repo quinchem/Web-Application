@@ -34,3 +34,5 @@ $router->get('subcategory', [PostController::class, 'subCategoryDetail']);
 
 $router->get('client_edit_post', [PostController::class, 'clientEditPostPage']);
 $router->post('client_delete_post', [PostController::class, 'clientDeletePost']);
+
+$router->post('api_upload_image', [PostController::class, 'apiUploadImage']);
