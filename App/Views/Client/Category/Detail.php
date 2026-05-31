@@ -115,9 +115,7 @@
 
                         <div class="post-meta">
 
-                            <?= !empty($first['published_at'])
-                                ? date('d/m/Y', strtotime($first['published_at']))
-                                : '' ?>
+                            <?= !empty($first['published_at']) ? timeAgo($first['published_at']) : '' ?>
 
                             <span class="dot">·</span>
 
@@ -161,9 +159,7 @@
 
                                     <div class="post-meta">
 
-                                        <?= !empty($p['published_at'])
-                                            ? date('d/m/Y', strtotime($p['published_at']))
-                                            : '' ?>
+                                        <?= !empty($p['published_at']) ? timeAgo($p['published_at']) : '' ?>
 
                                         <span class="dot">·</span>
 
