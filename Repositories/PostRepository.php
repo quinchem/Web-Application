@@ -14,9 +14,9 @@ class PostRepository
     }
 
     // Hàm tìm kiếm bài viết với các bộ lọc nâng cao - Trang Client
-public function searchPosts($filters)
-{
-    $sql = "
+    public function searchPosts($filters)
+    {
+        $sql = "
         SELECT DISTINCT
             p.post_id,
             p.title,
@@ -40,39 +40,45 @@ public function searchPosts($filters)
 
         LEFT JOIN Category parent
             ON child.parent_id = parent.category_id
+        
+        LEFT JOIN Post_Tag pt
+            ON p.post_id = pt.post_id
+
+        LEFT JOIN Tag t
+            ON pt.tag_id = t.tag_id
 
         WHERE 1 = 1
     ";
 
-    $params = [];
+        $params = [];
 
-    $sql .= $this->buildSearchCondition($filters, $params);
+        $sql .= $this->buildSearchCondition($filters, $params);
 
-    if (($filters['time'] ?? '') === 'oldest') {
-        $sql .= " ORDER BY p.created_at ASC ";
-    } else {
-        $sql .= " ORDER BY p.created_at DESC ";
+        if (($filters['time'] ?? '') === 'oldest') {
+            $sql .= " ORDER BY p.created_at ASC ";
+        } else {
+            $sql .= " ORDER BY p.created_at DESC ";
+        }
+
+        $sql .= " LIMIT :limit OFFSET :offset ";
+
+        $stmt = $this->conn->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+
+        $stmt->bindValue(':limit', (int) ($filters['limit'] ?? 3), PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) ($filters['offset'] ?? 0), PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    $sql .= " LIMIT :limit OFFSET :offset ";
-
-    $stmt = $this->conn->prepare($sql);
-
-    foreach ($params as $key => $value) {
-        $stmt->bindValue($key, $value);
-    }
-
-    $stmt->bindValue(':limit', (int)($filters['limit'] ?? 3), PDO::PARAM_INT);
-    $stmt->bindValue(':offset', (int)($filters['offset'] ?? 0), PDO::PARAM_INT);
-
-    $stmt->execute();
-
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-public function countSearchPosts($filters)
-{
-    $sql = "
+    public function countSearchPosts($filters)
+    {
+        $sql = "
         SELECT COUNT(DISTINCT p.post_id) AS total
 
         FROM Post p
@@ -85,99 +91,116 @@ public function countSearchPosts($filters)
 
         LEFT JOIN Category parent
             ON child.parent_id = parent.category_id
+        
+        LEFT JOIN Post_Tag pt
+            ON p.post_id = pt.post_id
+
+        LEFT JOIN Tag t
+            ON pt.tag_id = t.tag_id
 
         WHERE 1 = 1
     ";
 
-    $params = [];
+        $params = [];
 
-    $sql .= $this->buildSearchCondition($filters, $params);
+        $sql .= $this->buildSearchCondition($filters, $params);
 
-    $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
 
-    foreach ($params as $key => $value) {
-        $stmt->bindValue($key, $value);
-    }
-
-    $stmt->execute();
-
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    return (int)($row['total'] ?? 0);
-}
-
-private function buildSearchCondition($filters, &$params)
-{
-    $sql = "";
-
-    if (!empty($filters['keyword'])) {
-        $sql .= "
-            AND (
-                p.title LIKE :keyword
-                OR p.summary LIKE :keyword
-                OR p.content LIKE :keyword
-            )
-        ";
-
-        $params[':keyword'] = '%' . $filters['keyword'] . '%';
-    }
-
-    if (!empty($filters['author'])) {
-        $sql .= " AND u.full_name LIKE :author ";
-        $params[':author'] = '%' . $filters['author'] . '%';
-    }
-
-    if (!empty($filters['time'])) {
-        if ($filters['time'] === '24h') {
-            $sql .= " AND p.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY) ";
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
         }
 
-        if ($filters['time'] === 'week') {
-            $sql .= " AND p.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
-        }
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return (int) ($row['total'] ?? 0);
     }
 
-    if (!empty($filters['from_date'])) {
-        $sql .= " AND DATE(p.created_at) >= :from_date ";
-        $params[':from_date'] = $filters['from_date'];
-    }
+    private function buildSearchCondition($filters, &$params)
+    {
+        $sql = "";
 
-    if (!empty($filters['to_date'])) {
-        $sql .= " AND DATE(p.created_at) <= :to_date ";
-        $params[':to_date'] = $filters['to_date'];
-    }
+        if (!empty($filters['keyword'])) {
+            $keyword = trim($filters['keyword']);
 
-    if (!empty($filters['categories'])) {
-        $categoryIds = array_values(array_filter($filters['categories'], function ($item) {
-            return $item !== '';
-        }));
+            // Bỏ dấu # nếu người dùng nhập #thitruong hoặc #thi-truong
+            $hashtagKeyword = ltrim($keyword, '#');
 
-        if (!empty($categoryIds)) {
-            $childPlaceholders = [];
-            $parentPlaceholders = [];
-
-            foreach ($categoryIds as $index => $categoryId) {
-                $childKey = ':child_category_' . $index;
-                $parentKey = ':parent_category_' . $index;
-
-                $childPlaceholders[] = $childKey;
-                $parentPlaceholders[] = $parentKey;
-
-                $params[$childKey] = $categoryId;
-                $params[$parentKey] = $categoryId;
-            }
+            // Bỏ dấu -, _, khoảng trắng để tìm được cả thi-truong và thitruong
+            $normalizedHashtagKeyword = str_replace(['-', '_', ' '], '', $hashtagKeyword);
 
             $sql .= "
+        AND (
+            p.title LIKE :keyword
+            OR p.summary LIKE :keyword
+            OR p.content LIKE :keyword
+            OR t.slug LIKE :hashtag_keyword
+            OR REPLACE(REPLACE(REPLACE(t.slug, '-', ''), '_', ''), ' ', '') LIKE :normalized_hashtag_keyword
+        )
+    ";
+
+            $params[':keyword'] = '%' . $keyword . '%';
+            $params[':hashtag_keyword'] = '%' . $hashtagKeyword . '%';
+            $params[':normalized_hashtag_keyword'] = '%' . $normalizedHashtagKeyword . '%';
+        }
+        if (!empty($filters['author'])) {
+            $sql .= " AND u.full_name LIKE :author ";
+            $params[':author'] = '%' . $filters['author'] . '%';
+        }
+
+        if (!empty($filters['time'])) {
+            if ($filters['time'] === '24h') {
+                $sql .= " AND p.created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY) ";
+            }
+
+            if ($filters['time'] === 'week') {
+                $sql .= " AND p.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ";
+            }
+        }
+
+        if (!empty($filters['from_date'])) {
+            $sql .= " AND DATE(p.created_at) >= :from_date ";
+            $params[':from_date'] = $filters['from_date'];
+        }
+
+        if (!empty($filters['to_date'])) {
+            $sql .= " AND DATE(p.created_at) <= :to_date ";
+            $params[':to_date'] = $filters['to_date'];
+        }
+
+        if (!empty($filters['categories'])) {
+            $categoryIds = array_values(array_filter($filters['categories'], function ($item) {
+                return $item !== '';
+            }));
+
+            if (!empty($categoryIds)) {
+                $childPlaceholders = [];
+                $parentPlaceholders = [];
+
+                foreach ($categoryIds as $index => $categoryId) {
+                    $childKey = ':child_category_' . $index;
+                    $parentKey = ':parent_category_' . $index;
+
+                    $childPlaceholders[] = $childKey;
+                    $parentPlaceholders[] = $parentKey;
+
+                    $params[$childKey] = $categoryId;
+                    $params[$parentKey] = $categoryId;
+                }
+
+                $sql .= "
                 AND (
                     child.category_id IN (" . implode(',', $childPlaceholders) . ")
                     OR parent.category_id IN (" . implode(',', $parentPlaceholders) . ")
                 )
             ";
+            }
         }
-    }
 
-    return $sql;
-}
+        return $sql;
+    }
 
     public function getUserPostsForAdmin($filters = [], $limit = 10, $offset = 0)
     {
@@ -229,8 +252,8 @@ private function buildSearchCondition($filters, &$params)
             $stmt->bindValue(':' . $key, $value);
         }
 
-        $stmt->bindValue(':limit',  (int)$limit,  PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
 
         $stmt->execute();
 
@@ -400,7 +423,8 @@ private function buildSearchCondition($filters, &$params)
     {
         // Công thức: (View * 1) + (Like * 3) + (Save * 5) 
         // Chia cho (Số ngày đăng + 2)^1.5 để ưu tiên bài mới
-        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url,c.name as category_name, u.full_name as author_name,
+        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url,
+        c.name as category_name, u.full_name as author_name,
             p.view_count as display_views, 
             ((p.view_count * 1) + 
               ((SELECT COUNT(*) FROM `Like` WHERE post_id = p.post_id) * 3) + 
@@ -413,7 +437,7 @@ private function buildSearchCondition($filters, &$params)
             ORDER BY trend_score DESC LIMIT :limit";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -460,7 +484,7 @@ private function buildSearchCondition($filters, &$params)
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':category_id', $categoryId);
         $stmt->bindValue(':current_id', $postId);
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -610,8 +634,8 @@ private function buildSearchCondition($filters, &$params)
         $insertStmt = $this->conn->prepare($insertSql);
         $insertStmt->execute([
             ':bookmark_id' => $newBookmarkId,
-            ':post_id'     => $postId,
-            ':user_id'     => $userId
+            ':post_id' => $postId,
+            ':user_id' => $userId
         ]);
 
         return ['success' => true, 'action' => 'saved'];
@@ -782,7 +806,7 @@ private function buildSearchCondition($filters, &$params)
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return (int)($row['total'] ?? 0);
+        return (int) ($row['total'] ?? 0);
     }
 
 
@@ -849,8 +873,8 @@ private function buildSearchCondition($filters, &$params)
             $stmt->bindValue($key, $value);
         }
 
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
 
         $stmt->execute();
 
@@ -877,43 +901,43 @@ private function buildSearchCondition($filters, &$params)
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return (int)($row['total'] ?? 0);
+        return (int) ($row['total'] ?? 0);
     }
 
 
 
     /*Quản lý bài viết admin */
     public function getAdminPosts($filters, $limit, $offset)
-{
-    $where = ["r.role_name = 'admin'"];
-    $params = [];
+    {
+        $where = ["r.role_name = 'admin'"];
+        $params = [];
 
-    if (!empty($filters['keyword'])) {
-        $where[] = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
-        $params['kw1'] = '%' . $filters['keyword'] . '%';
-        $params['kw2'] = '%' . $filters['keyword'] . '%';
-    }
-    if (!empty($filters['category_id'])) {
-        $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
-        $params['category_id'] = $filters['category_id'];
-    }
-    // ✅ THÊM MỚI
-    if (!empty($filters['author_id'])) {
-        $where[] = "u.user_id = :author_id";
-        $params['author_id'] = $filters['author_id'];
-    }
-    if (!empty($filters['status'])) {
-        $where[] = "p.status = :status";
-        $params['status'] = $filters['status'];
-    }
-    if (!empty($filters['date'])) {
-        $where[] = "DATE(p.created_at) = :date";
-        $params['date'] = $filters['date'];
-    }
+        if (!empty($filters['keyword'])) {
+            $where[] = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
+            $params['kw1'] = '%' . $filters['keyword'] . '%';
+            $params['kw2'] = '%' . $filters['keyword'] . '%';
+        }
+        if (!empty($filters['category_id'])) {
+            $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
+            $params['category_id'] = $filters['category_id'];
+        }
+        // ✅ THÊM MỚI
+        if (!empty($filters['author_id'])) {
+            $where[] = "u.user_id = :author_id";
+            $params['author_id'] = $filters['author_id'];
+        }
+        if (!empty($filters['status'])) {
+            $where[] = "p.status = :status";
+            $params['status'] = $filters['status'];
+        }
+        if (!empty($filters['date'])) {
+            $where[] = "DATE(p.created_at) = :date";
+            $params['date'] = $filters['date'];
+        }
 
-    $whereSQL = implode(' AND ', $where);
+        $whereSQL = implode(' AND ', $where);
 
-    $sql = "SELECT p.*, u.full_name AS author_name,
+        $sql = "SELECT p.*, u.full_name AS author_name,
                c.name AS category_name, c.parent_id,
                cp.name AS parent_category_name
         FROM Post p
@@ -925,20 +949,20 @@ private function buildSearchCondition($filters, &$params)
         ORDER BY p.created_at DESC
         LIMIT :limit OFFSET :offset";
 
-    $stmt = $this->conn->prepare($sql);
-    foreach ($params as $key => $value) {
-        $stmt->bindValue(':' . $key, $value);
-    }
-    $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
-    $stmt->execute();
+        $stmt = $this->conn->prepare($sql);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
+        $stmt->execute();
 
-    $posts = [];
-    foreach ($stmt->fetchAll() as $row) {
-        $posts[] = new Post($row);
+        $posts = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $posts[] = new Post($row);
+        }
+        return $posts;
     }
-    return $posts;
-}
     public function countAdminPosts()
     {
         $sql = "SELECT COUNT(*) AS total FROM Post p
@@ -951,44 +975,44 @@ private function buildSearchCondition($filters, &$params)
 
     // Hàm đếm số bài viết của admin với các bộ lọc nâng cao
     public function countAdminPostsFiltered($filters)
-{
-    $where = ["r.role_name = 'admin'"];
-    $params = [];
+    {
+        $where = ["r.role_name = 'admin'"];
+        $params = [];
 
-    if (!empty($filters['keyword'])) {
-        $where[] = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
-        $params['kw1'] = '%' . $filters['keyword'] . '%';
-        $params['kw2'] = '%' . $filters['keyword'] . '%';
-    }
-    if (!empty($filters['category_id'])) {
-        $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
-        $params['category_id'] = $filters['category_id'];
-    }
-    // ✅ THÊM MỚI
-    if (!empty($filters['author_id'])) {
-        $where[] = "u.user_id = :author_id";
-        $params['author_id'] = $filters['author_id'];
-    }
-    if (!empty($filters['status'])) {
-        $where[] = "p.status = :status";
-        $params['status'] = $filters['status'];
-    }
-    if (!empty($filters['date'])) {
-        $where[] = "DATE(p.created_at) = :date";
-        $params['date'] = $filters['date'];
-    }
+        if (!empty($filters['keyword'])) {
+            $where[] = "(p.title LIKE :kw1 OR u.full_name LIKE :kw2)";
+            $params['kw1'] = '%' . $filters['keyword'] . '%';
+            $params['kw2'] = '%' . $filters['keyword'] . '%';
+        }
+        if (!empty($filters['category_id'])) {
+            $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
+            $params['category_id'] = $filters['category_id'];
+        }
+        // ✅ THÊM MỚI
+        if (!empty($filters['author_id'])) {
+            $where[] = "u.user_id = :author_id";
+            $params['author_id'] = $filters['author_id'];
+        }
+        if (!empty($filters['status'])) {
+            $where[] = "p.status = :status";
+            $params['status'] = $filters['status'];
+        }
+        if (!empty($filters['date'])) {
+            $where[] = "DATE(p.created_at) = :date";
+            $params['date'] = $filters['date'];
+        }
 
-    $whereSQL = implode(' AND ', $where);
-    $sql = "SELECT COUNT(*) AS total FROM Post p
+        $whereSQL = implode(' AND ', $where);
+        $sql = "SELECT COUNT(*) AS total FROM Post p
         JOIN `User` u ON p.user_id = u.user_id
         JOIN Role r ON u.role_id = r.role_id
         JOIN Category c ON p.category_id = c.category_id
         WHERE $whereSQL";
 
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute($params);
-    return $stmt->fetch()['total'];
-}
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetch()['total'];
+    }
 
     public function countAdminPostsByStatus($status)
     {
@@ -1027,7 +1051,7 @@ private function buildSearchCondition($filters, &$params)
     public function getAdminAuthors()
     {
         // role_id = 'RL0001' là admin theo schema DB
-        $sql  = "SELECT user_id, full_name FROM user WHERE role_id = 'RL0001' ORDER BY full_name";
+        $sql = "SELECT user_id, full_name FROM user WHERE role_id = 'RL0001' ORDER BY full_name";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1123,7 +1147,8 @@ private function buildSearchCondition($filters, &$params)
 
         foreach ($tagNames as $name) {
             $name = trim($name);
-            if (!$name) continue;
+            if (!$name)
+                continue;
 
             // Tìm tag theo slug
             $stmt = $this->conn->prepare("SELECT tag_id FROM Tag WHERE slug = ? LIMIT 1");
@@ -1134,8 +1159,8 @@ private function buildSearchCondition($filters, &$params)
                 // Sinh tag_id mới theo pattern TG0001
                 $last = $this->conn->query("SELECT tag_id FROM Tag ORDER BY tag_id DESC LIMIT 1")
                     ->fetch(PDO::FETCH_ASSOC);
-                $newNum = $last ? (int)substr($last['tag_id'], 2) + 1 : 1;
-                $tagId  = 'TG' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
+                $newNum = $last ? (int) substr($last['tag_id'], 2) + 1 : 1;
+                $tagId = 'TG' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
 
                 $this->conn->prepare("INSERT INTO Tag (tag_id, slug) VALUES (?, ?)")
                     ->execute([$tagId, $name]);
@@ -1179,12 +1204,12 @@ private function buildSearchCondition($filters, &$params)
         return $this->conn->exec($sql);
     }
 
-public function getPostsByParentCategoryGrouped(string $parentCategoryName, int $limitPerSub = 4): array
-{
-    // =========================================
-    // BƯỚC 1: LẤY CATEGORY CHA
-    // =========================================
-    $stmtParent = $this->conn->prepare("
+    public function getPostsByParentCategoryGrouped(string $parentCategoryName, int $limitPerSub = 4): array
+    {
+        // =========================================
+        // BƯỚC 1: LẤY CATEGORY CHA
+        // =========================================
+        $stmtParent = $this->conn->prepare("
         SELECT category_id
         FROM Category
         WHERE name = :name
@@ -1192,20 +1217,20 @@ public function getPostsByParentCategoryGrouped(string $parentCategoryName, int 
         LIMIT 1
     ");
 
-    $stmtParent->execute([':name' => $parentCategoryName]);
+        $stmtParent->execute([':name' => $parentCategoryName]);
 
-    $parent = $stmtParent->fetch(PDO::FETCH_ASSOC);
+        $parent = $stmtParent->fetch(PDO::FETCH_ASSOC);
 
-    if (!$parent) {
-        return [];
-    }
+        if (!$parent) {
+            return [];
+        }
 
-    $parentId = $parent['category_id'];
+        $parentId = $parent['category_id'];
 
-    // =========================================
-    // BƯỚC 2: LẤY SUB CATEGORY
-    // =========================================
-    $stmtSubs = $this->conn->prepare("
+        // =========================================
+        // BƯỚC 2: LẤY SUB CATEGORY
+        // =========================================
+        $stmtSubs = $this->conn->prepare("
         SELECT
             category_id,
             name,
@@ -1215,25 +1240,25 @@ public function getPostsByParentCategoryGrouped(string $parentCategoryName, int 
         ORDER BY `order` ASC
     ");
 
-    $stmtSubs->execute([':parent_id' => $parentId]);
+        $stmtSubs->execute([':parent_id' => $parentId]);
 
-    $subs = $stmtSubs->fetchAll(PDO::FETCH_ASSOC);
+        $subs = $stmtSubs->fetchAll(PDO::FETCH_ASSOC);
 
-    if (empty($subs)) {
-        return [];
-    }
+        if (empty($subs)) {
+            return [];
+        }
 
-    // =========================================
-    // BƯỚC 3: BUILD DATA
-    // =========================================
-    $result = [];
+        // =========================================
+        // BƯỚC 3: BUILD DATA
+        // =========================================
+        $result = [];
 
-    foreach ($subs as $sub) {
+        foreach ($subs as $sub) {
 
-        // =====================================
-        // HERO POST
-        // =====================================
-        $stmtHero = $this->conn->prepare("
+            // =====================================
+            // HERO POST
+            // =====================================
+            $stmtHero = $this->conn->prepare("
             SELECT
                 p.post_id,
                 p.title,
@@ -1269,18 +1294,18 @@ public function getPostsByParentCategoryGrouped(string $parentCategoryName, int 
             LIMIT 1
         ");
 
-        $stmtHero->execute([':cat_id' => $sub['category_id']]);
+            $stmtHero->execute([':cat_id' => $sub['category_id']]);
 
-        $heroPost = $stmtHero->fetch(PDO::FETCH_ASSOC);
+            $heroPost = $stmtHero->fetch(PDO::FETCH_ASSOC);
 
-        if (!$heroPost) {
-            continue;
-        }
+            if (!$heroPost) {
+                continue;
+            }
 
-        // =====================================
-        // OTHER POSTS
-        // =====================================
-        $stmtOthers = $this->conn->prepare("
+            // =====================================
+            // OTHER POSTS
+            // =====================================
+            $stmtOthers = $this->conn->prepare("
             SELECT
                 p.post_id,
                 p.title,
@@ -1315,28 +1340,28 @@ public function getPostsByParentCategoryGrouped(string $parentCategoryName, int 
             LIMIT :lim
         ");
 
-        $stmtOthers->bindValue(':cat_id',   $sub['category_id']);
-        $stmtOthers->bindValue(':hero_id',  $heroPost['post_id']);
-        $stmtOthers->bindValue(':lim',      $limitPerSub - 1, PDO::PARAM_INT);
-        $stmtOthers->execute();
+            $stmtOthers->bindValue(':cat_id', $sub['category_id']);
+            $stmtOthers->bindValue(':hero_id', $heroPost['post_id']);
+            $stmtOthers->bindValue(':lim', $limitPerSub - 1, PDO::PARAM_INT);
+            $stmtOthers->execute();
 
-        $otherPosts = $stmtOthers->fetchAll(PDO::FETCH_ASSOC);
+            $otherPosts = $stmtOthers->fetchAll(PDO::FETCH_ASSOC);
 
-        // =====================================
-        // GỘP HERO + OTHERS
-        // =====================================
-        $result[$sub['name']] = array_merge(
-            [$heroPost],
-            $otherPosts
-        );
+            // =====================================
+            // GỘP HERO + OTHERS
+            // =====================================
+            $result[$sub['name']] = array_merge(
+                [$heroPost],
+                $otherPosts
+            );
+        }
+
+        return $result;
     }
 
-    return $result;
-}
-
-public function getRelatedPosts($categoryId, $currentPostId, $limit = 3)
-{
-    $sql = "
+    public function getRelatedPosts($categoryId, $currentPostId, $limit = 3)
+    {
+        $sql = "
         SELECT
             p.post_id,
             p.title,
@@ -1366,40 +1391,39 @@ public function getRelatedPosts($categoryId, $currentPostId, $limit = 3)
         LIMIT :lim
     ";
 
-    $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
 
-    $stmt->bindValue(':category_id', $categoryId);
-    $stmt->bindValue(':post_id', $currentPostId);
-    $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':category_id', $categoryId);
+        $stmt->bindValue(':post_id', $currentPostId);
+        $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
 
-    $stmt->execute();
+        $stmt->execute();
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-public function getCategoryBySlug($slug)
-{
-    $sql = "
+    public function getCategoryBySlug($slug)
+    {
+        $sql = "
         SELECT *
         FROM Category
         WHERE slug = ?
         LIMIT 1
     ";
 
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute([$slug]);
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$slug]);
 
-    return $stmt->fetch(\PDO::FETCH_ASSOC);
-}
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 
-public function getPostsByCategorySlug(
-    $slug,
-    $featuredId,
-    $limit,
-    $offset
-)
-{
-    $sql = "
+    public function getPostsByCategorySlug(
+        $slug,
+        $featuredId,
+        $limit,
+        $offset
+    ) {
+        $sql = "
         SELECT 
             p.*,
             p.thumbnail_URL AS thumbnail_url,
@@ -1437,34 +1461,34 @@ public function getPostsByCategorySlug(
         LIMIT ? OFFSET ?
     ";
 
-    $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
 
-    $stmt->bindValue(1, $slug, \PDO::PARAM_STR);
+        $stmt->bindValue(1, $slug, \PDO::PARAM_STR);
 
-    $stmt->bindValue(2, $featuredId, \PDO::PARAM_STR);
+        $stmt->bindValue(2, $featuredId, \PDO::PARAM_STR);
 
-    $stmt->bindValue(3, $limit, \PDO::PARAM_INT);
+        $stmt->bindValue(3, $limit, \PDO::PARAM_INT);
 
-    $stmt->bindValue(4, $offset, \PDO::PARAM_INT);
+        $stmt->bindValue(4, $offset, \PDO::PARAM_INT);
 
-    $stmt->execute();
+        $stmt->execute();
 
-    return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-}
-public function getCategoryByName(string $name): ?array
-{
-    $stmt = $this->conn->prepare("
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+    public function getCategoryByName(string $name): ?array
+    {
+        $stmt = $this->conn->prepare("
         SELECT * FROM Category
         WHERE name = :name
         LIMIT 1
     ");
-    $stmt->execute([':name' => $name]);
-    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-}
+        $stmt->execute([':name' => $name]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
 
-public function getFeaturedPostByCategory($slug)
-{
-    $sql = "
+    public function getFeaturedPostByCategory($slug)
+    {
+        $sql = "
         SELECT 
             p.*,
             p.thumbnail_URL AS thumbnail_url,
@@ -1501,15 +1525,15 @@ public function getFeaturedPostByCategory($slug)
         LIMIT 1
     ";
 
-    $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
 
-    $stmt->execute([$slug]);
+        $stmt->execute([$slug]);
 
-    return $stmt->fetch(\PDO::FETCH_ASSOC);
-}
-public function countPostsByCategorySlug($slug)
-{
-    $sql = "
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+    public function countPostsByCategorySlug($slug)
+    {
+        $sql = "
         SELECT COUNT(*) as total
 
         FROM Post p
@@ -1521,23 +1545,23 @@ public function countPostsByCategorySlug($slug)
         AND p.status = 'approved'
     ";
 
-    $stmt = $this->conn->prepare($sql);
+        $stmt = $this->conn->prepare($sql);
 
-    $stmt->execute([$slug]);
+        $stmt->execute([$slug]);
 
-    $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-    return $result['total'] ?? 0;
-}
-public function clientCreatePost(array $data): string|false
-{
-    // Sinh post_id theo đúng pattern của repo (PS0001, PS0002, ...)
-    $stmt = $this->conn->query("SELECT post_id FROM Post ORDER BY post_id DESC LIMIT 1");
-    $last = $stmt->fetch(PDO::FETCH_ASSOC);
-    $newNum = $last ? (int) substr($last['post_id'], 2) + 1 : 1;
-    $postId = 'PS' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
- 
-    $sql = "INSERT INTO Post
+        return $result['total'] ?? 0;
+    }
+    public function clientCreatePost(array $data): string|false
+    {
+        // Sinh post_id theo đúng pattern của repo (PS0001, PS0002, ...)
+        $stmt = $this->conn->query("SELECT post_id FROM Post ORDER BY post_id DESC LIMIT 1");
+        $last = $stmt->fetch(PDO::FETCH_ASSOC);
+        $newNum = $last ? (int) substr($last['post_id'], 2) + 1 : 1;
+        $postId = 'PS' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
+
+        $sql = "INSERT INTO Post
                 (post_id, user_id, title, summary, content,
                  thumbnail_URL, category_id, status,
                  published_at, created_at)
@@ -1545,21 +1569,21 @@ public function clientCreatePost(array $data): string|false
                 (:post_id, :user_id, :title, :summary, :content,
                  :thumbnail_URL, :category_id, :status,
                  :published_at, NOW())";
- 
-    $stmt = $this->conn->prepare($sql);
- 
-    $ok = $stmt->execute([
-        ':post_id'       => $postId,
-        ':user_id'       => $data['user_id'],
-        ':title'         => $data['title'],
-        ':summary'       => $data['summary']       ?? null,
-        ':content'       => $data['content'],
-        ':thumbnail_URL' => $data['thumbnail_URL'] ?? null,
-        ':category_id'   => $data['category_id']   ?? null,
-        ':status'        => $data['status']         ?? 'draft',
-        ':published_at'  => $data['publish_at']     ?? null,
-    ]);
- 
-    return $ok ? $postId : false;
-}
+
+        $stmt = $this->conn->prepare($sql);
+
+        $ok = $stmt->execute([
+            ':post_id' => $postId,
+            ':user_id' => $data['user_id'],
+            ':title' => $data['title'],
+            ':summary' => $data['summary'] ?? null,
+            ':content' => $data['content'],
+            ':thumbnail_URL' => $data['thumbnail_URL'] ?? null,
+            ':category_id' => $data['category_id'] ?? null,
+            ':status' => $data['status'] ?? 'draft',
+            ':published_at' => $data['publish_at'] ?? null,
+        ]);
+
+        return $ok ? $postId : false;
+    }
 }
