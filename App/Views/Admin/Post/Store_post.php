@@ -1,8 +1,6 @@
 <?php
 // store_post.php — Xử lý lưu bài viết (draft hoặc published)
 
-// require_once __DIR__ . '/../../Config/Database.php';
-
 /** @var \PDO $pdo */  // Báo cho Intelephense biết $pdo được inject từ ngoài
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

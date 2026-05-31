@@ -70,17 +70,16 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
     background: #dff0f6;
     border-radius: 14px;
     padding: 20px 24px;
-    display: flex;        /* ← ĐỔI SANG FLEX thay vì grid để tránh bug */
+    display: flex;        
     flex-wrap: nowrap;
     align-items: center;
     gap: 14px;
     margin-bottom: 46px;
     overflow: visible;
-    position: relative;  /* ← THÊM */
+    position: relative; 
     z-index: 1;
 }
 
-/* Search chiếm không gian còn lại */
 .search-input {
     flex: 2;
     min-width: 0;
@@ -95,7 +94,6 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
 .search-input input { border:none; outline:none; background:transparent; width:100%; font-size:13px; font-weight:500; color:#07344a; font-family:'Barlow',sans-serif; }
 .search-input input::placeholder { color:#9fb0bc; }
 
-/* Category dropdown — flex item */
 .category-dropdown {
     flex: 1;
     min-width: 0;
@@ -104,7 +102,6 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
     z-index: 10;
 }
 
-/* Select và date wrapper — flex item đều nhau */
 .filter-select {
     flex: 1;
     min-width: 0;
@@ -120,13 +117,11 @@ h1 { font-size:42px; font-weight:900; color:#07344a; margin-bottom:18px; letter-
     font-family: 'Barlow', sans-serif;
 }
 
-/* Date wrapper cùng flex như select */
 .date-input-wrapper {
     flex: 1;
     min-width: 0;
 }
 
-/* Filter button — kích thước cố định */
 .filter-btn {
     flex-shrink: 0;
     width: 48px !important;

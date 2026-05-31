@@ -55,7 +55,6 @@
 
             <?php if (!empty($_GET['success'])): ?>
                 <div class="alert alert-success mb-3" style="border-radius:12px;font-weight:600;">
-                    ✅ Lưu thay đổi thành công!
                 </div>
             <?php endif; ?>
 

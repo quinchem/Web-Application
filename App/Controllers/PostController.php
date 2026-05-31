@@ -718,7 +718,7 @@ exit;
         $filters = [
             'keyword'     => $_GET['keyword']     ?? '',
             'category_id' => $_GET['category_id'] ?? '',
-            'author_id'   => $_GET['author_id']   ?? '',  // ← THÊM
+            'author_id'   => $_GET['author_id']   ?? '', 
             'status'      => $_GET['status']       ?? '',
             'date'        => $_GET['date']         ?? '',
         ];
@@ -734,7 +734,7 @@ exit;
         $trendingPosts = $this->postRepository->countTrendingAdminPosts();
         $totalPages    = (int)ceil($totalForPages / $perPage);
         $categories    = $this->postRepository->getCategoriesForFilter();
-        $adminAuthors  = $this->postRepository->getAdminAuthors();  // ← THÊM
+        $adminAuthors  = $this->postRepository->getAdminAuthors();  
 
         require_once __DIR__ . '/../Views/Admin/Post/IndexAdmin.php';
     }
@@ -756,7 +756,7 @@ exit;
 
         $authorId = $_SESSION['user']->user_id ?? null;
 
-        // ✅ Thay move_uploaded_file → upload Cloudinary
+        // Thay move_uploaded_file → upload Cloudinary
         $thumbnailUrl = null;
         if (!empty($_FILES['thumbnail']['tmp_name'])) {
             $thumbnailUrl = $this->uploadToCloudinary($_FILES['thumbnail']);
@@ -782,7 +782,7 @@ exit;
     /*Chỉnh sửa bài viết admin*/
     public function editPost()
     {
-        $id = $_GET['id'] ?? ''; // ✅ KHÔNG có (int)
+        $id = $_GET['id'] ?? ''; 
 
         if (!$id) {
             header('Location: Admin_index.php?page=admin_posts');
@@ -823,7 +823,6 @@ exit;
 
         $finalCatId = !empty($subCatId) ? $subCatId : $catId;
 
-        // ✅ Giữ nguyên status cũ trong DB, không override
         $currentPost   = $this->postRepository->getPostById($id);
         $currentStatus = $currentPost['status'] ?? 'draft';
 
@@ -836,7 +835,7 @@ exit;
             'status'       => $currentStatus,
         ];
 
-        // ✅ Upload Cloudinary nếu có ảnh mới
+        // Upload Cloudinary nếu có ảnh mới
         if (!empty($_FILES['thumbnail']['tmp_name'])) {
             $url = $this->uploadToCloudinary($_FILES['thumbnail']);
             if ($url) {
@@ -932,18 +931,13 @@ exit;
             $this->homepage();
             return;
         }
-
-        // =========================
         // BÀI NỔI BẬT (NHIỀU VIEW NHẤT)
-        // =========================
         $featuredPost = $this->postRepository
             ->getFeaturedPostByCategory($slug);
 
         $featuredId = $featuredPost['post_id'] ?? 0;
 
-        // =========================
         // PHÂN TRANG
-        // =========================
         $pageNumber = isset($_GET['p'])
             ? (int) $_GET['p']
             : 1;
@@ -955,10 +949,6 @@ exit;
         $limit = 10;
 
         $offset = ($pageNumber - 1) * $limit;
-
-        // =========================
-        // DANH SÁCH BÀI VIẾT
-        // =========================
         $posts = $this->postRepository
             ->getPostsByCategorySlug(
                 $slug,
@@ -967,24 +957,14 @@ exit;
                 $offset
             );
 
-        // =========================
-        // TỔNG SỐ BÀI
-        // =========================
         $totalPosts = $this->postRepository
             ->countPostsByCategorySlug($slug);
 
         $totalPages = ceil($totalPosts / $limit);
-
-        // =========================
-        // CATEGORY NAME
-        // =========================
         $categoryName =
             $featuredPost['category_name']
             ?? ($posts[0]['category_name'] ?? '');
 
-        // =========================
-        // VIEW
-        // =========================
         require __DIR__ . '/../Views/Client/Category/Detail2.php';
     }
 }
