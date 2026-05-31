@@ -40,6 +40,12 @@ class PostRepository
 
         LEFT JOIN Category parent
             ON child.parent_id = parent.category_id
+        
+        LEFT JOIN Post_Tag pt
+            ON p.post_id = pt.post_id
+
+        LEFT JOIN Tag t
+            ON pt.tag_id = t.tag_id
 
         WHERE 1 = 1
     ";
@@ -62,8 +68,8 @@ class PostRepository
             $stmt->bindValue($key, $value);
         }
 
-        $stmt->bindValue(':limit', (int)($filters['limit'] ?? 3), PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)($filters['offset'] ?? 0), PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) ($filters['limit'] ?? 3), PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) ($filters['offset'] ?? 0), PDO::PARAM_INT);
 
         $stmt->execute();
 
@@ -85,6 +91,12 @@ class PostRepository
 
         LEFT JOIN Category parent
             ON child.parent_id = parent.category_id
+        
+        LEFT JOIN Post_Tag pt
+            ON p.post_id = pt.post_id
+
+        LEFT JOIN Tag t
+            ON pt.tag_id = t.tag_id
 
         WHERE 1 = 1
     ";
@@ -103,7 +115,7 @@ class PostRepository
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return (int)($row['total'] ?? 0);
+        return (int) ($row['total'] ?? 0);
     }
 
     private function buildSearchCondition($filters, &$params)
@@ -111,17 +123,28 @@ class PostRepository
         $sql = "";
 
         if (!empty($filters['keyword'])) {
+            $keyword = trim($filters['keyword']);
+
+            // Bỏ dấu # nếu người dùng nhập #thitruong hoặc #thi-truong
+            $hashtagKeyword = ltrim($keyword, '#');
+
+            // Bỏ dấu -, _, khoảng trắng để tìm được cả thi-truong và thitruong
+            $normalizedHashtagKeyword = str_replace(['-', '_', ' '], '', $hashtagKeyword);
+
             $sql .= "
-            AND (
-                p.title LIKE :keyword
-                OR p.summary LIKE :keyword
-                OR p.content LIKE :keyword
-            )
-        ";
+        AND (
+            p.title LIKE :keyword
+            OR p.summary LIKE :keyword
+            OR p.content LIKE :keyword
+            OR t.slug LIKE :hashtag_keyword
+            OR REPLACE(REPLACE(REPLACE(t.slug, '-', ''), '_', ''), ' ', '') LIKE :normalized_hashtag_keyword
+        )
+    ";
 
-            $params[':keyword'] = '%' . $filters['keyword'] . '%';
+            $params[':keyword'] = '%' . $keyword . '%';
+            $params[':hashtag_keyword'] = '%' . $hashtagKeyword . '%';
+            $params[':normalized_hashtag_keyword'] = '%' . $normalizedHashtagKeyword . '%';
         }
-
         if (!empty($filters['author'])) {
             $sql .= " AND u.full_name LIKE :author ";
             $params[':author'] = '%' . $filters['author'] . '%';
@@ -229,8 +252,8 @@ class PostRepository
             $stmt->bindValue(':' . $key, $value);
         }
 
-        $stmt->bindValue(':limit',  (int)$limit,  PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
 
         $stmt->execute();
 
@@ -400,7 +423,8 @@ class PostRepository
     {
         // Công thức: (View * 1) + (Like * 3) + (Save * 5) 
         // Chia cho (Số ngày đăng + 2)^1.5 để ưu tiên bài mới
-        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url,c.name as category_name, u.full_name as author_name,
+        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url,
+        c.name as category_name, u.full_name as author_name,
             p.view_count as display_views, 
             ((p.view_count * 1) + 
               ((SELECT COUNT(*) FROM `Like` WHERE post_id = p.post_id) * 3) + 
@@ -413,7 +437,7 @@ class PostRepository
             ORDER BY trend_score DESC LIMIT :limit";
 
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -423,9 +447,7 @@ class PostRepository
         // Lấy danh mục 2 cấp
         $sql = "SELECT p.*, 
                        c.name as category_name, 
-                       c.slug as category_slug,
                        parent.name as parent_category_name,
-                       parent.slug as parent_category_slug,
                        u.full_name as author_name, u.avatar 
                 FROM Post p 
                 JOIN Category c ON p.category_id = c.category_id 
@@ -447,40 +469,22 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getRecommendedByCategory($excludeId, $categoryId, $limit = 8): array
+    public function getRecommendedByCategory($postId, $categoryId, $limit = 5)
     {
-        $stmt = $this->conn->prepare("SELECT parent_id FROM Category WHERE category_id = ?");
-        $stmt->execute([$categoryId]);
-        $parentId = $stmt->fetchColumn();
-
-        if ($parentId) {
-            $stmt = $this->conn->prepare("SELECT category_id FROM Category WHERE parent_id = ?");
-            $stmt->execute([$parentId]);
-            $siblingIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        } else {
-            $siblingIds = [$categoryId];
-        }
-
-        $placeholders = implode(',', array_fill(0, count($siblingIds), '?'));
-
-        $stmt = $this->conn->prepare("
-        SELECT p.*, c.name as category_name
-        FROM Post p
-        LEFT JOIN Category c ON p.category_id = c.category_id
-        WHERE p.category_id IN ($placeholders)
-          AND p.post_id != ?
-          AND p.status = 'approved'
-        ORDER BY p.view_count DESC
-        LIMIT ?
-    ");
-
-        $i = 1;
-        foreach ($siblingIds as $sid) {
-            $stmt->bindValue($i++, $sid);
-        }
-        $stmt->bindValue($i++, $excludeId);
-        $stmt->bindValue($i, (int)$limit, PDO::PARAM_INT);
-
+        $sql = "SELECT p.*, c.name as category_name
+            FROM Post p
+            JOIN Category c ON p.category_id = c.category_id
+            WHERE p.status = 'approved' 
+            AND p.category_id = :category_id 
+            AND p.post_id != :current_id
+            ORDER BY (p.view_count + 
+                      (SELECT COUNT(*) FROM `Like` WHERE post_id = p.post_id) * 5 + 
+                      (SELECT COUNT(*) FROM Bookmark WHERE post_id = p.post_id) * 3) DESC
+            LIMIT :limit";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(':category_id', $categoryId);
+        $stmt->bindValue(':current_id', $postId);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -630,8 +634,8 @@ class PostRepository
         $insertStmt = $this->conn->prepare($insertSql);
         $insertStmt->execute([
             ':bookmark_id' => $newBookmarkId,
-            ':post_id'     => $postId,
-            ':user_id'     => $userId
+            ':post_id' => $postId,
+            ':user_id' => $userId
         ]);
 
         return ['success' => true, 'action' => 'saved'];
@@ -802,7 +806,7 @@ class PostRepository
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return (int)($row['total'] ?? 0);
+        return (int) ($row['total'] ?? 0);
     }
 
 
@@ -869,8 +873,8 @@ class PostRepository
             $stmt->bindValue($key, $value);
         }
 
-        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int) $offset, PDO::PARAM_INT);
 
         $stmt->execute();
 
@@ -897,7 +901,7 @@ class PostRepository
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return (int)($row['total'] ?? 0);
+        return (int) ($row['total'] ?? 0);
     }
 
 
@@ -1047,7 +1051,7 @@ class PostRepository
     public function getAdminAuthors()
     {
         // role_id = 'RL0001' là admin theo schema DB
-        $sql  = "SELECT user_id, full_name FROM user WHERE role_id = 'RL0001' ORDER BY full_name";
+        $sql = "SELECT user_id, full_name FROM user WHERE role_id = 'RL0001' ORDER BY full_name";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1143,7 +1147,8 @@ class PostRepository
 
         foreach ($tagNames as $name) {
             $name = trim($name);
-            if (!$name) continue;
+            if (!$name)
+                continue;
 
             // Tìm tag theo slug
             $stmt = $this->conn->prepare("SELECT tag_id FROM Tag WHERE slug = ? LIMIT 1");
@@ -1154,8 +1159,8 @@ class PostRepository
                 // Sinh tag_id mới theo pattern TG0001
                 $last = $this->conn->query("SELECT tag_id FROM Tag ORDER BY tag_id DESC LIMIT 1")
                     ->fetch(PDO::FETCH_ASSOC);
-                $newNum = $last ? (int)substr($last['tag_id'], 2) + 1 : 1;
-                $tagId  = 'TG' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
+                $newNum = $last ? (int) substr($last['tag_id'], 2) + 1 : 1;
+                $tagId = 'TG' . str_pad($newNum, 4, '0', STR_PAD_LEFT);
 
                 $this->conn->prepare("INSERT INTO Tag (tag_id, slug) VALUES (?, ?)")
                     ->execute([$tagId, $name]);
@@ -1335,9 +1340,9 @@ class PostRepository
             LIMIT :lim
         ");
 
-            $stmtOthers->bindValue(':cat_id',   $sub['category_id']);
-            $stmtOthers->bindValue(':hero_id',  $heroPost['post_id']);
-            $stmtOthers->bindValue(':lim',      $limitPerSub - 1, PDO::PARAM_INT);
+            $stmtOthers->bindValue(':cat_id', $sub['category_id']);
+            $stmtOthers->bindValue(':hero_id', $heroPost['post_id']);
+            $stmtOthers->bindValue(':lim', $limitPerSub - 1, PDO::PARAM_INT);
             $stmtOthers->execute();
 
             $otherPosts = $stmtOthers->fetchAll(PDO::FETCH_ASSOC);
@@ -1568,15 +1573,15 @@ class PostRepository
         $stmt = $this->conn->prepare($sql);
 
         $ok = $stmt->execute([
-            ':post_id'       => $postId,
-            ':user_id'       => $data['user_id'],
-            ':title'         => $data['title'],
-            ':summary'       => $data['summary']       ?? null,
-            ':content'       => $data['content'],
+            ':post_id' => $postId,
+            ':user_id' => $data['user_id'],
+            ':title' => $data['title'],
+            ':summary' => $data['summary'] ?? null,
+            ':content' => $data['content'],
             ':thumbnail_URL' => $data['thumbnail_URL'] ?? null,
-            ':category_id'   => $data['category_id']   ?? null,
-            ':status'        => $data['status']         ?? 'draft',
-            ':published_at'  => $data['publish_at']     ?? null,
+            ':category_id' => $data['category_id'] ?? null,
+            ':status' => $data['status'] ?? 'draft',
+            ':published_at' => $data['publish_at'] ?? null,
         ]);
 
         return $ok ? $postId : false;
