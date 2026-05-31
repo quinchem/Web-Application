@@ -1,1 +1,1 @@
-SHOW TABLES;
+select * from post;
