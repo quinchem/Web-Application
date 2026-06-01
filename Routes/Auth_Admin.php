@@ -1,13 +1,10 @@
 <?php
 
 require_once __DIR__ .
-'/../App/Controllers/AdminController.php';
+    '/../App/Controllers/AdminController.php';
 
 
-// =====================================================
-// LOGIN
-// =====================================================
-
+// Định tuyến cho trang đăng nhập Admin
 $router->get(
     'admin_login',
     [AdminController::class, 'login']
@@ -18,11 +15,7 @@ $router->post(
     [AdminController::class, 'handleLogin']
 );
 
-
-// =====================================================
-// FORGOT PASSWORD
-// =====================================================
-
+// Định tuyến cho trang quên mật khẩu 
 $router->get(
     'forgot_password',
     [AdminController::class, 'forgotPassword']
@@ -34,10 +27,7 @@ $router->post(
 );
 
 
-// =====================================================
-// RESET PASSWORD
-// =====================================================
-
+// Định tuyến cho trang đặt lại mật khẩu 
 $router->get(
     'admin_reset_password',
     [AdminController::class, 'resetPassword']
@@ -48,21 +38,7 @@ $router->post(
     [AdminController::class, 'resetPasswordAjax']
 );
 
-
-// // =====================================================
-// // DASHBOARD
-// // =====================================================
-
-// $router->get(
-//     'admin_dashboard',
-//     [AdminController::class, 'dashboard']
-// );
-
-
-// =====================================================
-// LOGOUT
-// =====================================================
-
+// Định tuyến cho trang dashboard Admin
 $router->get(
     'logout',
     [AdminController::class, 'logout']

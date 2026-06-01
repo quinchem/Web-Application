@@ -15,7 +15,7 @@ class ProfileController
         $this->clientRepository = new \ClientRepository();
     }
 
-    // ── Hiển thị form đổi mật khẩu (GET) 
+    // Hiển thị form đổi mật khẩu (GET) 
     public function changePassword()
     {
         header('Content-Type: application/json');

@@ -76,6 +76,7 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Hàm đếm tổng số bài viết phù hợp với bộ lọc tìm kiếm (dùng cho phân trang)
     public function countSearchPosts($filters)
     {
         $sql = "
@@ -118,6 +119,7 @@ class PostRepository
         return (int) ($row['total'] ?? 0);
     }
 
+    // Hàm hỗ trợ xây dựng điều kiện tìm kiếm động dựa trên các bộ lọc được cung cấp
     private function buildSearchCondition($filters, &$params)
     {
         $sql = "";
@@ -202,6 +204,7 @@ class PostRepository
         return $sql;
     }
 
+    // Hàm lấy danh sách bài viết của người dùng để hiển thị trong trang quản lý bài viết của Admin
     public function getUserPostsForAdmin($filters = [], $limit = 10, $offset = 0)
     {
         $sql = "
@@ -263,6 +266,8 @@ class PostRepository
         }
         return $posts;
     }
+
+    // Hàm lấy danh sách tất cả danh mục để hiển thị trong bộ lọc tìm kiếm của trang quản lý bài viết Admin
     public function getCategoriesForFilter()
     {
         $sql = "SELECT category_id, name, parent_id FROM Category ORDER BY name ASC";
@@ -271,6 +276,7 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Hàm lấy danh sách tất cả tác giả để hiển thị trong bộ lọc tìm kiếm của trang quản lý bài viết Admin
     public function getAuthorsForFilter()
     {
         $sql = "
@@ -286,6 +292,7 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Hàm ẩn bài viết  
     public function hidePost($postId)
     {
         $sql = "UPDATE Post SET status = 'hidden' WHERE post_id = :post_id";
@@ -293,6 +300,7 @@ class PostRepository
         return $stmt->execute(['post_id' => $postId]);
     }
 
+    // Hàm đếm tổng số bài viết của người dùng (dùng cho phân trang trong trang quản lý bài viết Admin)
     public function countUserPosts()
     {
         $sql = "
@@ -306,6 +314,8 @@ class PostRepository
         return $stmt->fetch()['total'];
     }
 
+
+    // Hàm đếm tổng số bài viết của người dùng theo bộ lọc (dùng cho phân trang trong trang quản lý bài viết Admin)
     public function countUserPostsFiltered($filters = [])
     {
         $sql = "
@@ -352,6 +362,8 @@ class PostRepository
         $stmt->execute($params);
         return $stmt->fetch()['total'];
     }
+
+    // Hàm đếm tổng số bài viết của người dùng theo trạng thái (dùng cho thống kê trong trang dashboard Admin)
     public function countUserPostsByStatus($status)
     {
         $sql = "
@@ -365,6 +377,8 @@ class PostRepository
         return $stmt->fetch()['total'];
     }
 
+
+    // Hàm đếm tổng số bài viết đang trending của người dùng (dùng cho thống kê trong trang dashboard Admin)
     public function countTrendingUserPosts()
     {
         $sql = "
@@ -376,6 +390,7 @@ class PostRepository
         return $this->conn->query($sql)->fetch()['total'];
     }
 
+    // Hàm duyệt bài viết (Admin có thể duyệt bài viết của người dùng với quyết định approve hoặc reject kèm lý do)
     public function reviewPost(string $postId, string $decision, string $reason = ''): bool
     {
         $sql = "UPDATE Post          
@@ -398,18 +413,7 @@ class PostRepository
         ]);
     }
     
-
-    public function getHeroPost()
-    {
-        $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, c.name as category_name, u.full_name as author_name 
-                FROM Post p 
-                JOIN Category c ON p.category_id = c.category_id 
-                JOIN User u ON p.user_id = u.user_id 
-                WHERE p.status = 'approved' AND p.is_trending = 1 
-                ORDER BY p.view_count DESC LIMIT 1";
-        return $this->conn->query($sql)->fetch(PDO::FETCH_ASSOC);
-    }
-
+    // Hàm truy vấn bài viết theo danh mục cha (dùng cho trang chủ Client và trang quản lý bài viết Admin)
     public function getPostsByParentCategory($parentCategoryName, $limit = 10)
     {
         $sql = "SELECT p.*, p.thumbnail_URL AS thumbnail_url, p.summary, c.name as category_name, u.role_id, u.full_name as author_name
@@ -426,6 +430,8 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
+// Hàm truy vấn bài viết đang trending toàn cầu (dùng cho trang chủ Client)
     public function getTrendingGlobal($limit = 5)
     {
         // Công thức: (View * 1) + (Like * 3) + (Save * 5) 
@@ -449,6 +455,7 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Hàm lấy chi tiết bài viết theo ID (dùng cho trang chi tiết bài viết Client)
     public function getPostById($postId)
     {
         // Lấy danh mục 2 cấp
@@ -466,6 +473,7 @@ class PostRepository
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+// Hàm lấy danh sách tag của bài viết (dùng cho trang chi tiết bài viết Client)
     public function getPostTags($postId)
     {
         $sql = "SELECT t.slug FROM Tag t
@@ -476,6 +484,7 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Hàm lấy danh sách bài viết liên quan theo danh mục (dùng cho trang chi tiết bài viết Client)
     public function getRecommendedByCategory($postId, $categoryId, $limit = 5)
     {
         $sql = "SELECT p.*, c.name as category_name
@@ -496,6 +505,7 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Hàm lấy danh sách bình luận của bài viết theo ID bài viết (dùng cho trang chi tiết bài viết Client)
     public function getCommentsByPostId($postId, $limit = 5, $offset = 0)
     {
         $sql = "SELECT c.*, COALESCE(u.full_name, 'client16') AS full_name, u.avatar 
@@ -511,6 +521,7 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Hàm đếm tổng số bình luận của bài viết theo ID bài viết (dùng cho phân trang bình luận trong trang chi tiết bài viết Client)
     public function countTotalCommentsByPostId($postId)
     {
         $sql = "SELECT COUNT(*) FROM Comment WHERE post_id = :post_id AND parent_id IS NULL AND deleted_at IS NULL";
@@ -519,9 +530,7 @@ class PostRepository
         return $stmt->fetchColumn();
     }
 
-    /**
-     * Hàm hỗ trợ tự động sinh mã ID (LK0001, BM0001, CM0001)
-     */
+    // Hàm sinh ID tự động
     private function generateNewId($tableName, $idColumn, $prefix)
     {
         $sql = "SELECT $idColumn FROM `$tableName` ORDER BY $idColumn DESC LIMIT 1";
@@ -539,6 +548,7 @@ class PostRepository
         }
     }
 
+// Hàm toggle like (dùng cho trang chi tiết bài viết Client)
     public function toggleLike($postId, $userId)
     {
         $sql = "
@@ -592,6 +602,8 @@ class PostRepository
         ]);
         return ['success' => true, 'action' => 'liked'];
     }
+
+    // Hàm toggle bookmark (dùng cho trang chi tiết bài viết Client)
 
     public function toggleBookmark($postId, $userId)
     {
@@ -648,6 +660,7 @@ class PostRepository
         return ['success' => true, 'action' => 'saved'];
     }
 
+    // Hàm kiểm tra xem bài viết có được lưu bởi người dùng không
     public function isBookmarked($postId, $userId)
     {
         $sql = "
@@ -667,6 +680,8 @@ class PostRepository
 
         return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
     }
+
+    // Hàm kiểm tra xem bài viết có được like bởi người dùng không
     public function isLiked($postId, $userId)
     {
         $sql = "
@@ -689,7 +704,7 @@ class PostRepository
     }
 
 
-
+    // Hàm đếm tổng số bài viết đã lưu của người dùng (dùng cho phân trang trong trang bài viết đã lưu Client)
     public function countSavedPostsByUser($userId)
     {
         $sql = "
@@ -707,6 +722,7 @@ class PostRepository
         return (int) ($row['total'] ?? 0);
     }
 
+// Hàm lấy danh sách bài viết đã lưu của người dùng với thông tin chi tiết của bài viết (dùng cho trang bài viết đã lưu Client)
     public function getSavedPostsByUser($userId, $limit, $offset)
     {
         $sql = "
@@ -754,6 +770,7 @@ class PostRepository
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    // Hàm thêm bình luận mới cho bài viết (dùng cho trang chi tiết bài viết Client)
     public function addComment($postId, $userId, $content)
     {
         // Tự động sinh mã
@@ -816,6 +833,7 @@ class PostRepository
         return (int) ($row['total'] ?? 0);
     }
 
+    // Hàm lấy danh sách bài viết của một người dùng với các bộ lọc nâng cao
 
     public function getMyPostsByUser($userId, $limit, $offset, $keyword = '', $category = '', $status = '', $date = '')
     {
@@ -928,7 +946,7 @@ class PostRepository
             $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
             $params['category_id'] = $filters['category_id'];
         }
-        // ✅ THÊM MỚI
+
         if (!empty($filters['author_id'])) {
             $where[] = "u.user_id = :author_id";
             $params['author_id'] = $filters['author_id'];
@@ -995,7 +1013,7 @@ class PostRepository
             $where[] = "(c.category_id = :category_id OR c.parent_id = :category_id)";
             $params['category_id'] = $filters['category_id'];
         }
-        // ✅ THÊM MỚI
+
         if (!empty($filters['author_id'])) {
             $where[] = "u.user_id = :author_id";
             $params['author_id'] = $filters['author_id'];
@@ -1055,6 +1073,8 @@ class PostRepository
             AND published_at <= NOW()";
         return $this->conn->exec($sql);
     }
+
+    // Hàm lấy danh sách tác giả (admin) để hiển thị trong dropdown chọn tác giả khi tạo/sửa bài viết
     public function getAdminAuthors()
     {
         // role_id = 'RL0001' là admin theo schema DB
@@ -1063,6 +1083,8 @@ class PostRepository
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // Hàm tạo bài viết mới (dùng cho trang quản lý bài viết Admin)
     public function createPost($data)
     {
         // Sinh post_id mới
@@ -1120,6 +1142,8 @@ class PostRepository
 
         return $postId;
     }
+
+    // Hàm xóa bài viết (dùng cho trang quản lý bài viết Admin)
     public function deletePost($postId)
     {
         // Xóa tags liên quan trước (tránh foreign key lỗi)
@@ -1146,6 +1170,7 @@ class PostRepository
         $stmt->execute($data);
     }
 
+    // Hàm đồng bộ tags khi tạo/sửa bài viết (dùng cho trang quản lý bài viết Admin)
     public function syncTags($postId, $tagNames)
     {
         // Xóa tag cũ
@@ -1187,6 +1212,8 @@ class PostRepository
         $stmt = $this->conn->prepare($sql);
         return $stmt->execute([':post_id' => $postId]);
     }
+
+    // Hàm cập nhật cột is_trending cho top 6 bài viết "hot" nhất 
     public function updateTrendingPosts()
     {
         // Bước 1: Reset tất cả về 0
@@ -1211,11 +1238,9 @@ class PostRepository
         return $this->conn->exec($sql);
     }
 
+    // Hàm lấy bài viết theo danh mục cha với cấu trúc nhóm (dùng cho trang chủ Client)
     public function getPostsByParentCategoryGrouped(string $parentCategoryName, int $limitPerSub = 4): array
     {
-        // =========================================
-        // BƯỚC 1: LẤY CATEGORY CHA
-        // =========================================
         $stmtParent = $this->conn->prepare("
         SELECT category_id
         FROM Category
@@ -1234,9 +1259,6 @@ class PostRepository
 
         $parentId = $parent['category_id'];
 
-        // =========================================
-        // BƯỚC 2: LẤY SUB CATEGORY
-        // =========================================
         $stmtSubs = $this->conn->prepare("
         SELECT
             category_id,
@@ -1255,16 +1277,10 @@ class PostRepository
             return [];
         }
 
-        // =========================================
-        // BƯỚC 3: BUILD DATA
-        // =========================================
         $result = [];
 
         foreach ($subs as $sub) {
 
-            // =====================================
-            // HERO POST
-            // =====================================
             $stmtHero = $this->conn->prepare("
             SELECT
                 p.post_id,
@@ -1309,9 +1325,6 @@ class PostRepository
                 continue;
             }
 
-            // =====================================
-            // OTHER POSTS
-            // =====================================
             $stmtOthers = $this->conn->prepare("
             SELECT
                 p.post_id,
@@ -1354,9 +1367,6 @@ class PostRepository
 
             $otherPosts = $stmtOthers->fetchAll(PDO::FETCH_ASSOC);
 
-            // =====================================
-            // GỘP HERO + OTHERS
-            // =====================================
             $result[$sub['name']] = array_merge(
                 [$heroPost],
                 $otherPosts
@@ -1366,6 +1376,8 @@ class PostRepository
         return $result;
     }
 
+
+// Hàm lấy bài viết liên quan theo cùng danh mục (dùng cho trang chi tiết bài viết Client)
     public function getRelatedPosts($categoryId, $currentPostId, $limit = 3)
     {
         $sql = "
@@ -1409,6 +1421,8 @@ class PostRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
+// Hàm lấy thông tin danh mục theo slug (dùng cho trang chi tiết danh mục Client)
     public function getCategoryBySlug($slug)
     {
         $sql = "
@@ -1424,6 +1438,7 @@ class PostRepository
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
+    // Hàm lấy danh sách bài viết theo slug danh mục với phân trang (dùng cho trang chi tiết danh mục Client)
     public function getPostsByCategorySlug(
         $slug,
         $featuredId,
@@ -1482,6 +1497,8 @@ class PostRepository
 
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    // Hàm lấy thông tin danh mục theo tên (dùng cho trang chi tiết danh mục Client)
     public function getCategoryByName(string $name): ?array
     {
         $stmt = $this->conn->prepare("
@@ -1493,6 +1510,7 @@ class PostRepository
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+    // Hàm lấy bài viết nổi bật nhất theo slug danh mục (dùng cho trang chi tiết danh mục Client)
     public function getFeaturedPostByCategory($slug)
     {
         $sql = "
@@ -1560,6 +1578,8 @@ class PostRepository
 
         return $result['total'] ?? 0;
     }
+
+    // Hàm tạo bài viết mới từ client (dùng cho trang tạo bài viết Client)
     public function clientCreatePost(array $data): string|false
     {
         // Sinh post_id theo đúng pattern của repo (PS0001, PS0002, ...)

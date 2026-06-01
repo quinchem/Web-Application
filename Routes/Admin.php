@@ -4,12 +4,12 @@
 use App\Controllers\PostController;
 use App\Controllers\ProfileController;
 
-// ── Bài viết công khai ──────────────────────────────────────────────────────
+// Bài viết công khai
 $router->get('category',         [PostController::class, 'category']);
 $router->get('post',             [PostController::class, 'post']);
 $router->get('hide_post',        [PostController::class, 'hidePost']);
 
-// ── Quản lý bài viết Admin ──────────────────────────────────────────────────
+// Quản lý bài viết Admin và xem bài viết của người dùng
 $router->get('admin_user_posts', [PostController::class, 'adminUserPosts']);
 $router->get('review_post',      [PostController::class, 'reviewPost']);
 $router->get('review_post_page', [PostController::class, 'reviewPostPage']);
@@ -21,6 +21,6 @@ $router->get('edit_post',        [PostController::class, 'editPost']);
 $router->post('update_post',     [PostController::class, 'updatePost']);
 $router->post('delete_post',     [PostController::class, 'deletePost']);
 
-// ── Profile Admin ───────────────────────────────────────────────────────────
+// Định tuyến cho Profile Admin và cập nhật thông tin cá nhân
 $router->post('update-profile',  [ProfileController::class, 'updateProfile']);
 $router->post('change_password', [ProfileController::class, 'changePassword']);

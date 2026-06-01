@@ -9,6 +9,8 @@
 
 <?php
 include __DIR__ . '/../Partials/Client/Header.php';
+
+// Hàm tiện ích để hiển thị thời gian theo dạng "x phút trước", "x giờ trước", v.v.
 function resultTimeAgo($datetime)
 {
     if (empty($datetime)) {
@@ -38,6 +40,7 @@ function resultTimeAgo($datetime)
     return date('d/m/Y', $timestamp);
 }
 
+// Hàm tiện ích để hiển thị tên tác giả, phân biệt BTV và người
 function displayAuthor($post)
 {
     $name = htmlspecialchars($post['author_name'] ?? '');

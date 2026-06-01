@@ -1,9 +1,6 @@
 <?php
 
-// ======================================================
-// LOAD ENV
-// ======================================================
-
+// Load biến môi trường từ file .env
 function loadEnv($filePath)
 {
     if (!file_exists($filePath)) {
@@ -24,43 +21,33 @@ function loadEnv($filePath)
         if (strpos($line, '=') !== false) {
 
             list($key, $value) =
-            explode('=', $line, 2);
+                explode('=', $line, 2);
 
             $_ENV[trim($key)] =
-            trim($value);
+                trim($value);
         }
     }
 }
 
 loadEnv(__DIR__ . '/.env');
 
-
-// ======================================================
-// AUTOLOAD — ✅ PHẢI Ở ĐÂY, TRƯỚC MỌI THỨ
-// ======================================================
-
+// Nạp autoload từ Composer
 require_once __DIR__ . '/vendor/autoload.php';
 
 
-// ======================================================
-// START SESSION
-// ======================================================
-
+// Khởi tạo session nếu chưa được khởi tạo
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 
-// ======================================================
-// AUTOLOAD CLASS
-// ======================================================
-
+// Tự động nạp file Class theo Namespace (Autoload) cho Admin
 spl_autoload_register(function ($class) {
 
     $file =
-    __DIR__ . '/' .
-    str_replace('\\', '/', $class) .
-    '.php';
+        __DIR__ . '/' .
+        str_replace('\\', '/', $class) .
+        '.php';
 
     if (file_exists($file)) {
         require_once $file;
@@ -68,42 +55,26 @@ spl_autoload_register(function ($class) {
 });
 
 
-// ======================================================
-// ROUTER
-// ======================================================
-
-require_once __DIR__ .
-'/Routes/AdminRouter.php';
+// Khởi tạo đối tượng Router cho Admin
+require_once __DIR__ . '/Routes/AdminRouter.php';
 
 $router = new AdminRouter();
 
+// Nạp cấu hình các file định tuyến con 
+require_once __DIR__ . '/Routes/Auth_Admin.php';
 
-// ======================================================
-// LOAD ROUTES
-// ======================================================
+require_once __DIR__ .'/Routes/Admin.php';
 
-require_once __DIR__ .
-'/Routes/Auth_Admin.php';
+require_once __DIR__ . '/Routes/Profile.php';
 
-require_once __DIR__ .
-'/Routes/Admin.php';
+require_once __DIR__ . '/Routes/Dashboard.php';
 
-require_once __DIR__ .
-'/Routes/Profile.php';
 
-require_once __DIR__ .
-'/Routes/Dashboard.php';
-// ======================================================
-// PAGE HIỆN TẠI
-// ======================================================
-
+// Phân tích tham số ?page=... để điều hướng
 $page =
-$_GET['page'] ?? 'admin_login';
+    $_GET['page'] ?? 'admin_login';
 
 
-// ======================================================
-// AUTO LOGIN
-// ======================================================
 
 if (
 
@@ -114,38 +85,36 @@ if (
     isset($_COOKIE['remember_token'])
 
 ) {
+    // Tự động đăng nhập nếu có cookie hợp lệ
 
-    require_once __DIR__ .
-    '/Repositories/ClientRepository.php';
+    require_once __DIR__ .'/Repositories/ClientRepository.php';
 
     $clientRepository =
-    new ClientRepository();
+        new ClientRepository();
 
     $user =
-    $clientRepository
-    ->findByRememberToken(
-        $_COOKIE['remember_token']
-    );
+        $clientRepository
+            ->findByRememberToken(
+                $_COOKIE['remember_token']
+            );
 
     if ($user && $user->role_id === 'RL0001') {
 
         $_SESSION['user'] = $user;
 
         header(
-        "Location: http://localhost/Web-Application/Admin_index.php?page=dashboard"
+            "Location: http://localhost/Web-Application/Admin_index.php?page=dashboard"
         );
 
         exit();
-        } else {
+    } else {
         // Token không hợp lệ → xóa cookie đi
         setcookie('remember_token', '', time() - 3600, '/');
     }
 }
 
 
-// ======================================================
-// PUBLIC PAGES
-// ======================================================
+// Các trang công khai mà không cần đăng nhập
 
 $publicPages = [
     'admin_login',
@@ -156,9 +125,7 @@ $publicPages = [
 ];
 
 
-// ======================================================
-// SECURITY CHECK
-// ======================================================
+// Nếu chưa đăng nhập và truy cập vào trang không công khai → chuyển hướng về trang đăng nhập Admin
 
 if (
 
@@ -171,15 +138,13 @@ if (
 ) {
 
     header(
-    "Location: http://localhost/Web-Application/Admin_index.php?page=admin_login"
+        "Location: http://localhost/Web-Application/Admin_index.php?page=admin_login"
     );
 
     exit();
 }
 
 
-// ======================================================
-// RESOLVE ROUTE
-// ======================================================
 
+// Hàm điều hướng phân tích tham số ?page=...
 $router->resolve($_SERVER['REQUEST_METHOD']);

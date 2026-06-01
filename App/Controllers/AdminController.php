@@ -20,10 +20,7 @@ class AdminController
     }
 
 
-    // ====================================
-    // LOGIN PAGE
-    // ====================================
-
+// Hàm kiểm tra đăng nhập của Admin
 public function login()
 {
     if (session_status() === PHP_SESSION_NONE) {
@@ -31,9 +28,7 @@ public function login()
         session_start();
     }
 
-    // NẾU ĐÃ LOGIN
-    // => KHÔNG CHO VÀO LOGIN NỮA
-
+// Nếu đã đăng nhập rồi thì chuyển thẳng đến dashboard
     if (isset($_SESSION['user'])) {
 
         header(
@@ -49,10 +44,7 @@ public function login()
     '/../Views/Admin/Auth/Login.php';
 }
 
-    // ====================================
-    // HANDLE LOGIN
-    // ====================================
-
+// Hàm xử lý đăng nhập của Admin
     public function handleLogin()
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -211,10 +203,7 @@ if ($remember) {
     }
 
 
-    // ====================================
-    // DASHBOARD
-    // ====================================
-
+// Hàm hiển thị dashboard Admin
     public function dashboard()
     {
         require_once __DIR__ .
@@ -222,9 +211,7 @@ if ($remember) {
     }
 
 
-    // ====================================
-    // LOGOUT
-    // ====================================
+// Hàm xử lý đăng xuất của Admin
 
 public function logout()
 {
@@ -248,21 +235,15 @@ $_SESSION = [];
 
         exit();
     }
-    // ====================================
-    // FORGOT PASSWORD PAGE
-    // ====================================
 
+// Hàm hiển thị form quên mật khẩu
 public function forgotPassword()
 {
     require_once __DIR__ .
     '/../Views/Admin/Auth/Forgot_password.php';
 }
 
-
-    // ====================================
-    // HANDLE FORGOT PASSWORD
-    // ====================================
-
+// Hàm xử lý gửi email khôi phục mật khẩu
 public function handleForgotPassword()
 {
     header('Content-Type: application/json');
@@ -294,7 +275,6 @@ public function handleForgotPassword()
         $resetLink = "http://localhost/Web-Application/Admin_index.php"
                    . "?page=admin_reset_password&token=" . $token;
 
-        // ✅ FIX: Truyền đúng thứ tự ($userId, $token, $expiredAt)
         $saved = $this->clientRepository->saveResetToken(
             $user->user_id,
             $token,
@@ -311,7 +291,7 @@ public function handleForgotPassword()
 
         $mail = new PHPMailer(true);
 
-        $mail->SMTPDebug  = 0; // ✅ Tắt debug output
+        $mail->SMTPDebug  = 0; 
         $mail->isSMTP();
         $mail->Host       = $_ENV['MAIL_HOST'];
         $mail->SMTPAuth   = true;
@@ -375,11 +355,15 @@ public function handleForgotPassword()
         }
     }
 }
+
+// Hàm hiển thị form đổi mật khẩu (GET)
     public function resetPassword()
     {
     require_once __DIR__ .
     '/../Views/Admin/Auth/Reset_password.php';
     }
+
+    // Hàm xử lý đổi mật khẩu qua AJAX
 public function resetPasswordAjax()
 {
     header('Content-Type: application/json');
@@ -394,9 +378,7 @@ public function resetPasswordAjax()
     $_POST['confirmPassword'] ?? '';
 
 
-    // =========================
-    // VALIDATE
-    // =========================
+// VALIDATION
 
     if (
 
@@ -440,9 +422,7 @@ public function resetPasswordAjax()
     }
 
 
-    // =========================
-    // CHECK TOKEN
-    // =========================
+// TÌM USER THEO TOKEN
 
     $user =
 
@@ -464,9 +444,7 @@ public function resetPasswordAjax()
     }
 
 
-    // =========================
-    // HASH PASSWORD
-    // =========================
+// HASH PASSWORD
 
     $hashedPassword =
 
@@ -478,9 +456,8 @@ public function resetPasswordAjax()
     );
 
 
-    // =========================
-    // UPDATE PASSWORD
-    // =========================
+// CẬP NHẬT MẬT KHẨU MỚI CHO USER
+
 
     $success =
 
