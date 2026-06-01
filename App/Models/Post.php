@@ -12,7 +12,6 @@
  */
 class Post
 {
-    // Thuộc tính dữ liệu của bài viết
     public $post_id;                // ID bài viết (khóa chính)
     public $title;                  // Tiêu đề bài viết
     public $status;                 // Trạng thái (approved, pending, rejected)
