@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 require_once __DIR__ . '/../../Repositories/CategoryRepository.php';
 
+// Controller để xử lý các yêu cầu liên quan đến danh mục
 class CategoryController
 {
     private $categoryRepository;

@@ -5,6 +5,7 @@ require_once __DIR__ .
 
 use App\Controllers\DashboardController;
 
+// Định tuyến cho trang dashboard Admin
 $router->get(
 
     'dashboard',

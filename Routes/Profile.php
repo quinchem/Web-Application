@@ -3,7 +3,11 @@
 
 use App\Controllers\ProfileController;
 
-// Nếu bạn vẫn dùng song song cho các hành động form cũ
+// Định tuyến cho trang hồ sơ cá nhân
 $router->get('profile', [ProfileController::class, 'index']);
+
+// Định tuyến cho cập nhật thông tin cá nhân và đổi mật khẩu
 $router->post('update-profile',  [ProfileController::class, 'updateProfile']);
+
+// Định tuyến cho đổi mật khẩu
 $router->post('change_password', [ProfileController::class, 'changePassword']);
