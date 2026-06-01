@@ -122,7 +122,6 @@ public function getPostChart(
     $category = null,
     $author   = null
 ) {
-    // Convert DD/MM/YYYY → YYYY-MM-DD nếu cần
 
     // Tính khoảng cách để quyết định group theo ngày/tháng/năm
     $from = $fromDate ? new \DateTime($fromDate) : null;

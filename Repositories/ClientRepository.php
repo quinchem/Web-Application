@@ -1,21 +1,16 @@
 <?php
 
-// ✅ ĐÚNG — lên 1 cấp là tới Web-Application/, có Configs/ ở đó
 require_once __DIR__ . '/../Configs/Database.php';
-
-// ✅ ĐÚNG — lên 1 cấp rồi vào App/Models/
 require_once __DIR__ . '/../App/Models/Client.php';
+
 class ClientRepository
 {
     private $conn;
-
     public function __construct()
     {
         $database = new Database();
-
         $this->conn = $database->connect();
     }
-
 
     // =========================
     // LOGIN
@@ -41,70 +36,66 @@ class ClientRepository
             return false;
         }
     }
-   public function checkClientLogin($username, $password)
-{
-    try {
-        $sql = "SELECT * FROM user WHERE user_name = :username LIMIT 1";
+    public function checkClientLogin($username, $password)
+        {
+            try {
+                $sql = "SELECT * FROM user WHERE user_name = :username LIMIT 1";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute([':username' => $username]);
+                $user = $stmt->fetch(PDO::FETCH_OBJ);
+
+                if (!$user || $user->account_status !== 'active' || $user->role_id !== 'RL0002') {
+                    return false;
+                }
+                
+                // Kiểm tra nếu dùng password_verify (Mật khẩu đã hash)
+                if (password_verify($password, $user->password)) {
+                    return $user;
+                }
+                
+                // Nếu mật khẩu không verify được, kiểm tra nếu là mật khẩu thường (Plain text)
+                if ($password === $user->password) {
+                    $this->upgradePasswordHash($user->user_id, $password);
+                    return $user;
+                }
+
+                return false;
+            } catch (PDOException $e) {
+                return false;
+            }
+        }
+    public function verifyLogin($username, $password)
+    {
+        $user = $this->getUserByUsername($username);
+        if (!$user) return false;
+
+        // Kiểm tra nếu dùng password_hash (mới)
+        if (password_verify($password, $user['password'])) {
+            return $user;
+        }
+
+        // Nếu mật khẩu không khớp, kiểm tra xem có phải mật khẩu thường (cũ) không
+        if ($password === $user['password']) {
+            $hashed = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "UPDATE user SET password = ? WHERE user_id = ?";
+            $this->conn->prepare($sql)->execute([$hashed, $user['user_id']]);
+            
+            // Cập nhật lại user để session lấy dữ liệu mới nhất
+            $user['password'] = $hashed;
+            return $user;
+        }
+        return false;
+    }
+
+
+    // Hàm hỗ trợ cập nhật lên hash
+    private function upgradePasswordHash($userId, $plainPassword)
+    {
+        $hashedPassword = password_hash($plainPassword, PASSWORD_DEFAULT);
+        $sql = "UPDATE user SET password = :password WHERE user_id = :user_id";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute([':username' => $username]);
-        $user = $stmt->fetch(PDO::FETCH_OBJ);
-
-        if (!$user || $user->account_status !== 'active' || $user->role_id !== 'RL0002') {
-            return false;
-        }
-        
-        // 1. Kiểm tra nếu dùng password_verify (Mật khẩu đã hash)
-        if (password_verify($password, $user->password)) {
-            return $user;
-        }
-        
-        // 2. Nếu mật khẩu không verify được, kiểm tra nếu là mật khẩu thường (Plain text)
-        if ($password === $user->password) {
-            // Mật khẩu đúng nhưng chưa hash -> Thực hiện Hash ngay và cập nhật vào DB
-            $this->upgradePasswordHash($user->user_id, $password);
-            return $user;
-        }
-
-        return false;
-    } catch (PDOException $e) {
-        return false;
+        $stmt->execute([':password' => $hashedPassword, ':user_id' => $userId]);
     }
-}
-public function verifyLogin($username, $password)
-{
-    $user = $this->getUserByUsername($username);
-
-    if (!$user) return false;
-
-    // 1. Kiểm tra nếu dùng password_hash (mới)
-    if (password_verify($password, $user['password'])) {
-        return $user;
-    }
-
-    // 2. Nếu mật khẩu không khớp, kiểm tra xem có phải mật khẩu thường (cũ) không
-    if ($password === $user['password']) {
-        // Mật khẩu đúng dạng cũ -> Hash lại và lưu vào DB
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $sql = "UPDATE user SET password = ? WHERE user_id = ?";
-        $this->conn->prepare($sql)->execute([$hashed, $user['user_id']]);
-        
-        // Cập nhật lại user để session lấy dữ liệu mới nhất
-        $user['password'] = $hashed;
-        return $user;
-    }
-
-    return false;
-}
-
-
-// Hàm hỗ trợ cập nhật lên hash
-private function upgradePasswordHash($userId, $plainPassword)
-{
-    $hashedPassword = password_hash($plainPassword, PASSWORD_DEFAULT);
-    $sql = "UPDATE user SET password = :password WHERE user_id = :user_id";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute([':password' => $hashedPassword, ':user_id' => $userId]);
-}
     // =========================
     // QUẢN LÝ TÀI KHOẢN
     // =========================
@@ -112,7 +103,7 @@ private function upgradePasswordHash($userId, $plainPassword)
     public function changeUserPassword($userId, $currentPassword, $newPassword)
     {
         try {
-            // 1. Lấy mật khẩu hiện tại từ DB để kiểm tra
+            // Lấy mật khẩu hiện tại từ DB để kiểm tra
             $sql = "SELECT password FROM user WHERE user_id = :user_id LIMIT 1";
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT); // Hoặc PARAM_STR tùy kiểu dữ liệu ID của bạn
@@ -123,14 +114,12 @@ private function upgradePasswordHash($userId, $plainPassword)
                 return "Không tìm thấy tài khoản!";
             }
 
-            // 2. Kiểm tra mật khẩu cũ (Dùng password_verify nếu lúc đăng ký bạn băm mật khẩu bằng password_hash)
-            // Lưu ý: Nếu data cũ của bạn đang lưu password dạng chữ thường (không mã hóa), 
-            // thì đổi dòng if này thành: if ($currentPassword !== $user['password'])
+            // Kiểm tra mật khẩu cũ (Dùng password_verify nếu lúc đăng ký bạn băm mật khẩu bằng password_hash)
             if (!password_verify($currentPassword, $user['password'])) {
                 return "Mật khẩu hiện tại không chính xác!";
             }
 
-            // 3. Mã hóa mật khẩu mới và Cập nhật
+            //  Mã hóa mật khẩu mới và Cập nhật
             $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
             $updateSql = "UPDATE user SET password = :new_password WHERE user_id = :user_id";
@@ -152,56 +141,39 @@ private function upgradePasswordHash($userId, $plainPassword)
         try {
 
             $sql = "
-
             SELECT *
-
             FROM User
-
             WHERE email = :email
-
             LIMIT 1
         ";
 
             $stmt = $this->conn->prepare($sql);
-
             $stmt->execute([
-
                 'email' => $email
             ]);
 
             $user = $stmt->fetch(PDO::FETCH_OBJ);
 
-
-            // KHÔNG TÌM THẤY EMAIL
-
             if (!$user) {
-
                 return false;
             }
 
 
             // KIỂM TRA PASSWORD HASH
-
             if (password_verify($password, $user->password)) {
-
                 return $user;
             }
 
             return false;
 
         } catch (PDOException $e) {
-
             echo "Lỗi đăng nhập: " .
                 $e->getMessage();
-
             return false;
         }
     }
-
-    // =========================
-    // REGISTER
-    // =========================
-
+    
+        //Đăng ký tài khoản mới
         public function register(
             $fullName,
             $userName,
@@ -211,97 +183,60 @@ private function upgradePasswordHash($userId, $plainPassword)
 
             try {
 
-                // =========================
-                // CHECK EMAIL
-                // =========================
-
+            // Kiểm tra nếu email đã tồn tại trong CSDL
                 $checkEmailSql = "
-
                     SELECT email
-
                     FROM User
-
                     WHERE email = ?
-
                     LIMIT 1
-
                 ";
 
-                $stmt =
-                    $this->conn->prepare($checkEmailSql);
-
+                $stmt =$this->conn->prepare($checkEmailSql);
                 $stmt->execute([$email]);
 
                 if ($stmt->fetch()) {
-
                     return [
                         'status' => false,
                         'message' => 'Email đã tồn tại'
                     ];
                 }
 
-
-                // =========================
-                // CHECK USERNAME
-                // =========================
-
+                // Kiểm tra nếu username đã tồn tại trong CSDL
                 $checkUsernameSql = "
-
                     SELECT user_name
-
                     FROM User
-
                     WHERE user_name = ?
-
                     LIMIT 1
-
                 ";
 
-                $stmt =
-                    $this->conn->prepare($checkUsernameSql);
-
+                $stmt = $this->conn->prepare($checkUsernameSql);
                 $stmt->execute([$userName]);
 
                 if ($stmt->fetch()) {
-
                     return [
                         'status' => false,
                         'message' => 'Tên đăng nhập đã tồn tại'
                     ];
                 }
 
-
-                // =========================
-                // GENERATE USER ID
-                // =========================
-
+                // Dựng user_id mới theo định dạng US0001
                 $getLastIdSql = "
-
                     SELECT user_id
-
                     FROM User
-
                     ORDER BY user_id DESC
-
                     LIMIT 1
-
                 ";
 
-                $stmt =
-                    $this->conn->prepare($getLastIdSql);
-
+                $stmt =$this->conn->prepare($getLastIdSql);
                 $stmt->execute();
 
                 $lastUser =
                     $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($lastUser) {
-
                     $number =
                         (int) substr($lastUser['user_id'], 2);
-
                     $number++;
-
                 } else {
 
                     $number = 1;
@@ -310,24 +245,15 @@ private function upgradePasswordHash($userId, $plainPassword)
                 $newUserId =
                     'US' . str_pad($number, 4, '0', STR_PAD_LEFT);
 
-
-                // =========================
-                // HASH PASSWORD
-                // =========================
-
+                // Mã hóa mật khẩu trước khi lưu vào CSDL
                 $hashedPassword =
                     password_hash(
                         $password,
                         PASSWORD_DEFAULT
                     );
 
-
-                // =========================
-                // INSERT USER
-                // =========================
-
+                // Lưu user mới vào CSDL
                 $sql = "
-
                     INSERT INTO User
                     (
                         user_id,
@@ -337,7 +263,6 @@ private function upgradePasswordHash($userId, $plainPassword)
                         password,
                         full_name
                     )
-
                     VALUES
                     (
                         :user_id,
@@ -347,7 +272,6 @@ private function upgradePasswordHash($userId, $plainPassword)
                         :password,
                         :full_name
                     )
-
                 ";
 
                 $stmt =
@@ -396,13 +320,9 @@ private function upgradePasswordHash($userId, $plainPassword)
     {
 
     $sql = "
-
         UPDATE User
-
         SET remember_token = ?
-
         WHERE user_id = ?
-
     ";
 
     $stmt =
@@ -418,13 +338,9 @@ private function upgradePasswordHash($userId, $plainPassword)
     try {
 
         $sql = "
-
             SELECT *
-
             FROM user
-
             WHERE remember_token = :token
-
             LIMIT 1
 
         ";
@@ -454,12 +370,9 @@ private function upgradePasswordHash($userId, $plainPassword)
 ) {
 
     $sql = "
-
         UPDATE User
-
         SET reset_token = ?,
             reset_token_expired_at = ?
-
         WHERE user_id = ?
     ";
 
@@ -475,13 +388,9 @@ private function upgradePasswordHash($userId, $plainPassword)
 public function findByEmail($email)
 {
     $sql = "
-
         SELECT *
-
         FROM User
-
         WHERE email = ?
-
         LIMIT 1
     ";
 
@@ -526,13 +435,10 @@ public function updatePasswordByToken($token, $hashedPassword)
     public function updateProfile($userId, $username, $fullName, $gender) 
     {
         try {
-            // Đã sửa đổi tên bảng từ 'users' thành 'user' cho khớp với các hàm trên
             $sql = "UPDATE user SET user_name = ?, full_name = ?, gender = ? WHERE user_id = ?";
             
-            // ĐÃ SỬA LỖI: Sử dụng $this->conn thay vì $this->db bị trống (null)
             $stmt = $this->conn->prepare($sql);
             
-            // Thực thi mảng tham số truyền theo đúng thứ tự các dấu hỏi chấm (?)
             return $stmt->execute([$username, $fullName, $gender, $userId]);
             
         } catch (PDOException $e) {
@@ -550,7 +456,6 @@ public function updatePasswordByToken($token, $hashedPassword)
 public function updatePassword($userId, $hashedPassword) 
 {
     try {
-        // Tên bảng: user | Thuộc tính: password, user_id
         $sql = "UPDATE user SET password = ? WHERE user_id = ?";
         
         $stmt = $this->conn->prepare($sql);

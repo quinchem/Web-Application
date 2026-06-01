@@ -136,11 +136,7 @@ function loadDashboard()
 }
 
 
-// =========================
-// KPI
-// =========================
-
-
+// KPI //
 function loadKPI(kpi) {
     $('#totalPosts').text(Number(kpi.totalPosts  || 0).toLocaleString('vi-VN'));
     $('#pendingPosts').text(Number(kpi.pendingPosts || 0).toLocaleString('vi-VN'));
@@ -163,11 +159,7 @@ function loadKPI(kpi) {
     }
 }
 
-
-// =========================
-// CHART BÀI VIẾT
-// =========================
-
+// CHART BÀI VIẾT //
 function loadChart(chartResponse)
 {
     if (window.postChartInstance) {
@@ -256,11 +248,7 @@ function loadChart(chartResponse)
     });
 }
 
-
-// =========================
-// CHART STATUS
-// =========================
-
+// CHART STATUS //
 function loadStatusChart(statusData)
 {
         const $card    = $('#statusChart').closest('.dashboard-card');
@@ -373,10 +361,7 @@ function loadStatusChart(statusData)
 }
 
 
-// =========================
-// TOP POSTS
-// =========================
-
+// TOP POSTS //
 function loadTopPosts(posts)
 {
         if (!posts || posts.length === 0) {

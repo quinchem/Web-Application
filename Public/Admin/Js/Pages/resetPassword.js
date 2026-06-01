@@ -1,51 +1,37 @@
 $(document).ready(function () {
 
-    // =========================
-    // TOGGLE PASSWORD
-    // =========================
-
+    // toggle password
     $('.toggle-password').click(function () {
 
         let input = $(this).siblings('input');
 
         if (input.attr('type') === 'password') {
-
             input.attr('type', 'text');
-
             $(this)
                 .removeClass('fa-eye-slash')
                 .addClass('fa-eye');
-
-        } else {
-
+        } 
+        else 
+        {
             input.attr('type', 'password');
-
             $(this)
                 .removeClass('fa-eye')
                 .addClass('fa-eye-slash');
         }
     });
 
-
-    // =========================
-    // PASSWORD STRENGTH
-    // =========================
-
+    // password strength
     $('#password').on('keyup', function () {
 
         let password = $(this).val();
-
         let strength = 0;
 
         if (password.length >= 6)
             strength++;
-
         if (password.match(/[A-Z]/))
             strength++;
-
         if (password.match(/[0-9]/))
             strength++;
-
         if (password.match(/[^A-Za-z0-9]/))
             strength++;
 
@@ -54,7 +40,6 @@ $(document).ready(function () {
         let text = '';
 
         switch (strength) {
-
             case 1:
                 width = 25;
                 color = '#dc2626';
@@ -86,98 +71,58 @@ $(document).ready(function () {
         }
 
         $('#strength-fill').css({
-
             width: width + '%',
-
             background: color
         });
-
         $('#strength-text').text(text);
     });
 
 
-    // =========================
-    // SUBMIT RESET PASSWORD
-    // =========================
-
+    // AJAX SUBMIT
     $('#resetPasswordForm').submit(function (e) {
 
         e.preventDefault();
 
         $.ajax({
-
-            url:
-'http://localhost/Web-Application/Admin_index.php?page=admin_reset_password_ajax',
-
+            url:'http://localhost/Web-Application/Admin_index.php?page=admin_reset_password_ajax',
             type: 'POST',
-
             data: $(this).serialize(),
-
-            // QUAN TRỌNG
             dataType: 'json',
-
             success: function (response) {
 
                 console.log(response);
-
-                // RESPONSE ĐÃ LÀ OBJECT JSON
                 let data = response;
-
-
-                // SUCCESS
+                // Thành công
 
                 if (data.status) {
-
                     Swal.fire({
-
                         icon: 'success',
-
                         title: 'Thành công',
-
                         text: data.message,
-
                         confirmButtonColor: '#d10016'
-
                     }).then(() => {
-
-                        window.location.href =
-'http://localhost/Web-Application/Admin_index.php?page=admin_login';
+                        window.location.href ='http://localhost/Web-Application/Admin_index.php?page=admin_login';
                     });
 
                 } else {
-
                     Swal.fire({
-
                         icon: 'error',
-
                         title: 'Lỗi',
-
                         text: data.message,
-
                         confirmButtonColor: '#d10016'
                     });
                 }
             },
 
-
             // AJAX ERROR
-
             error: function (xhr, status, error) {
-
                 console.log("AJAX ERROR:");
-
                 console.log(xhr.responseText);
-
                 console.log(status);
-
                 console.log(error);
-
                 Swal.fire({
-
                     icon: 'error',
-
                     title: 'Lỗi hệ thống',
-
                     text: 'Không thể kết nối server!'
                 });
             }

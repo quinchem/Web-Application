@@ -1,12 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    // Hover title effect
+    // Hiệu ứng khi hover vào tiêu đề bài viết
     document.querySelectorAll('.featured-title, .side-title').forEach(function (title) {
-
         const parent = title.closest('a');
-
         if (!parent) return;
-
         parent.addEventListener('mouseenter', function () {
             title.style.color = '#b90c17';
         });
@@ -14,12 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
         parent.addEventListener('mouseleave', function () {
             title.style.color = '';
         });
-
     });
 
-    // Smooth image hover
+    // Hiệu ứng khi hover vào ảnh đại diện
     document.querySelectorAll('.featured-image').forEach(function (img) {
-
         img.addEventListener('mouseenter', function () {
             img.style.transform = 'scale(1.01)';
         });
@@ -27,7 +22,5 @@ document.addEventListener('DOMContentLoaded', function () {
         img.addEventListener('mouseleave', function () {
             img.style.transform = 'scale(1)';
         });
-
     });
-
 });
