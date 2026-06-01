@@ -44,107 +44,72 @@ $(function () {
 
 
     /* ════════════════════════════════
-       1. THUMBNAIL UPLOAD & CROP
+   1. THUMBNAIL UPLOAD
     ════════════════════════════════ */
 
-    const $zone = $('#pcThumbnailZone');
-    const $input = $('#pcThumbnailInput');
-    const $preview = $('#pcThumbnailPreview');
+    const $zone        = $('#pcThumbnailZone');
+    const $input       = $('#pcThumbnailInput');
+    const $preview     = $('#pcThumbnailPreview');
     const $placeholder = $('#pcUploadPlaceholder');
-    const $removeBtn = $('#pcRemoveThumbBtn');
+    const $removeBtn   = $('#pcRemoveThumbBtn');
 
-    let cropperInstance = null;
+    function _previewFile(file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            $placeholder.hide();
+            $preview.attr('src', e.target.result).show();
+            $removeBtn.show();
+            $('#pcExistingThumbnail').val('');
+        };
+        reader.readAsDataURL(file);
+    }
 
-    $zone.on('click', function (e) {
-        if ($(e.target).closest('#pcRemoveThumbBtn').length) return;
-        if ($(e.target).is('#pcThumbnailInput')) return;
-        e.preventDefault(); e.stopPropagation();
-        $input[0].click();
-    });
+    // Gắn onclick trực tiếp lên zone — ghi đè mọi handler cũ
+    document.getElementById('pcThumbnailZone').onclick = function (e) {
+        if (e.target.id === 'pcRemoveThumbBtn' ||
+            e.target.closest && e.target.closest('#pcRemoveThumbBtn')) return;
+        document.getElementById('pcThumbnailInput').click();
+    };
 
-    $input.on('change', function () {
-        const file = this.files[0];
-        if (file) _openCropper(file);
-    });
+    // Click thẳng vào ảnh preview cũng mở picker
+    document.getElementById('pcThumbnailPreview').onclick = function (e) {
+        e.stopPropagation();
+        document.getElementById('pcThumbnailInput').click();
+    };
 
+    // Kéo thả
     $zone.on('dragover', function (e) {
-        e.preventDefault(); $(this).addClass('dragover');
+        e.preventDefault();
+        $(this).addClass('dragover');
     }).on('dragleave', function () {
         $(this).removeClass('dragover');
     }).on('drop', function (e) {
-        e.preventDefault(); $(this).removeClass('dragover');
+        e.preventDefault();
+        $(this).removeClass('dragover');
         const file = e.originalEvent.dataTransfer.files[0];
         if (file && file.type.startsWith('image/')) {
             const dt = new DataTransfer();
             dt.items.add(file);
             $input[0].files = dt.files;
-            _openCropper(file);
+            _previewFile(file);
         }
     });
 
-    function _openCropper(file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            $('#pcCropImage').attr('src', e.target.result);
-            $('#pcCropModal').css('display', 'flex');
-
-            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-
-            cropperInstance = new Cropper(document.getElementById('pcCropImage'), {
-                aspectRatio: NaN,
-                viewMode: 1,
-                movable: true,
-                zoomable: true,
-                scalable: true,
-                cropBoxResizable: true,
-                rotatable: false,
-            });
-        };
-        reader.readAsDataURL(file);
-    }
-
-    $('#pcCropConfirm').on('click', function () {
-        if (!cropperInstance) return;
-        cropperInstance.getCroppedCanvas().toBlob(function (blob) {
-            const croppedFile = new File([blob], 'thumbnail.jpg', { type: 'image/jpeg' });
-            const dt = new DataTransfer();
-            dt.items.add(croppedFile);
-            $input[0].files = dt.files;
-
-            const url = URL.createObjectURL(blob);
-            $placeholder.hide();
-            $preview.attr('src', url).show();
-            $removeBtn.show();
-            $('#pcExistingThumbnail').val('');
-
-            $('#pcCropModal').hide();
-            cropperInstance.destroy();
-            cropperInstance = null;
-        }, 'image/jpeg', 0.92);
+    // Chọn file → preview
+    $input.on('change', function () {
+        const file = this.files[0];
+        if (file) _previewFile(file);
     });
 
-    $('#pcCropCancel').on('click', function () {
-        $('#pcCropModal').hide();
-        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-        $input.val('');
-    });
-
+    // Xoá ảnh
     $removeBtn.on('click', function (e) {
         e.stopPropagation();
         $preview.hide().attr('src', '');
         $placeholder.show();
         $removeBtn.hide();
         $input.val('');
-        originalFile = null;
         $('#pcExistingThumbnail').val('');
     });
-
-    $preview.on('click', function (e) {
-        e.stopPropagation();
-        if (!originalFile) return;
-        _openCropper(originalFile);
-    });
-
 
     /* ════════════════════════════════
        2. DANH MỤC CHA → CON

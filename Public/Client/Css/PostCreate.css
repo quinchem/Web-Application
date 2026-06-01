@@ -803,3 +803,24 @@
 .cropper-container {
     max-height: 460px;
 }
+
+/* ───────── THUMBNAIL CLICKABLE FIX ───────── */
+#pcThumbnailPreview {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.pc-thumbnail-zone {
+    cursor: pointer;
+    position: relative;
+}
+
+.pc-thumbnail-zone * {
+    pointer-events: none;
+}
+
+.pc-thumbnail-zone #pcThumbnailInput,
+.pc-thumbnail-zone #pcRemoveThumbBtn,
+#pcRemoveThumbBtn {
+    pointer-events: auto;
+}

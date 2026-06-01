@@ -61,9 +61,15 @@ $statusClass = match ($editStatus) {
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&family=Montserrat:ital,wght@0,400;0,500;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700;0,6..72,800;1,6..72,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="Public/Client/Css/PostCreate.css">
+
+<script>
+document.getElementById('pcThumbnailZone').addEventListener('click', function(e) {
+    console.log('Zone clicked, target:', e.target);
+    document.getElementById('pcThumbnailInput').click();
+});
+</script>
 
 <main id="page-post-create">
     <div class="container">
@@ -217,7 +223,7 @@ $statusClass = match ($editStatus) {
                                 name="thumbnail"
                                 id="pcThumbnailInput"
                                 accept="image/*"
-                                hidden>
+                                style="display:none">
 
                             <div class="pc-upload-placeholder" id="pcUploadPlaceholder"
                                 style="<?= !empty($editThumb) ? 'display:none;' : '' ?>">
@@ -305,21 +311,6 @@ $statusClass = match ($editStatus) {
     <span id="pcToastMsg"></span>
 </div>
 
-<!-- ══ MODAL CROP ══ -->
-<div id="pcCropModal" class="pc-modal-overlay" style="display:none;">
-    <div class="pc-modal-box" style="max-width:700px; width:95%;">
-        <div class="pc-modal-icon"><i class="fa-solid fa-crop-simple"></i></div>
-        <h3>Chọn vùng & kích thước</h3>
-        <div style="max-height:460px; overflow:hidden; margin-bottom:20px;">
-            <img id="pcCropImage" src="" alt="" style="max-width:100%; display:block;">
-        </div>
-        <div class="pc-modal-actions">
-            <button type="button" id="pcCropCancel" class="pc-btn-draft">Huỷ</button>
-            <button type="button" id="pcCropConfirm" class="pc-btn-publish">Xác nhận</button>
-        </div>
-    </div>
-</div>
-
 <!-- ══ MODAL XÁC NHẬN GỬI DUYỆT ══ -->
 <div id="pcPublishModal" class="pc-modal-overlay" style="display:none;">
     <div class="pc-modal-box">
@@ -358,7 +349,6 @@ $statusClass = match ($editStatus) {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="Public/Client/Js/PostEdit.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="Public/Client/Js/PostEdit.js?v=<?= time() ?>"></script>
 
 <?php include __DIR__ . '/../../Partials/Client/Footer.php'; ?>
