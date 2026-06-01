@@ -1,24 +1,24 @@
 document
   .getElementById("forgotForm")
-  .addEventListener("submit", function (e) {
-    e.preventDefault();
+  .addEventListener("submit", function (e) 
+  { e.preventDefault();
 
     const formData = new FormData(this);
 
-    fetch(
-      "http://localhost/Web-Application/Admin_index.php?page=handle_forgot_password",
+    fetch( "http://localhost/Web-Application/Admin_index.php?page=handle_forgot_password",
       { method: "POST", body: formData }
     )
       .then(response => response.text())
       .then(rawText => {
-        // ✅ Log raw text để debug — xem có bị lẫn SMTP output không
+
+        // Debug: Xem raw response để phát hiện nếu có output lẫn lộn
         console.log("Raw response:", rawText);
 
         let data;
         try {
           data = JSON.parse(rawText);
         } catch (parseErr) {
-          // Response bị lẫn output khác → không parse được
+          
           console.error("JSON parse failed:", parseErr);
           Swal.fire({
             icon: "error",
