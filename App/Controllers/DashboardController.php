@@ -2,9 +2,7 @@
 // App/Controllers/DashboardController.php
 
 namespace App\Controllers;
-
-require_once __DIR__ .
-'/../../Repositories/DashboardRepository.php';
+require_once __DIR__ .'/../../Repositories/DashboardRepository.php';
 
 class DashboardController
 {
@@ -12,27 +10,17 @@ class DashboardController
 
     public function __construct()
     {
-        $this->repo =
-        new \DashboardRepository();
+        $this->repo = new \DashboardRepository();
     }
 
-    // =========================
-    // VIEW DASHBOARD
-    // =========================
-
+    // Hàm hiển thị trang Dashboard
     public function index()
     {
-        $categories =
-        $this->repo->getCategories();
-
-        require_once __DIR__ .
-        '/../Views/Admin/Dashboard/Dashboard_Index.php';
+        $categories = $this->repo->getCategories();
+        require_once __DIR__ .'/../Views/Admin/Dashboard/Dashboard_Index.php';
     }
 
-    // =========================
-    // AJAX LOAD DASHBOARD
-    // =========================
-
+    // Hàm xử lý AJAX để tải dữ liệu Dashboard
     public function loadDashboardAjax()
     {
         header('Content-Type: application/json');
@@ -48,10 +36,11 @@ class DashboardController
         $category = $category ?: null;
         $author   = $author   ?: null;
 
-        // Convert DD/MM/YYYY → YYYY-MM-DD một lần duy nhất
+        // Chuyển đổi định dạng ngày từ dd/mm/yyyy sang yyyy-mm-dd
         $convertDate = function($date) {
             if (!$date) return null;
-            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) {
+            if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $date)) 
+            {
                 $parts = explode('/', $date);
                 return $parts[2] . '-' . $parts[1] . '-' . $parts[0];
             }
@@ -67,7 +56,6 @@ class DashboardController
             'status'   => $this->repo->getStatusChart($fromDate, $toDate, $category, $author),
             'topPosts' => $this->repo->getTopPosts($fromDate, $toDate, $category, $author),
         ];
-
         echo json_encode($data);
         exit();
     }
