@@ -33,8 +33,7 @@
             <p class="description">
                 Vui lòng nhập email để khôi phục mật khẩu.
             </p>
-        
-                // Form gửi yêu cầu lấy lại mật khẩu
+    
                 <form id="forgotForm">
                     <div class="form-group">
                         

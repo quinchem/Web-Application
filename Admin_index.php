@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+
 // Load biến môi trường từ file .env
 function loadEnv($filePath)
 {

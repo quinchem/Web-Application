@@ -38,7 +38,6 @@ $token = $_GET['token'] ?? '';
         </p>
 
         <form id="resetPasswordForm">
-            // TOKEN ẨN
             <input type="hidden"
                    name="token"
                    value="<?= htmlspecialchars($token) ?>">
