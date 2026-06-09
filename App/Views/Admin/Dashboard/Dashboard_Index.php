@@ -201,7 +201,6 @@ $breadcrumbs = [['label' => 'THỐNG KÊ']];
 
             <div class="dashboard-top-grid">
 
-                // TOP BÀI VIẾT NỔI BẬT
                 <div class="dashboard-card top-posts-card">
                     <div class="card-header">
                         <h3>

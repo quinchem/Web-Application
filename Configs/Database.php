@@ -32,6 +32,10 @@ class Database
                 PDO::MYSQL_ATTR_SSL_CA => dirname($_SERVER['SCRIPT_FILENAME']) . '/CA.pem'
             ]
         );
+
+        $pdo->exec("SET time_zone = '+07:00'");
+
+        return $pdo;
     } catch (PDOException $e) {
         die("Database connection failed: " . $e->getMessage());
     }
