@@ -48,8 +48,6 @@ $breadcrumbs = [['label' => 'THỐNG KÊ']];
 </head>
 
 </div> 
-
-// Các phần khác của Dashboard_Index.php
 <?php require_once __DIR__ . '/../Profile/edit.php'; ?>
 <?php require_once __DIR__ . '/../Profile/change_password.php'; ?>
 
